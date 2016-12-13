@@ -9,8 +9,12 @@
 <h:head></h:head>
 <h:body>
 
-<h:form>
-	<p:commandButton value="test" action="#{test.test}" />
-</h:form>
+	<h:form enctype="multipart/form-data">
+		<p:commandButton value="test" action="#{test.test}" />
+
+		<p:fileUpload value="#{excel.file}"
+			fileUploadListener="#{excel.charger}" fileLimit="1"
+			dragDropSupport="1" mode="advanced" auto="true" />
+	</h:form>
 </h:body>
 </html>
