@@ -21,8 +21,8 @@ import java.util.List;
 @Table(name="issues")
 //@formatter:off
 @NamedQueries (value = {
-        @NamedQuery(name="incident.findAll", query="SELECT i FROM Incident i "),
-        @NamedQuery(name="incident.findOne", query="SELECT distinct(i) FROM Incident i "
+        @NamedQuery(name="Incident.findAll", query="SELECT i FROM Incident i "),
+        @NamedQuery(name="Incident.findByProject", query="SELECT distinct(i) FROM Incident i "
                 + "JOIN FETCH i.projet p "
                 + "JOIN FETCH i.responsable r "
                 + "JOIN FETCH i.createur c "
@@ -30,7 +30,7 @@ import java.util.List;
                 + "JOIN FETCH i.tracker t "
                 + "JOIN FETCH i.priorite prio "
                 + "JOIN FETCH i.valeurs v "
-                + "WHERE p.nom = :sujet")
+                + "WHERE p.nom = :projet")
 })
 //@formatter:on
 public class Incident implements Serializable

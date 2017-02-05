@@ -6,15 +6,25 @@
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
 	xmlns:p="http://primefaces.org/ui"
 	xmlns:f="http://java.sun.com/jsf/core">
-<h:head></h:head>
+<h:head>
+</h:head>
+
 <h:body>
-
 	<h:form enctype="multipart/form-data">
-		<p:commandButton value="test" action="#{test.test}" />
+		<h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5">
+			<p:outputLabel for="Pole" value="Pôle:" />
+			<p:selectOneMenu id="Pole" value="#{test.nom}">
+				<f:selectItem itemLabel="Select One" itemValue="" />
+				<f:selectItems value="#{test.listNomsProjets}" />
+			</p:selectOneMenu>
 
-		<p:fileUpload value="#{excel.file}"
-			fileUploadListener="#{excel.charger}" fileLimit="1"
-			dragDropSupport="1" mode="advanced" auto="true" />
+		</h:panelGrid>
+		
+		<p:commandButton value="Charger les incidents" action="#{test.chargerIncidents}"  />
+
+		<p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" fileLimit="1"	dragDropSupport="1" mode="advanced" auto="true" />
+		
 	</h:form>
 </h:body>
+
 </html>

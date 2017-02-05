@@ -3,6 +3,8 @@ package model;
 import java.io.Serializable;
 import javax.persistence.*;
 
+import utilities.Statics;
+
 import java.util.List;
 
 
@@ -14,7 +16,9 @@ import java.util.List;
 @Table(name="projects")
 //@formatter:off
 @NamedQueries (value = {
-        @NamedQuery(name="Projet.findAll", query="SELECT p FROM Projet p")
+        @NamedQuery(name="Projet.findAll", query="SELECT p FROM Projet p"),
+        @NamedQuery(name="Projet.findAllPole", query="SELECT p FROM Projet P where p.nom LIKE 'Pôle%'"),
+        @NamedQuery(name="Projet.findAllPoleNames", query="SELECT p.nom FROM Projet P where p.nom LIKE 'Pôle%'")     
 })
 //@formatter:on
 public class Projet implements Serializable
@@ -58,7 +62,7 @@ public class Projet implements Serializable
     @Override
     public String toString()
     {
-        return "Projet [id=" + id + ", identifier=" + identifier + ", nom=" + nom + ", derives=" + projetsderives + ", parent=" + projetParent + ", champs=" + champs + "]";
+        return nom + Statics.NL ;
     }
     
     /* Access */

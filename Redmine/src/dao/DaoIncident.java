@@ -13,19 +13,19 @@ public class DaoIncident extends DaoModel<Incident>
     @Override
     public List<Incident> readAll()
     {
-        return em.createNamedQuery("incident.findAll", Incident.class).getResultList();
+        return em.createNamedQuery("Incident.findAll", Incident.class).getResultList();
     }
     
     /**
      * Permet de récupérer une formation avec son intitulé
      * 
-     * @param sujet
+     * @param projet
      *            l'intitulé de la formation recherchée
      * @return la formation correspondante à cette identifiant ou null si aucune a été trouvée
      */
-    public List<Incident> findOne(String sujet)
+    public List<Incident> findByProject(String projet)
     {
-        return em.createNamedQuery("incident.findOne", Incident.class).setParameter("sujet", sujet).getResultList();
+        return em.createNamedQuery("Incident.findByProject", Incident.class).setParameter("projet", projet).getResultList();
     }
 
 }
