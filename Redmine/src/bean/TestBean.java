@@ -3,6 +3,7 @@ package bean;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -77,9 +78,21 @@ public class TestBean implements Serializable
         for (Iterator<Incident> iter = listIncidents.iterator(); iter.hasNext();) 
         {
             Incident incident = iter.next();
-
-            LocalDate dateIncident = LocalDate.parse(incident.getMapValeurs().get("Date de prise en charge").substring(0, 10), f);
-            if (dateIncident.getYear() != date.getYear() || dateIncident.getMonth() != date.getMonth()) 
+            String dateString = incident.getMapValeurs().get("Date de prise en charge");
+            if (dateString == null) 
+            {
+                iter.remove();
+                continue;
+            }
+            LocalDate dateIncident = null;
+            try 
+            {
+                dateIncident = LocalDate.parse(dateString.substring(0, 10), f);
+            }
+            catch (DateTimeParseException e) {
+                iter.remove();
+            }
+            if (dateIncident == null || dateIncident.getYear() != date.getYear() || dateIncident.getMonth() != date.getMonth())
                 iter.remove();
         }
         System.out.println(listIncidents);
