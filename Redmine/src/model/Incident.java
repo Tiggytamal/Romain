@@ -9,7 +9,9 @@ import org.eclipse.persistence.annotations.BatchFetchType;
 import utilities.Statics;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -128,10 +130,13 @@ public class Incident implements Serializable
 	
 	@OneToMany (mappedBy = "incident", targetEntity = Valeur.class, fetch = FetchType.LAZY)
 	private List<Valeur> valeurs;
+	
+	@Transient
+	private Map<String, String> mapValeurs;
 
 	/* Constructors */
-	
-	public Incident() 
+
+    public Incident() 
 	{
 	}
 	
@@ -190,6 +195,25 @@ public class Incident implements Serializable
     public int getId()
     {
         return id;
+    }
+    
+    /**
+     * Permet de remonter une HashMap des vlauers de l'incident.
+     * @return
+     */
+    public Map<String, String> getMapValeurs()
+    {
+        if(mapValeurs != null)
+            return mapValeurs;
+        else
+        {
+            mapValeurs = new HashMap<>();
+            for (Valeur valeur : valeurs) 
+            {
+                mapValeurs.put(valeur.getChamp().getName(), valeur.getValue());
+            }
+            return mapValeurs;
+        }
     }
 
     public User getResponsable()
@@ -270,5 +294,10 @@ public class Incident implements Serializable
     public List<Journal> getJournaux()
     {
         return journaux;
+    }
+
+    public List<Valeur> getValeurs()
+    {
+        return valeurs;
     }
 }

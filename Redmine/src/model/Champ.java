@@ -14,7 +14,8 @@ import javax.persistence.*;
 @Table(name="custom_fields")
 //@formatter:off
 @NamedQueries (value = {
-        @NamedQuery(name="Champ.findAll", query="SELECT c FROM Champ c JOIN FETCH c.valeurs v")
+        @NamedQuery(name="Champ.findAll", query="SELECT c FROM Champ c JOIN FETCH c.valeurs v"),
+        @NamedQuery(name="Champ.findId", query="SELECT c.id FROM Champ c WHERE c.nom = :nom")
 })
 //@formatter:on
 public class Champ implements Serializable

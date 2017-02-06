@@ -11,17 +11,16 @@
 
 <h:body>
 	<h:form enctype="multipart/form-data">
-		<h:panelGrid columns="2" style="margin-bottom:10px" cellpadding="5">
+	
+		<h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5">
 			<p:outputLabel for="Pole" value="Pôle:" />
 			<p:selectOneMenu id="Pole" value="#{test.nom}">
 				<f:selectItem itemLabel="Select One" itemValue="" />
 				<f:selectItems value="#{test.listNomsProjets}" />
 			</p:selectOneMenu>
-
+			<p:commandButton value="Charger les incidents" action="#{test.chargerIncidents}" />
 		</h:panelGrid>
 		
-		<p:commandButton value="Charger les incidents" action="#{test.chargerIncidents}"  />
-
 		<p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" fileLimit="1"	dragDropSupport="1" mode="advanced" auto="true" />
 		
 	</h:form>
