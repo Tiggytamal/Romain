@@ -18,7 +18,7 @@ import javax.persistence.*;
 })
 //@formatter:on
 
-public class User implements Serializable
+public final class User implements Serializable
 {
     /* Attributes */
     

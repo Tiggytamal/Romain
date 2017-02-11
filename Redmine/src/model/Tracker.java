@@ -1,9 +1,15 @@
 package model;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 
 /**
@@ -18,7 +24,7 @@ import javax.persistence.*;
 })
 //@formatter:on
 
-public class Tracker implements Serializable
+public final class Tracker implements Serializable
 {
     /* Attributes */
     
@@ -31,9 +37,6 @@ public class Tracker implements Serializable
 
 	@Column (name = "name", length = 30 , nullable = false)
 	private String nom;
-	
-	@OneToMany (mappedBy = "tracker", targetEntity = Incident.class, fetch = FetchType.LAZY)
-	private List<Incident> incidents;
 
 	/* Constructors */
 

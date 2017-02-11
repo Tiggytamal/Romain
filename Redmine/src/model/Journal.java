@@ -18,7 +18,7 @@ import java.util.List;
         @NamedQuery(name="Journal.findAll", query="SELECT j FROM Journal j JOIN FETCH j.details d JOIN FETCH j.createur c")
 })
 //@formatter:on
-public class Journal implements Serializable
+public final class Journal implements Serializable
 {
     /* Attributes */
 

@@ -1,9 +1,15 @@
 package model;
 
 import java.io.Serializable;
-import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 
 /**
@@ -17,7 +23,7 @@ import javax.persistence.*;
         @NamedQuery(name="Statut.findAll", query="SELECT i FROM Statut i")
 })
 //@formatter:on
-public class Statut implements Serializable
+public final class Statut implements Serializable
 {
     /* Attributes */
     
@@ -30,9 +36,6 @@ public class Statut implements Serializable
 
 	@Column (name = "name", length = 30, nullable = false)
 	private String nom;
-	
-	@OneToMany (mappedBy = "statut", targetEntity = Incident.class, fetch = FetchType.LAZY)
-	private List<Incident> incidents;
 
 	/* Constructors */
 	

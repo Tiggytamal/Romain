@@ -1,11 +1,20 @@
 package model;
 
 import java.io.Serializable;
-import javax.persistence.*;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 import utilities.Statics;
-
-import java.util.List;
 
 
 /**
@@ -21,7 +30,7 @@ import java.util.List;
         @NamedQuery(name="Projet.findAllPoleNames", query="SELECT p.nom FROM Projet P where p.nom LIKE 'Pôle%'")     
 })
 //@formatter:on
-public class Projet implements Serializable
+public final class Projet implements Serializable
 {
     /* Attributes */
     
@@ -38,19 +47,9 @@ public class Projet implements Serializable
 	@Column (name = "name")
 	private String nom;
 
-	@OneToMany (mappedBy = "projetParent", targetEntity = Projet.class, fetch = FetchType.LAZY)
-	private List<Projet> projetsderives;
-
     @ManyToOne (targetEntity = Projet.class, optional = true, fetch = FetchType.LAZY)
     @JoinColumn (name = "parent_id")
 	private Projet projetParent;
-	
-	@ManyToMany (targetEntity = Champ.class, fetch = FetchType.LAZY)
-	@JoinTable (name = "custom_fields_projects", joinColumns =@JoinColumn(name = "project_id"), inverseJoinColumns=@JoinColumn(name ="custom_field_id"))
-	private List<Champ> champs;
-	
-	@OneToMany (mappedBy = "projet", targetEntity = Incident.class, fetch = FetchType.LAZY)
-	private List<Incident> incidents;
 
 	/* Constructors */
 	
@@ -81,17 +80,6 @@ public class Projet implements Serializable
 	{
 		return nom;
 	}
-	
-	public List<Champ> getChamps()
-	{
-	    return champs;
-	}
-	
-	   
-    public List<Projet> getDerives()
-    {
-        return projetsderives;
-    }
 
     public Projet getParent()
     {

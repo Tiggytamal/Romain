@@ -15,7 +15,7 @@ import javax.persistence.*;
         @NamedQuery(name="JournalDetail.findAll", query="SELECT j FROM JournalDetail j")
 })
 //@formatter:on
-public class JournalDetail implements Serializable 
+public final class JournalDetail implements Serializable 
 {
     /* Attributes */
 

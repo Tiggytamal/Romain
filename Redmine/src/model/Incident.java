@@ -35,7 +35,7 @@ import java.util.Map;
                 + "WHERE p.nom = :projet")
 })
 //@formatter:on
-public class Incident implements Serializable
+public final class Incident implements Serializable
 {
     /* Attributes */
     
@@ -175,21 +175,18 @@ public class Incident implements Serializable
         if (dateMiseAJour != null)
         builder.append("dateMiseAJour = ").append(dateMiseAJour.toString()).append(Statics.NL);
         if (valeurs != null)
-        builder.append(listeValeurs());
+        {
+            builder.append("Valeurs : ");
+            for (Valeur valeur : valeurs) 
+            {
+                builder.append("\t").append(valeur.getChamp().getName()).append(" = ").append(valeur.getValue()).append(Statics.NL);
+            }
+            
+        }
         
         return  builder.toString();
     }
-    
-    private String listeValeurs()
-    {
-        StringBuilder builder = new StringBuilder("Valeurs \t : ");
-        for (Valeur valeur : valeurs) 
-        {
-            builder.append(valeur.getChamp().getName()).append(valeur.getValue()).append(Statics.NL);
-        }
-        
-        return builder.toString();
-    }
+
     /* Access */
 
     public int getId()
@@ -198,22 +195,25 @@ public class Incident implements Serializable
     }
     
     /**
-     * Permet de remonter une HashMap des vlauers de l'incident.
+     * Permet de remonter une HashMap des valeurs de l'incident.
      * @return
      */
     public Map<String, String> getMapValeurs()
     {
         if(mapValeurs != null)
             return mapValeurs;
-        else
-        {
-            mapValeurs = new HashMap<>();
-            for (Valeur valeur : valeurs) 
-            {
-                mapValeurs.put(valeur.getChamp().getName(), valeur.getValue());
-            }
+
+        mapValeurs = new HashMap<>();
+        if (valeurs == null || valeurs.isEmpty())
             return mapValeurs;
+            
+        for (Valeur valeur : valeurs) 
+        {
+            if (valeur.getChamp() != null )
+            mapValeurs.put(valeur.getChamp().getName(), valeur.getValue());
         }
+        return mapValeurs;
+
     }
 
     public User getResponsable()

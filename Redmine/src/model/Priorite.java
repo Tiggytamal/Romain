@@ -18,7 +18,7 @@ import javax.persistence.*;
 })
 //@formatter:on
 
-public class Priorite implements Serializable
+public final class Priorite implements Serializable
 {
     /* Attributes */
 
@@ -33,6 +33,7 @@ public class Priorite implements Serializable
 
 	@OneToMany (mappedBy = "priorite", targetEntity = Incident.class, fetch = FetchType.LAZY)
 	List<Incident> incidents;
+	
     /* Constructors */
 	
 	public Priorite() 

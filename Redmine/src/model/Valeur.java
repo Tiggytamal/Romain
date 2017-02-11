@@ -15,7 +15,7 @@ import javax.persistence.*;
         @NamedQuery(name="Valeur.findAll", query="SELECT c FROM Valeur c JOIN FETCH c.champ ch")
 })
 //@formatter:on
-public class Valeur implements Serializable
+public final class Valeur implements Serializable
 {
     /* Attributes */
     

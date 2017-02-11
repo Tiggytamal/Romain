@@ -8,6 +8,6 @@ package utilities;
  */
 public class Statics
 {
-    /** Valeur pour le séparateur de ligne dépendant du système */
+    /** Valeur pour le séparateur de ligne indépendant du système */
     public static final String NL = System.getProperty("line.separator");
 }

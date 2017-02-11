@@ -10,44 +10,50 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 
 import dao.DaoChamp;
 import dao.DaoIncident;
 import dao.DaoProjet;
 import model.Incident;
-import model.Valeur;
 
 @ManagedBean (name = "test")
 @RequestScoped
 public class TestBean implements Serializable
 {
-    /* Attributes */
+    /* ---------- ATTIBUTES ---------- */
 
     private static final long serialVersionUID = 1L;
+    
+    // Session Bean
+    @ManagedProperty (value = "#{list}")
+    private ListBean listBean;
 
     /** Doa de la classe Incident */
     @EJB
-    private DaoIncident       daoi;
+    private DaoIncident daoi;
 
     /** Dao de la classe Projet */
     @EJB
-    private DaoProjet         daop;
+    private DaoProjet daop;
 
     /** Dao de la classe Champ */
     @EJB
-    private DaoChamp          daoc;
+    private DaoChamp daoc;
 
     /** Liste des noms Pôles à afficher */
-    private List<String>      listNomsProjets;
+    private List<String> listNomsProjets;
 
     /** nom du pôle sélectionné */
-    private String            nom;
+    private String nom;
 
     /** Liste des incidents */
-    private List<Incident>    listIncidents;
+    private List<Incident> listIncidents;
+    
+    /* ---------- CONSTUCTORS ---------- */
 
-    /* Methods */
+    /* ---------- METHODS ---------- */
 
     @PostConstruct
     private void postConstruct()
@@ -57,11 +63,18 @@ public class TestBean implements Serializable
 
     public String chargerIncidents()
     {
-        if (nom != null) {
+        if (nom == null)
+            return "";
+        
+        if (nom.equals("all"))
+            listIncidents = daoi.readAll();
+        else
             listIncidents = daoi.findByProject(nom);
-            System.out.println(listIncidents.size());
-            triageIncident();
-        }
+        
+        listBean.setListIncidents(listIncidents);
+        
+        System.out.println(listIncidents.size());
+        triageIncident();
 
         return "";
     }
@@ -75,30 +88,38 @@ public class TestBean implements Serializable
         LocalDate date = LocalDate.now();
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        for (Iterator<Incident> iter = listIncidents.iterator(); iter.hasNext();) 
+        for (Iterator<Incident> iter = listIncidents.iterator(); iter.hasNext();)
         {
             Incident incident = iter.next();
             String dateString = incident.getMapValeurs().get("Date de prise en charge");
-            if (dateString == null) 
+            if (dateString == null)
             {
                 iter.remove();
                 continue;
             }
             LocalDate dateIncident = null;
-            try 
+            try
             {
                 dateIncident = LocalDate.parse(dateString.substring(0, 10), f);
             }
-            catch (DateTimeParseException e) {
+            catch (DateTimeParseException e)
+            {
                 iter.remove();
+                continue;
+            }
+            catch (StringIndexOutOfBoundsException e)
+            {
+                System.out.println(dateString);
+                iter.remove();
+                continue;
             }
             if (dateIncident == null || dateIncident.getYear() != date.getYear() || dateIncident.getMonth() != date.getMonth())
                 iter.remove();
         }
-        System.out.println(listIncidents);
+        System.out.println(listIncidents.size());
     }
 
-    /* Access */
+    /* ---------- ACCESS ---------- */
 
     /**
      * @return the listProjets
@@ -132,5 +153,21 @@ public class TestBean implements Serializable
     public void setListNomsProjets(List<String> listNomsProjets)
     {
         this.listNomsProjets = listNomsProjets;
+    }
+    
+    /**
+     * @return the listBean
+     */
+    public ListBean getListBean()
+    {
+        return listBean;
+    }
+
+    /**
+     * @param listBean the listBean to set
+     */
+    public void setListBean(ListBean listBean)
+    {
+        this.listBean = listBean;
     }
 }

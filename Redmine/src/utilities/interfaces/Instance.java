@@ -1,5 +1,11 @@
 package utilities.interfaces;
 
+/**
+ * Interface d'instanciation des objets d'une classe
+ * 
+ * @author Tiggy Tamal
+ * @since 1.0
+ */
 public interface Instance
 {
 /**

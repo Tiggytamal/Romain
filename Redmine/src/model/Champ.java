@@ -18,7 +18,7 @@ import javax.persistence.*;
         @NamedQuery(name="Champ.findId", query="SELECT c.id FROM Champ c WHERE c.nom = :nom")
 })
 //@formatter:on
-public class Champ implements Serializable
+public final class Champ implements Serializable
 {
 
 	/* Attributes */
