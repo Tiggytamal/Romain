@@ -18,22 +18,25 @@ public class ListBean implements Serializable, Instance
     
     private static final long serialVersionUID = 1L;
     
+    /** liste des incidents */
     private List<Incident> listIncidents;
+    
+    /* ---------- CONSTUCTORS ---------- */
 
     public ListBean()
     {
         instanciation();
     }
 
-    /* ---------- CONSTUCTORS ---------- */
-    
+    /* ---------- METHODS ---------- */
+   
     @Override
     public void instanciation()
     {
         listIncidents = new ArrayList<>();
     }
 
-    /* ---------- METHODS ---------- */
+
     
     
     /* ---------- ACCESS ---------- */
@@ -53,6 +56,4 @@ public class ListBean implements Serializable, Instance
     {
         this.listIncidents = listIncidents;
     }
-
-
 }
