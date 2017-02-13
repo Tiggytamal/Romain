@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,9 +20,6 @@ import javax.faces.bean.SessionScoped;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -32,7 +28,6 @@ import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
-import jersey.repackaged.com.google.common.collect.Lists;
 import model.Incident;
 import utilities.Champs;
 import utilities.interfaces.Instance;
@@ -63,6 +58,8 @@ public class ExcelBean implements Serializable, Instance
     private Workbook wbOut;
     /** liste des incidents triés */
     private List<Incident> listIncidents;
+    /** Récupération de la date du jour */
+    private final LocalDate date = LocalDate.now();
     
     /* ---------- CONSTUCTORS ---------- */
     
@@ -96,6 +93,7 @@ public class ExcelBean implements Serializable, Instance
         wbIn = WorkbookFactory.create(file.getInputstream());
         wbOut = WorkbookFactory.create(file.getInputstream());
 
+        workbook(wbIn, wbOut);
         File newFile = new File("/ressources/test.xls");
         //Sauvegarde du premier fichier sur C
         wbIn.write(new FileOutputStream(newFile.getName()));
@@ -105,25 +103,21 @@ public class ExcelBean implements Serializable, Instance
 
     }
     
-    public void workbook()
+    private void workbook(Workbook wbIn, Workbook wbOut)
     {
         int nbreDuMois = incidentsDuMois();
         int nbreResolved = incidentsResolved();
-        
-        
-        Workbook wb = new HSSFWorkbook();
-        CreationHelper createHelper = wb.getCreationHelper();
-        Sheet sheet1 = wb.createSheet("new sheet");
-        Row row = sheet1.createRow((short)0);
-        Cell cell = row.createCell(0);
-        row.createCell(3).setCellValue(true);
+        int closDuMois = incidentClosDumois();
+        System.out.println(nbreDuMois + " - " + nbreResolved + " - " + closDuMois);
+        Sheet sheet = wbIn.getSheet("Avancement");
+        Sheet sheet2 = wbOut.getSheet("Avancement");
+        sheet.getActiveCell();
+        sheet2.getClass();
 
     }
     
     private int incidentsDuMois()
     {
-        // Récupération de la date du jour
-        LocalDate date = LocalDate.now();
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         //Copie de la liste d'incidents
@@ -186,13 +180,11 @@ public class ExcelBean implements Serializable, Instance
         for (Iterator<Incident> iter = list.iterator(); iter.hasNext();)
         {
             Incident incident = iter.next();
-            if (!Champs.CLOSED.equals(incident.getStatut().getNom()))
+            LocalDate dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
+            if (!Champs.CLOSED.equals(incident.getStatut().getNom()) && dateCloture.getYear() != date.getYear() && dateCloture.getMonth() != date.getMonth())
             {
                 iter.remove();
-                continue;
-            }
-            
-            
+            }            
         }
         
         return list.size();
