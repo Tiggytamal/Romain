@@ -20,6 +20,9 @@ import javax.faces.bean.SessionScoped;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -30,6 +33,7 @@ import org.primefaces.model.UploadedFile;
 
 import model.Incident;
 import utilities.Champs;
+import utilities.Statics;
 import utilities.interfaces.Instance;
 
 
@@ -110,9 +114,31 @@ public class ExcelBean implements Serializable, Instance
         int closDuMois = incidentClosDumois();
         System.out.println(nbreDuMois + " - " + nbreResolved + " - " + closDuMois);
         Sheet sheet = wbIn.getSheet("Avancement");
-        Sheet sheet2 = wbOut.getSheet("Avancement");
+        LocalDate _1900 = LocalDate.of(1900, 1, 1);
+        LocalDate _1901 = LocalDate.of(2015, 1, 1);
+        long nbreJours = _1901.toEpochDay() - _1900.toEpochDay();
+        System.out.println(nbreJours);
+        Row mois;
+        
+        for (Row row : sheet)
+        {
+            for (Cell cell : row)
+            {
+                if (CellType.NUMERIC.equals(cell.getCellTypeEnum()))
+                {
+                    if (cell.getNumericCellValue() > 40000)
+                    {
+                        LocalDate date = LocalDate.ofEpochDay((long) cell.getNumericCellValue()).minusYears(70);
+                        if (Statics.TODAY.getMonth().equals(date.getMonth()) && Statics.TODAY.getYear() == date.getYear())
+                        {
+                            mois = cell.getRow();
+                        }
+                            
+                    }
+                }                  
+            }
+        }
         sheet.getActiveCell();
-        sheet2.getClass();
 
     }
     

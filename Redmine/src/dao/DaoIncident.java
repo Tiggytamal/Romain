@@ -3,6 +3,9 @@ package dao;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.persistence.TypedQuery;
+
+import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
 
 import model.Incident;
 
@@ -26,7 +29,13 @@ public class DaoIncident extends DaoModel<Incident>
     public List<Incident> findByProject(String projet)
     {
         em.clear();
-        return em.createNamedQuery("Incident.findByProject", Incident.class).setParameter("projet", projet).getResultList();
+        TypedQuery<Incident> query = em.createNamedQuery("Incident.findByProject", Incident.class).setParameter("projet", projet);
+        System.out.println(query.unwrap(EJBQueryImpl.class).getDatabaseQuery().getSQLString());
+        long a = System.currentTimeMillis();
+        List<Incident> list = query.getResultList();
+        long b = System.currentTimeMillis();
+        System.out.println("Temps de la requête: " + (b-a)/1000);
+        return list;
     }
 
 }

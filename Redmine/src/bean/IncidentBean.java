@@ -1,15 +1,8 @@
 package bean;
 
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -24,7 +17,6 @@ import dao.DaoIncident;
 import dao.DaoProjet;
 import model.Incident;
 import utilities.Champs;
-import utilities.DateConvert;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
 
@@ -66,6 +58,8 @@ public class IncidentBean implements Serializable, Instance
     private List<String> listApplications;
     /** Liste des applications choisies */
     private List<String> applicationschoisies;
+    /** liste des incidents des applications selectionnées */
+    private List<Incident> listincidentsTries;
     
     /* ---------- CONSTUCTORS ---------- */
 
@@ -84,6 +78,7 @@ public class IncidentBean implements Serializable, Instance
        listIncidents = new ArrayList<>();
        listApplications = new ArrayList<>();
        applicationschoisies = new ArrayList<>();
+       listincidentsTries = new ArrayList<>();
     }
 
     @PostConstruct
@@ -145,16 +140,17 @@ public class IncidentBean implements Serializable, Instance
             Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Vous devez choisir au moins une application");
             return "";
         }
-        for (Iterator<Incident> iter = listIncidents.iterator(); iter.hasNext();)
+        for (Incident incident : listIncidents)
         {
-            if (!applicationschoisies.contains(iter.next().getMapValeurs().get(Champs.APPLICATION.toString())) )
+            if (applicationschoisies.contains(incident.getMapValeurs().get(Champs.APPLICATION.toString())) )
             {
-                iter.remove();
+                listincidentsTries.add(incident);
             }
         }
         
         // Renvoie au Bean de session la liste des incidents des applications choisies.
-        listBean.setListIncidents(listIncidents);
+        listBean.setListIncidents(listincidentsTries);
+        System.out.println("taille incidents triés:" + listincidentsTries.size());
         return "";
     }
 

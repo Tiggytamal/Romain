@@ -12,4 +12,7 @@ public class Statics
 {
     /** Valeur pour le séparateur de ligne indépendant du système */
     public static final String NL = System.getProperty("line.separator");   
+    /** Date du jour */
+    public static final LocalDate TODAY = LocalDate.now();
+
 }
