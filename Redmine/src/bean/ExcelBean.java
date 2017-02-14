@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -32,8 +29,9 @@ import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
 import model.Incident;
-import utilities.Champs;
+import utilities.Champ;
 import utilities.Statics;
+import utilities.Status;
 import utilities.interfaces.Instance;
 
 
@@ -63,7 +61,14 @@ public class ExcelBean implements Serializable, Instance
     /** liste des incidents triés */
     private List<Incident> listIncidents;
     /** Récupération de la date du jour */
-    private final LocalDate date = LocalDate.now();
+    private final LocalDate dateDuJour = LocalDate.now();
+    
+    /** index pour les incidents ENCOURS. valeur 0 */
+    private final int ENCOURS = 0;
+    /** index pour les incidents RESOLVED. valeur1 */
+    private final int RESOLVED = 1;
+    /** index pour les incidents CLOSED. valeur 2 */
+    private final int CLOSED = 2;
     
     /* ---------- CONSTUCTORS ---------- */
     
@@ -109,18 +114,30 @@ public class ExcelBean implements Serializable, Instance
     
     private void workbook(Workbook wbIn, Workbook wbOut)
     {
-        int nbreDuMois = incidentsDuMois();
-        int nbreResolved = incidentsResolved();
-        int closDuMois = incidentClosDumois();
-        System.out.println(nbreDuMois + " - " + nbreResolved + " - " + closDuMois);
-        Sheet sheet = wbIn.getSheet("Avancement");
+        
+        /* ------ Intialisation des variables ----- */
+        
+        // Index des cellules
+        int moisEnCours = 0, indexEntrants = 0, indexClos = 0, indexTransferes = 0, indexenCours = 0;
+        // Valorisation des dates
         LocalDate _1900 = LocalDate.of(1900, 1, 1);
         LocalDate _1901 = LocalDate.of(2015, 1, 1);
         long nbreJours = _1901.toEpochDay() - _1900.toEpochDay();
-        System.out.println(nbreJours);
-        Row mois;
+        // Création des feuilles de classeur
+        Sheet sheetAvancement = wbIn.getSheet(Statics.sheetAvancement);
+        Sheet sheetSM9 = wbIn.getSheet(Statics.sheetStockSM9);
         
-        for (Row row : sheet)
+        // Calcul du nombre d'incidents
+        int nbreDuMois = calculNbreIncidents()[ENCOURS];
+        int nbreResolved = calculNbreIncidents()[RESOLVED];
+        int closDuMois = calculNbreIncidents()[CLOSED];
+        
+        // Printing
+        System.out.println(nbreDuMois + " - " + nbreResolved + " - " + closDuMois);
+        System.out.println(nbreJours);
+        
+        Row :
+        for (Row row : sheetAvancement)
         {
             for (Cell cell : row)
             {
@@ -131,90 +148,69 @@ public class ExcelBean implements Serializable, Instance
                         LocalDate date = LocalDate.ofEpochDay((long) cell.getNumericCellValue()).minusYears(70);
                         if (Statics.TODAY.getMonth().equals(date.getMonth()) && Statics.TODAY.getYear() == date.getYear())
                         {
-                            mois = cell.getRow();
-                        }
-                            
+                            moisEnCours = cell.getRow().getRowNum();
+                            break Row;
+                        }                           
                     }
                 }                  
             }
         }
-        sheet.getActiveCell();
+        sheetAvancement.getActiveCell();
 
     }
     
-    private int incidentsDuMois()
+    /**
+     * Méthode de calcul du nombre d'incidents arrivés le mois en cours
+     * @return
+     *          le nombre d'incidents
+     */
+    private int[] calculNbreIncidents()
     {
+        // formatteur de date
         DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        //Copie de la liste d'incidents
-        List<Incident> list = new ArrayList<>();
-        list.addAll(listIncidents);
+        // variables locales
+        LocalDate dateIncident = null;
+        LocalDate dateCloture = null;
+        String dateString = null;
+        String da = null;
+        int totalEnCours = 0;
+        int totalResolved = 0;
+        int totalClosed = 0;
+        int[] retour = new int[3];
         
-        for (Iterator<Incident> iter = list.iterator(); iter.hasNext();)
+        // Itération sur les incidents
+        for (Incident incident : listIncidents)
         {
-            Incident incident = iter.next();
-            String dateString = incident.getMapValeurs().get(Champs.DATEPRISENCHARGE.toString());
-            if (dateString == null)
-            {
-                iter.remove();
-                continue;
-            }
-            LocalDate dateIncident = null;
-            try
+            dateString = incident.getMapValeurs().get(Champ.DATEPRISENCHARGE.toString());
+            da = incident.getMapValeurs().get(Champ.DA.toString());
+            // Elimination des incidents qui ont une date mal formatée ou un n° de DA à abandon.
+            if (dateString != null && dateString.length() > 9 && !Statics.ABANDON.equalsIgnoreCase(da))
             {
                 dateIncident = LocalDate.parse(dateString.substring(0, 10), f);
-            }
-            catch (DateTimeParseException e)
-            {
-                iter.remove();
-                continue;
-            }
-            catch (StringIndexOutOfBoundsException e)
-            {
-                System.out.println(dateString);
-                iter.remove();
-                continue;
-            }
-            if (dateIncident == null || dateIncident.getYear() != date.getYear() || dateIncident.getMonth() != date.getMonth())
-                iter.remove();
+                // On ne garde que les incidents arrivés le mois en cours
+                if (dateIncident != null && dateIncident.getYear() == dateDuJour.getYear() && dateIncident.getMonth().equals(dateDuJour.getMonth()))
+                    totalEnCours++;
+                
+                // Incrémentation des incidents resolved
+                if (Status.RESOLVED.equals(incident.getStatut().getNom()))
+                    totalResolved++;
+                
+                //incrémentation des incidents clos
+                if(incident.getDateCloture() != null)
+                {
+                    dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
+                    if (Status.CLOSED.equals(incident.getStatut().getNom()) && dateCloture.getYear() == dateDuJour.getYear() && dateCloture.getMonth().equals(dateDuJour.getMonth()))
+                        totalClosed++; 
+                }
+            }           
         }
-        return list.size();
-    }
-    
-    private int incidentsResolved()
-    {
-        //Copie de la liste d'incidents
-        List<Incident> list = new ArrayList<>();
-        list.addAll(listIncidents);
-        
-        for (Iterator<Incident> iter = list.iterator(); iter.hasNext();)
-        {
-            if (!Champs.RESOLVED.equals(iter.next().getStatut().getNom()))
-            {
-                iter.remove();
-            }
-        }
-        return list.size();
+        // 
+        retour[ENCOURS] = totalEnCours;
+        retour[RESOLVED] = totalResolved;
+        retour[CLOSED] = totalClosed;
+        return retour;
     }
 
-    private int incidentClosDumois()
-    {
-        //Copie de la liste d'incidents
-        List<Incident> list = new ArrayList<>();
-        list.addAll(listIncidents);
-        
-        for (Iterator<Incident> iter = list.iterator(); iter.hasNext();)
-        {
-            Incident incident = iter.next();
-            LocalDate dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
-            if (!Champs.CLOSED.equals(incident.getStatut().getNom()) && dateCloture.getYear() != date.getYear() && dateCloture.getMonth() != date.getMonth())
-            {
-                iter.remove();
-            }            
-        }
-        
-        return list.size();
-    }
     /* ---------- ACCESS ---------- */
     
     /**
@@ -256,4 +252,5 @@ public class ExcelBean implements Serializable, Instance
     {
         this.listBean = listBean;
     }
+
 }

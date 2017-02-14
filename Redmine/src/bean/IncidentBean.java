@@ -16,7 +16,7 @@ import dao.DaoChamp;
 import dao.DaoIncident;
 import dao.DaoProjet;
 import model.Incident;
-import utilities.Champs;
+import utilities.Champ;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
 
@@ -116,7 +116,7 @@ public class IncidentBean implements Serializable, Instance
         for (Incident incident : listIncidents)
         {
             // Récupération du champ correspondant à l'application de l'incident
-            String appli = incident.getMapValeurs().get(Champs.APPLICATION.toString());
+            String appli = incident.getMapValeurs().get(Champ.APPLICATION.toString());
             
             if (appli != null && !listApplications.contains(appli))
             {
@@ -142,7 +142,7 @@ public class IncidentBean implements Serializable, Instance
         }
         for (Incident incident : listIncidents)
         {
-            if (applicationschoisies.contains(incident.getMapValeurs().get(Champs.APPLICATION.toString())) )
+            if (applicationschoisies.contains(incident.getMapValeurs().get(Champ.APPLICATION.toString())) )
             {
                 listincidentsTries.add(incident);
             }

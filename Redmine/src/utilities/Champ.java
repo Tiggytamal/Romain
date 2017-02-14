@@ -1,20 +1,15 @@
 package utilities;
 
-public enum Champs
+public enum Champ
 {
+    NONTMA("Non traité par TMA"),
     APPLICATION("Application"),
     DATEPRISENCHARGE("Date de prise en charge"),
-    RESOLVED("Resolved"),
-    NOUVEAU("Nouveau / Open"),
-    WRKINPRG("Work In Progress"),
-    CLOSED("Closed"),
-    TRANSFERED("Transfered"),
-    REFERRED("Referred"),
-    NONTMA("Non traité par TMA");
-
+    DA("n° de DA");
+    
     private final String string;
 
-    private Champs(String string)
+    private Champ(String string)
     {
         this.string = string;
     }
