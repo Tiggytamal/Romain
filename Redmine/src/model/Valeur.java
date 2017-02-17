@@ -55,7 +55,7 @@ public final class Valeur implements Serializable
 	@Transient
 	private model.enums.Champ champ;
 	
-    /* Constructors */
+    /* --------- Constructors ---------- */
 
 	public Valeur() 
 	{

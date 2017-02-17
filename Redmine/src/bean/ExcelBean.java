@@ -65,38 +65,22 @@ public class ExcelBean implements Serializable, Instance
 	private Workbook wbOut;
 	/** liste des incidents triés */
 	private List<Incident> listIncidents;
-	/** Récupération de la date du jour */
-	private final LocalDate dateDuJour = LocalDate.now();
 
-	/** Nom de la colonne de l'objectif des incidents à atteindre */
-	private final String OBJECTIF = "NbincidentsObjectif";
-	/** Nom de la colonne des incidents entrants */
-	private final String ENTRANTS = "NbincidentsEntrants";
-	/** Nom de la colonne des incidents clos */
-	private final String CLOS = "NbincidentsClos";
-	/** Nom de la colonne des incidents resoled */
-	private final String RESOLVED = "NbincidentsResolved";
-	/** Nom de la colonne des incidents transfered */
-	private final String TRANSFERED = "NbincidentsTransférés";
-	/** Nom de la colonne des incidents en cours */
-	private final String ENCOURS = "NbincidentsEnCours";
-	/** Nom de la colonne du nombre d'incidents à traiter */
-	private final String CIBLE = "Nbd'inc.àtraiterpouratteindrelacible";
-	/** Nom de la colonne de l'avancement */
-	private final String AVANCEMENT = "Avancement";
-	/** Identifiant du calcul des incidents pending */
-	private final String PENDING = "NbincidentsPending";
-	/** Identifiant du calcul des problèmes resolved */
-	private final String PROBSRESOLVED = "NbprobsResolved";
-	/** Identifiant du calcul des problèmes en cours */
-	private final String PROBSENCOURS = "NbproblèmesEnCours";
-	/** Identifiant de la liste des incidents à traiter */
-	private final String LISTINCS = "Listeincidents";
-	/** Identifiant des la liste des incidents transférés */
-	private final String LISTINCSTRANS = "ListeIncidentsTransferes";
+	/** Noms des colonnes de la page Avancement */
+	private final static String OBJECTIF = "NbincidentsObjectif", ENTRANTS = "NbincidentsEntrants", CLOS = "NbincidentsClos", RESOLVED = "NbincidentsResolved", 
+			TRANSFERED = "NbincidentsTransférés", ENCOURS = "NbincidentsEnCours", CIBLE = "Nbd'inc.àtraiterpouratteindrelacible", AVANCEMENT = "Avancement";
+	
+	/** Identifiants pour les calculs des incidents */
+	private final static String PENDING = "NbincidentsPending", PROBSRESOLVED = "NbprobsResolved", PROBSENCOURS = "NbproblèmesEnCours",
+			LISTINCS = "Listeincidents", LISTINCSTRANS = "ListeIncidentsTransferes";	
+	
+	/** Noms des colonnes de la page du stock SM9 */
+	private final static String SM9NUMERO = "N° d'incident", SM9TRACKER = "Tracker", SM9APP = "Application", SM9BANQUE = "Banque", 
+	SM9ENVIRO = "Environnement", SM9PRIORITE = "Priorité", SM9SUJET = "Sujet", SM9ASSIGNE = "Assigné à", SM9STATUT = "Statut de l'incident", 
+	SM9OUV = "Date d'ouverture", SM9PRISEENCHARGE ="Date de prise en charge", SM9RESOLUTION = "Date de résolution", SM9REOUV = "Ré-ouverture";
 
 	/** index de la colonne avec les mois de l'annèe */
-	private final int INDEXCOLMOIS = 1;
+	private final static int INDEXCOLMOIS = 1;
 
 	/* ---------- CONSTUCTORS ---------- */
 
@@ -118,7 +102,6 @@ public class ExcelBean implements Serializable, Instance
 	{
 		wbIn = new HSSFWorkbook();
 		wbOut = new HSSFWorkbook();
-
 	}
 
 	public void charger(FileUploadEvent event) throws IOException, EncryptedDocumentException, InvalidFormatException
@@ -130,7 +113,12 @@ public class ExcelBean implements Serializable, Instance
 		wbIn = WorkbookFactory.create(file.getInputstream());
 		wbOut = WorkbookFactory.create(file.getInputstream());
 
-		workbook(wbIn, wbOut);
+		// Traitement de la page d'avancement
+		List<Incident> incidentsATraiter = avancement(wbIn, wbOut);
+		
+		// Traitement de la page SM9
+		
+		sm9(incidentsATraiter, wbIn, wbOut);
 		File newFile = new File("/ressources/test.xls");
 		// Sauvegarde du premier fichier sur C
 		wbIn.write(new FileOutputStream(newFile.getName()));
@@ -139,43 +127,33 @@ public class ExcelBean implements Serializable, Instance
 
 	}
 
-
-	private void workbook(Workbook wbIn, Workbook wbOut)
+	/**
+	 * Mise à jour de la feuille d'avancement des incidents
+	 * @param wbIn
+	 * @param wbOut
+	 * @return
+	 */
+	private List<Incident> avancement (Workbook wbIn, Workbook wbOut)
 	{
 
 		/* ------ Intialisation des variables ----- */
 
 		// Index des cellules
-		int moisEnCours = 0, iEntrants = 0, iResolved = 0, iClos = 0, iTransferes = 0,
-		        iEnCours = 0, iLignesNomsColonnes = 0, iCible = 0, iAvancement = 0, iObjectif = 0, compteIndex = 0;
+		int moisEnCours = 0, iEntrants = 0, iResolved = 0, iClos = 0, iTransferes = 0, iEnCours = 0, iCible = 0, iAvancement = 0, iObjectif = 0, compteIndex = 0;
 
-		// Valorisation des dates
-		LocalDate _1900 = LocalDate.of(1900, 1, 1);
-		LocalDate _2015 = LocalDate.of(2015, 1, 1);
-		long nbreJours = _2015.toEpochDay() - _1900.toEpochDay();
 
 		// Création des feuilles de classeur
 		Sheet sheetAvancementIn = wbIn.getSheet(Statics.sheetAvancement);
-		Sheet sheetSM9In = wbIn.getSheet(Statics.sheetStockSM9);
 		Sheet sheetAvancementOut = wbOut.getSheet(Statics.sheetAvancement);
-		Sheet sheetSM9Out = wbOut.getSheet(Statics.sheetStockSM9);
 
 		/* ------ Calcul des variables ------ */
 
-		// Récupération des valeurs
-		HashMap<String, Object> retourCalcul = calculNbreIncidents();
-		int nbreDuMois = (int) retourCalcul.get(ENTRANTS);
-		int nbreResolved = (int) retourCalcul.get(RESOLVED);
-		int closDuMois = (int) retourCalcul.get(CLOS);
-		List<Incident> incsEncours =(List<Incident>) retourCalcul.get(LISTINCS);
-
 		// Calcul des index des lignes
 		Integer[] retourIndex = recupIndexLignes(sheetAvancementIn);
-		iLignesNomsColonnes = retourIndex[0];
 		moisEnCours = retourIndex[1];
 
-		// Récupération des indes des colonnes
-		for (Cell cell : sheetAvancementIn.getRow(iLignesNomsColonnes))
+		// Récupération des index des colonnes
+		for (Cell cell : sheetAvancementIn.getRow(retourIndex[0]))
 		{
 			if (CellType.STRING == cell.getCellTypeEnum())
 			{
@@ -231,23 +209,129 @@ public class ExcelBean implements Serializable, Instance
 
 		// récupération de la ligne excel à mettre à jour
 		Row row = sheetAvancementOut.getRow(moisEnCours);
+		
+		// Calcul du nombre d'incident
+		HashMap<String, Object> retourCalcul = calculNbreIncidents();
+		
 		// Mise à jour des cellules
-		row.getCell(iEntrants).setCellValue(nbreDuMois);
-		row.getCell(iClos).setCellValue(closDuMois);
-		row.getCell(iResolved).setCellValue(nbreResolved);
+		row.getCell(iEntrants).setCellValue((int) retourCalcul.get(ENTRANTS));
+		row.getCell(iClos).setCellValue((int) retourCalcul.get(CLOS));
+		row.getCell(iResolved).setCellValue( (int) retourCalcul.get(RESOLVED));
 		row.getCell(iTransferes).setCellValue(cellTransfere(retourCalcul));
+		
 		// Mise à jour de la cellule des incidents en cours
 		Cell cellEncours = row.getCell(iEnCours);
 		CellStyle style = wbOut.createCellStyle();
 		style.setWrapText(true);
 		cellEncours.setCellStyle(style);
 		cellEncours.setCellValue(cellEnCours(retourCalcul));
+		
 		// Mise à jour de la cellule du nombre d'incidents cible
 		Cell cellCible = row.getCell(iCible);
 		cellCible.setCellFormula("IF(" + iClos + moisEnCours +">" + iObjectif + moisEnCours +  ";0;" + iObjectif + moisEnCours + "-" + iClos + moisEnCours + ")");
 		Cell cellAvanc = row.getCell(iAvancement);
 		cellAvanc.setCellFormula("IF(" + iObjectif + moisEnCours + "<>0;" + iClos + moisEnCours + "/" + iObjectif + moisEnCours + ";0");		
+	
+		// Renvoie la liste des incidents à traiter
+		@SuppressWarnings("unchecked")
+		List<Incident> retour = (List<Incident>) retourCalcul.get(LISTINCS);
+		
+		return retour;
 	}
+	
+	private void sm9(List<Incident> list, Workbook wbIn, Workbook wbOut)
+	{
+		// Création des feuilles de classeur
+		Sheet sheetSM9In = wbIn.getSheet(Statics.sheetStockSM9);
+		Sheet sheetSM9Out = wbOut.getSheet(Statics.sheetStockSM9);
+		
+		//ints
+		int iNumero = 0, itracker = 0, iApplication = 0,  iBanque = 0, iEnvironnement = 0, iPriorite = 0, iSujet = 0, iAssigne = 0,
+				iStatut = 0, iDateOuv = 0, idatePrisEnCharge = 0, iDateReso = 0, iReouv = 0, iLigne1 = 0, totalIndex = 0;
+		
+		// Récupération des indices de la page
+		for (Row row : sheetSM9In)
+		{
+			for (Cell cell : row)
+			{
+				if(cell.getCellTypeEnum() == CellType.STRING)
+				{
+					switch (cell.getStringCellValue())
+					{
+						case SM9NUMERO :
+							iLigne1 = cell.getRowIndex() + 1;
+							iNumero = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9TRACKER :
+							itracker = cell.getColumnIndex();							
+							totalIndex++;
+							break;
+							
+						case SM9APP :
+							iApplication = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9BANQUE :
+							iBanque = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9ENVIRO :
+							iEnvironnement = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9PRIORITE :
+							iPriorite = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9SUJET :
+							iSujet = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9ASSIGNE :
+							iAssigne = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9STATUT :
+							iStatut = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9OUV :
+							iDateOuv = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9PRISEENCHARGE :
+							idatePrisEnCharge = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9RESOLUTION :
+							iDateReso = cell.getColumnIndex();
+							totalIndex++;
+							break;
+							
+						case SM9REOUV :
+							iReouv = cell.getColumnIndex();
+							totalIndex++;
+							break;							
+					}
+				}
+			}
+			if (totalIndex == 13)
+				break;
+		}
+		
+	}
+	
 	
 	/**
 	 * Calcul de la cellule d'affichage des incidents transférés.
@@ -256,7 +340,6 @@ public class ExcelBean implements Serializable, Instance
 	 * @param listIncidents
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private String cellTransfere(HashMap<String, Object> map)
 	{
 		// Création du StringBuilder
@@ -266,7 +349,10 @@ public class ExcelBean implements Serializable, Instance
 		retour.append(map.get(TRANSFERED)).append("\n");
 		
 		//Itération de la liste des incidents transférés
-		for (Incident incident : (List<Incident>) map.get(LISTINCSTRANS))
+		
+		@SuppressWarnings("unchecked")
+		List<Incident> list = (List<Incident>) map.get(LISTINCSTRANS);
+		for (Incident incident : list)
 		{
 			// Ajout du numéro de l'incident et du groupe de transfert
 			retour.append(incident.getMapValeurs().get(Champ.NUMERO)).append(" - ").append(incident.getMapValeurs().get(Champ.GRTRANSFERT)).append("\n");
@@ -303,8 +389,7 @@ public class ExcelBean implements Serializable, Instance
 	}
 
 	/**
-	 * Permet de calculer les indes des lignes pour la mise à jour de la feuille
-	 * excel
+	 * Permet de calculer les indes des lignes pour la mise à jour de la feuille excel
 	 * 
 	 * @param sheet
 	 * @return
@@ -437,7 +522,7 @@ public class ExcelBean implements Serializable, Instance
 			{
 				dateTransfert = LocalDate.parse(dateTransfertString.substring(0, 10), f);
 
-				if (dateTransfert.getYear() == dateDuJour.getYear() && dateTransfert.getMonth().equals(dateDuJour.getMonth()))
+				if (dateTransfert.getYear() == Statics.TODAY.getYear() && dateTransfert.getMonth().equals(Statics.TODAY.getMonth()))
 				{
 					totalTransfered++;
 					incsTransferes.add(incident);
@@ -450,7 +535,7 @@ public class ExcelBean implements Serializable, Instance
 				datePriseEnCharge = LocalDate.parse(datePriseEnChargeString.substring(0, 10), f);
 
 				// Incrémentation des incidents du mois
-				if (estIncident && datePriseEnCharge.getYear() == dateDuJour.getYear() && datePriseEnCharge.getMonth().equals(dateDuJour.getMonth()))
+				if (estIncident && datePriseEnCharge.getYear() == Statics.TODAY.getYear() && datePriseEnCharge.getMonth().equals(Statics.TODAY.getMonth()))
 				{
 					totalDuMois++;
 					continue;
@@ -460,7 +545,7 @@ public class ExcelBean implements Serializable, Instance
 				if (estIncident && statut == Statut.CLOSED && incident.getDateCloture() != null)
 				{
 					dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
-					if (dateCloture.getYear() == dateDuJour.getYear() && dateCloture.getMonth().equals(dateDuJour.getMonth()))
+					if (dateCloture.getYear() == Statics.TODAY.getYear() && dateCloture.getMonth().equals(Statics.TODAY.getMonth()))
 						totalClosed++;						
 				}
 			}
@@ -481,43 +566,26 @@ public class ExcelBean implements Serializable, Instance
 
 	/* ---------- ACCESS ---------- */
 
-	/**
-	 * @return the file
-	 */
 	public UploadedFile getFile()
 	{
 		return file;
 	}
 
-	/**
-	 * @param file
-	 *            the file to set
-	 */
 	public void setFile(UploadedFile file)
 	{
 		this.file = file;
 	}
 
-	/**
-	 * @return the upload
-	 */
 	public StreamedContent getUpload()
 	{
 		return upload;
 	}
 
-	/**
-	 * @return the listBean
-	 */
 	public ListBean getListBean()
 	{
 		return listBean;
 	}
 
-	/**
-	 * @param listBean
-	 *            the listBean to set
-	 */
 	public void setListBean(ListBean listBean)
 	{
 		this.listBean = listBean;
