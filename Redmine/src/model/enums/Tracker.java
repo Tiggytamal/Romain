@@ -5,6 +5,7 @@ public enum Tracker
 	INCIDENT("incident"),
 	PROBLEME("probleme"),
 	DEMANDE("demande");
+	//TODO Vérifier les vlauers des trackers en table.
 	
 	private final String string;
 

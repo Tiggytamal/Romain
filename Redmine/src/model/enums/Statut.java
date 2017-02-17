@@ -10,6 +10,7 @@ public enum Statut
     REFERRED("Referred"),
     PENDING("Pending"),
     NONTMA("Non traité par TMA");
+	//TODO Vérifier les valeurs des statuts en tables
 
     private final String string;
 

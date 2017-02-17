@@ -5,8 +5,11 @@ public enum Champ
     APPLICATION("Application"),
     DATEPRISENCHARGE("Date de prise en charge"),
     DA("n° de DA"),
-    DATETRANSFERT("Date de transfert");
-    
+    DATETRANSFERT("Date de transfert"),
+    NUMERO("Numéro incident"),
+    GRTRANSFERT("Groupe de transfert");
+    //TODO rajouter des champs si nécessaire. Vérifier les valeurs en table.
+	
     private final String string;
 
     private Champ(String string)

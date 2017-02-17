@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,6 +21,7 @@ import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -66,6 +68,8 @@ public class ExcelBean implements Serializable, Instance
 	/** Récupération de la date du jour */
 	private final LocalDate dateDuJour = LocalDate.now();
 
+	/** Nom de la colonne de l'objectif des incidents à atteindre */
+	private final String OBJECTIF = "NbincidentsObjectif";
 	/** Nom de la colonne des incidents entrants */
 	private final String ENTRANTS = "NbincidentsEntrants";
 	/** Nom de la colonne des incidents clos */
@@ -77,9 +81,19 @@ public class ExcelBean implements Serializable, Instance
 	/** Nom de la colonne des incidents en cours */
 	private final String ENCOURS = "NbincidentsEnCours";
 	/** Nom de la colonne du nombre d'incidents à traiter */
-	private final String CIBLE = "Nb d'inc.àtraiterpouratteindrelacible";
+	private final String CIBLE = "Nbd'inc.àtraiterpouratteindrelacible";
 	/** Nom de la colonne de l'avancement */
 	private final String AVANCEMENT = "Avancement";
+	/** Identifiant du calcul des incidents pending */
+	private final String PENDING = "NbincidentsPending";
+	/** Identifiant du calcul des problèmes resolved */
+	private final String PROBSRESOLVED = "NbprobsResolved";
+	/** Identifiant du calcul des problèmes en cours */
+	private final String PROBSENCOURS = "NbproblèmesEnCours";
+	/** Identifiant de la liste des incidents à traiter */
+	private final String LISTINCS = "Listeincidents";
+	/** Identifiant des la liste des incidents transférés */
+	private final String LISTINCSTRANS = "ListeIncidentsTransferes";
 
 	/** index de la colonne avec les mois de l'annèe */
 	private final int INDEXCOLMOIS = 1;
@@ -121,10 +135,10 @@ public class ExcelBean implements Serializable, Instance
 		// Sauvegarde du premier fichier sur C
 		wbIn.write(new FileOutputStream(newFile.getName()));
 		wbIn.close();
-		upload = new DefaultStreamedContent(new FileInputStream(newFile.getName()), "application/vnd.ms-excel",
-		        "test_workbook.xls");
+		upload = new DefaultStreamedContent(new FileInputStream(newFile.getName()), "application/vnd.ms-excel", "test_workbook.xls");
 
 	}
+
 
 	private void workbook(Workbook wbIn, Workbook wbOut)
 	{
@@ -132,9 +146,8 @@ public class ExcelBean implements Serializable, Instance
 		/* ------ Intialisation des variables ----- */
 
 		// Index des cellules
-		Integer moisEnCours = null, iEntrants = null, iResolved = null, iClos = null, iTransferes = null,
-		        iEnCours = null, iLignesNomsColonnes = null, iCible = null, iAvancement = null;
-		int compteIndex = 0;
+		int moisEnCours = 0, iEntrants = 0, iResolved = 0, iClos = 0, iTransferes = 0,
+		        iEnCours = 0, iLignesNomsColonnes = 0, iCible = 0, iAvancement = 0, iObjectif = 0, compteIndex = 0;
 
 		// Valorisation des dates
 		LocalDate _1900 = LocalDate.of(1900, 1, 1);
@@ -142,32 +155,37 @@ public class ExcelBean implements Serializable, Instance
 		long nbreJours = _2015.toEpochDay() - _1900.toEpochDay();
 
 		// Création des feuilles de classeur
-		Sheet sheetAvancement = wbIn.getSheet(Statics.sheetAvancement);
-		Sheet sheetSM9 = wbIn.getSheet(Statics.sheetStockSM9);
+		Sheet sheetAvancementIn = wbIn.getSheet(Statics.sheetAvancement);
+		Sheet sheetSM9In = wbIn.getSheet(Statics.sheetStockSM9);
+		Sheet sheetAvancementOut = wbOut.getSheet(Statics.sheetAvancement);
+		Sheet sheetSM9Out = wbOut.getSheet(Statics.sheetStockSM9);
 
 		/* ------ Calcul des variables ------ */
 
-		// Calcul du nombre d'incidents
-		Object[] retourCalcul = calculNbreIncidents();
-		int nbreDuMois = (int) retourCalcul[0];
-		int nbreResolved = (int) retourCalcul[1];
-		int closDuMois = (int) retourCalcul[2];
+		// Récupération des valeurs
+		HashMap<String, Object> retourCalcul = calculNbreIncidents();
+		int nbreDuMois = (int) retourCalcul.get(ENTRANTS);
+		int nbreResolved = (int) retourCalcul.get(RESOLVED);
+		int closDuMois = (int) retourCalcul.get(CLOS);
+		List<Incident> incsEncours =(List<Incident>) retourCalcul.get(LISTINCS);
 
 		// Calcul des index des lignes
-		Integer[] retourIndex = recupIndexLignes(sheetAvancement);
+		Integer[] retourIndex = recupIndexLignes(sheetAvancementIn);
 		iLignesNomsColonnes = retourIndex[0];
 		moisEnCours = retourIndex[1];
 
-		// Printing
-		System.out.println(nbreDuMois + " - " + nbreResolved + " - " + closDuMois);
-		System.out.println(nbreJours);
-
-		for (Cell cell : sheetAvancement.getRow(iLignesNomsColonnes))
+		// Récupération des indes des colonnes
+		for (Cell cell : sheetAvancementIn.getRow(iLignesNomsColonnes))
 		{
-			if (CellType.STRING.equals(cell.getCellTypeEnum()))
+			if (CellType.STRING == cell.getCellTypeEnum())
 			{
 				switch (cell.getStringCellValue().trim())
 				{
+					case OBJECTIF :
+						iObjectif = cell.getColumnIndex();
+						compteIndex++;
+						break;
+						
 					case ENTRANTS:
 						iEntrants = cell.getColumnIndex();
 						compteIndex++;
@@ -206,15 +224,82 @@ public class ExcelBean implements Serializable, Instance
 			}
 		}
 
-		if (compteIndex != 7)
+		if (compteIndex != 8)
 			Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Erreur dans le format du fichier Excel");
 
 		/* ------ Mise à jour du fichier Excel ------ */
 
-		sheetAvancement.getRow(moisEnCours).getCell(iEntrants).setCellValue(nbreDuMois);
-		sheetAvancement.getRow(moisEnCours).getCell(iClos).setCellValue(nbreResolved);
-		sheetAvancement.getRow(moisEnCours).getCell(iResolved).setCellValue(nbreResolved);
-
+		// récupération de la ligne excel à mettre à jour
+		Row row = sheetAvancementOut.getRow(moisEnCours);
+		// Mise à jour des cellules
+		row.getCell(iEntrants).setCellValue(nbreDuMois);
+		row.getCell(iClos).setCellValue(closDuMois);
+		row.getCell(iResolved).setCellValue(nbreResolved);
+		row.getCell(iTransferes).setCellValue(cellTransfere(retourCalcul));
+		// Mise à jour de la cellule des incidents en cours
+		Cell cellEncours = row.getCell(iEnCours);
+		CellStyle style = wbOut.createCellStyle();
+		style.setWrapText(true);
+		cellEncours.setCellStyle(style);
+		cellEncours.setCellValue(cellEnCours(retourCalcul));
+		// Mise à jour de la cellule du nombre d'incidents cible
+		Cell cellCible = row.getCell(iCible);
+		cellCible.setCellFormula("IF(" + iClos + moisEnCours +">" + iObjectif + moisEnCours +  ";0;" + iObjectif + moisEnCours + "-" + iClos + moisEnCours + ")");
+		Cell cellAvanc = row.getCell(iAvancement);
+		cellAvanc.setCellFormula("IF(" + iObjectif + moisEnCours + "<>0;" + iClos + moisEnCours + "/" + iObjectif + moisEnCours + ";0");		
+	}
+	
+	/**
+	 * Calcul de la cellule d'affichage des incidents transférés.
+	 * 
+	 * @param compte
+	 * @param listIncidents
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private String cellTransfere(HashMap<String, Object> map)
+	{
+		// Création du StringBuilder
+		StringBuilder retour = new StringBuilder("Nombre d'incidents : ");
+		
+		//Ajout du nombre d'incident transféré
+		retour.append(map.get(TRANSFERED)).append("\n");
+		
+		//Itération de la liste des incidents transférés
+		for (Incident incident : (List<Incident>) map.get(LISTINCSTRANS))
+		{
+			// Ajout du numéro de l'incident et du groupe de transfert
+			retour.append(incident.getMapValeurs().get(Champ.NUMERO)).append(" - ").append(incident.getMapValeurs().get(Champ.GRTRANSFERT)).append("\n");
+		}		
+		return retour.toString();
+	}
+	
+	/**
+	 * Calcul de la cellule des incidents en cours
+	 * 
+	 * @param map
+	 * @return
+	 */
+	private String cellEnCours(HashMap<String, Object> map)
+	{
+		// Création du StringBuilder
+		StringBuilder retour = new StringBuilder();
+		
+		// Récupération des comptes
+		int enCours = (int) map.get(ENCOURS);
+		int pending = (int) map.get(PENDING);
+		int resolved = (int) map.get(RESOLVED);
+		int total = enCours + pending + resolved;
+		int probsEnCours = (int) map.get(PROBSENCOURS);
+		int probsResolved = (int) map.get(PROBSRESOLVED);
+		int totalProbs = probsEnCours + probsResolved;
+		
+		// Ajout des donnèes
+		retour.append(total).append(" incidents ( ");
+		retour.append(resolved).append(" resolved, ").append(enCours).append(" working, ").append(pending).append(" pending )\n");
+		retour.append(totalProbs).append(" problèmes dont ").append(probsResolved).append(" resolved ");
+		
+		return retour.toString();
 	}
 
 	/**
@@ -236,15 +321,13 @@ public class ExcelBean implements Serializable, Instance
 			{
 				LocalDate date = LocalDate.ofEpochDay((long) cell.getNumericCellValue()).minusYears(70);
 
-				// lorsque que l'on trouve la première ligne avec l'annèe en
-				// cours, on prend l'index + 1 pour chercher le nom des colonnes
+				// lorsque que l'on trouve la première ligne avec l'annèe en cours, on prend l'index + 1 pour chercher le nom des colonnes
 				if (retour[0] != null && Statics.TODAY.getYear() == date.getYear())
 					retour[0] = cell.getRowIndex() + 1;
 
-				// récupération de l'incdes de la ligne à mettre jour pour ce
-				// mois.
+				// récupération de l'incdes de la ligne à mettre jour pour ce mois.
 				if (Statics.TODAY.getMonth().equals(date.getMonth()) && Statics.TODAY.getYear() == date.getYear())
-					retour[1] = cell.getRow().getRowNum();
+					retour[1] = cell.getRowIndex();
 			}
 		}
 		if (retour[0] == null || retour[1] == null)
@@ -256,134 +339,143 @@ public class ExcelBean implements Serializable, Instance
 	}
 
 	/**
-	 * Méthode de calcul du nombre d'incidents arrivés le mois en cours
+	 * Méthode de calcul du nombre d'incidents
 	 * 
-	 * @return le nombre d'incidents
+	 * @return 
+	 * 		Liste des résultats
 	 */
-	private Object[] calculNbreIncidents()
+	private HashMap<String, Object> calculNbreIncidents()
 	{
 		/* ----- Variables locales ----- */
 		
 		// Formatteur de date
 		DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-		// LocalDate
-		LocalDate dateIncident = null, dateCloture = null, dateTransfert = null;
-		// String
-		String dateTransfertString = null, dateIncidentString = null, da = null;
-		// int
-		int totalDuMois = 0, totalResolved = 0, totalClosed = 0, totalWorkInPrg = 0, totalOpen = 0, totalPending = 0, totalTransfered = 0,
-				totalProbsResolved = 0;
+		// LocalDates
+		LocalDate datePriseEnCharge = null, dateCloture = null, dateTransfert = null;
+		// Strings
+		String dateTransfertString = null, datePriseEnChargeString = null, da = null;
+		// ints
+		int totalDuMois = 0, totalResolved = 0, totalClosed = 0, totalWorkInPrg = 0, totalPending = 0, totalTransfered = 0, totalProbsResolved = 0, totalProbs = 0;
 		// List<Incident>
 		List<Incident> incsTransferes = new ArrayList<>(), incsATraiter = new ArrayList<>();
+		// Enumérations
 		Tracker tracker = null;
-		Object[] retour = new Object[7];
+		Statut statut = null;
+		// Booléens
+		boolean estAbandonne = false, estIncident = false, estProbleme = false;
+		// Objet de retour
+		HashMap<String, Object> retour = new HashMap<>();
 
-		// Itération sur les incidents
+		
+		/* ----- Itération sur les incidents ----- */
+		
 		for (Incident incident : listIncidents)
 		{
-			dateIncidentString = incident.getMapValeurs().get(Champ.DATEPRISENCHARGE);
+			// Initialisation des variables
+			datePriseEnChargeString = incident.getMapValeurs().get(Champ.DATEPRISENCHARGE);
 			da = incident.getMapValeurs().get(Champ.DA);
 			dateTransfertString = incident.getMapValeurs().get(Champ.DATETRANSFERT);
 			tracker = incident.getTracker();
+			statut = incident.getStatus();
+			estAbandonne = Statics.ABANDON.equalsIgnoreCase(da);
+			estIncident = tracker == Tracker.INCIDENT || tracker == Tracker.DEMANDE;
+			estProbleme = tracker == Tracker.PROBLEME;
 			
-			switch (incident.getStatus())
+			// Pas de décompte si l'incident a un numéro de DA à abandon
+			if (estAbandonne)
+				continue;
+						
+			// Incrémentation des compteurs et ajout dans les listes des incidents en cours.
+			switch (statut)
 			{
 				case RESOLVED :
-					if (tracker == Tracker.INCIDENT || tracker == Tracker.DEMANDE)
+					if (estIncident)
 						totalResolved++;
-					if (tracker == Tracker.PROBLEME)
+					else if (estProbleme)
 						totalProbsResolved++;					
 					incsATraiter.add(incident);
 					break;
 					
 				case NOUVEAU :
-					
+					if (estIncident)
+						totalWorkInPrg++;
+					else if (estProbleme)
+						totalProbs++;
+					incsATraiter.add(incident);
 					break;
 					
 				case PENDING :
-					
+					if (estIncident)
+						totalPending++;
+					else if (estProbleme)
+						totalProbs++;
+					incsATraiter.add(incident);
 					break;
 					
 				case WRKINPRG :
-					
+					if (estIncident)
+						totalWorkInPrg++;
+					else if (estProbleme)
+						totalProbs++;
+					incsATraiter.add(incident);
 					break;
-				default:
+					
+				case REFERRED :
+					if (estIncident)
+						totalWorkInPrg++;
+					else if (estProbleme)
+						totalProbs++;
+					incsATraiter.add(incident);
 					break;
 					
-			}
-			// Incrémentation des incidents resolved
-			if (Statut.RESOLVED.getString().equals(status))
-			{
-				totalResolved++;
-				continue;
-			}
-
-			// incrémentation des incidents nouveaux
-			if (Statut.NOUVEAU.getString().equals(status))
-			{
-				totalWorkInPrg++;
-				continue;
-			}
-			
-			// Incrémentation des incidents pending
-			if (Statut.PENDING.getString().equals(status))
-			{
-				totalPending++;
-				continue;
-			}
-			
-			// Incrémentation des incidents work in prg
-			if (Statut.WRKINPRG.getString().equals(status))
-			{
-				totalWorkInPrg++;
-				continue;
+				default :
+					break;
 			}
 
 			// Incrémentation des incidents transférés
-			if (dateTransfertString != null && dateTransfertString.length() > 9)
+			if (statut == Statut.TRANSFERED && dateTransfertString != null && dateTransfertString.length() > 9)
 			{
 				dateTransfert = LocalDate.parse(dateTransfertString.substring(0, 10), f);
 
 				if (dateTransfert.getYear() == dateDuJour.getYear() && dateTransfert.getMonth().equals(dateDuJour.getMonth()))
 				{
 					totalTransfered++;
-					continue;
+					incsTransferes.add(incident);
 				}
 			}
 
-			// Elimination des incidents qui ont une date mal formatée ou un n° de DA à abandon.
-			if (dateIncidentString != null && dateIncidentString.length() > 9 && !Statics.ABANDON.equalsIgnoreCase(da))
+			// Elimination des incidents qui ont une date mal formatée
+			if (datePriseEnChargeString != null && datePriseEnChargeString.length() > 9)
 			{
-				dateIncident = LocalDate.parse(dateIncidentString.substring(0, 10), f);
+				datePriseEnCharge = LocalDate.parse(datePriseEnChargeString.substring(0, 10), f);
 
-				// On ne garde que les incidents arrivés le mois en cours
-				if (dateIncident.getYear() == dateDuJour.getYear() && dateIncident.getMonth().equals(dateDuJour.getMonth()))
+				// Incrémentation des incidents du mois
+				if (estIncident && datePriseEnCharge.getYear() == dateDuJour.getYear() && datePriseEnCharge.getMonth().equals(dateDuJour.getMonth()))
 				{
 					totalDuMois++;
 					continue;
 				}
 
 				// Incrémentation des incidents clos
-				if (incident.getDateCloture() != null)
+				if (estIncident && statut == Statut.CLOSED && incident.getDateCloture() != null)
 				{
 					dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
-					if (Statut.CLOSED.getString().equals(status) && dateCloture.getYear() == dateDuJour.getYear() && dateCloture.getMonth().equals(dateDuJour.getMonth()))
-					{
-						totalClosed++;
-						continue;
-					}
+					if (dateCloture.getYear() == dateDuJour.getYear() && dateCloture.getMonth().equals(dateDuJour.getMonth()))
+						totalClosed++;						
 				}
 			}
 		}
 
-		retour[0] = totalDuMois;
-		retour[1] = totalResolved;
-		retour[2] = totalClosed;
-		retour[3] = totalWorkInPrg;
-		retour[4] = totalOpen;
-		retour[5] = totalPending;
-		retour[6] = totalTransfered;
-		retour[7] = incsTransferes;
+		retour.put(ENTRANTS, totalDuMois);
+		retour.put(RESOLVED, totalResolved);
+		retour.put(CLOS, totalClosed);
+		retour.put(ENCOURS, totalWorkInPrg);
+		retour.put(PENDING, totalPending);
+		retour.put(TRANSFERED, totalTransfered);
+		retour.put(PROBSRESOLVED, totalProbsResolved);
+		retour.put(PROBSENCOURS, totalProbs);
+		retour.put(LISTINCS, incsATraiter);
+		retour.put(LISTINCSTRANS, incsTransferes);
 		return retour;
 	}
 
