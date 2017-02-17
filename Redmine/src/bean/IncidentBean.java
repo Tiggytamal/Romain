@@ -16,7 +16,7 @@ import dao.DaoChamp;
 import dao.DaoIncident;
 import dao.DaoProjet;
 import model.Incident;
-import utilities.Champ;
+import model.enums.Champ;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
 

@@ -6,6 +6,9 @@ import javax.persistence.*;
 import org.eclipse.persistence.annotations.BatchFetch;
 import org.eclipse.persistence.annotations.BatchFetchType;
 
+import model.enums.Statut;
+import model.enums.Tracker;
+import model.enums.Champ;
 import utilities.Statics;
 
 import java.util.Date;
@@ -21,6 +24,10 @@ import java.util.Map;
 @Entity
 
 @Table(name="issues")
+@SecondaryTables({
+	@SecondaryTable(name = "issue_statuses", pkJoinColumns=@PrimaryKeyJoinColumn(name = "status_id") ),
+	@SecondaryTable(name = "trackers", pkJoinColumns=@PrimaryKeyJoinColumn(name = "tracker_id") )
+})
 //@formatter:off
 @NamedQueries (value = {
         @NamedQuery(name="Incident.findAll", query="SELECT i FROM Incident i "),
@@ -28,8 +35,6 @@ import java.util.Map;
                 + "JOIN FETCH i.projet p "
                 + "JOIN FETCH i.responsable r "
                 + "JOIN FETCH i.createur c "
-                + "JOIN FETCH i.statut s "
-                + "JOIN FETCH i.tracker t "
                 + "JOIN FETCH i.priorite prio "
                 + "JOIN FETCH i.valeurs v "
                 + "WHERE p.nom = :projet")
@@ -103,20 +108,16 @@ public final class Incident implements Serializable
 	private Projet projet;
 
 	/** Statut de l'incident */
-	@BatchFetch(value = BatchFetchType.IN)
-	@ManyToOne (targetEntity = Statut.class, fetch = FetchType.LAZY)
-	@JoinColumn(name="status_id")
-	private Statut statut;
+	@Column(table = "issue_statuses", name = "name", length = 30, nullable = false)
+	private String statutString;
 
 	/** Titre de l'incident */
 	@Column (name = "subject", length = 255, nullable = false)
 	private String sujet;
 
 	/** Tracker de l'incident */
-	@BatchFetch(value = BatchFetchType.IN)
-	@ManyToOne (targetEntity = Tracker.class, fetch = FetchType.LAZY)
-	@JoinColumn(name="tracker_id")
-	private Tracker tracker;
+	@Column (table = "trackers", name = "name", length = 30 , nullable = false)
+	private String trackerString;
 
 	/** Date de mise à jour de l'incident */
 	@Temporal(TemporalType.TIMESTAMP)
@@ -132,17 +133,23 @@ public final class Incident implements Serializable
 	private List<Valeur> valeurs;
 	
 	@Transient
-	private Map<String, String> mapValeurs;
+	private Map<Champ, String> mapValeurs;
+	
+	@Transient
+	private Statut status;
+	
+	@Transient
+	private Tracker tracker;
 
 	/* Constructors */
 
-    public Incident() 
+	public Incident() 
 	{
 	}
 	
 	/* Methods */
 	
-    /* (non-Javadoc)
+    /** (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
@@ -166,12 +173,12 @@ public final class Incident implements Serializable
         builder.append("priorite = ").append(priorite.getNom()).append(Statics.NL);
         if (priorite != null)
         builder.append("projet = ").append(projet.getNom()).append(Statics.NL);
-        if (statut != null)
-        builder.append("statut = ").append(statut.getNom()).append(Statics.NL);
+        if (statutString != null)
+        builder.append("statut = ").append(statutString).append(Statics.NL);
         if (sujet != null)
         builder.append("sujet = ").append(sujet).append(Statics.NL);
         if (tracker != null)
-        builder.append("tracker = ").append(tracker.getNom()).append(Statics.NL);
+        builder.append("tracker = ").append(tracker.toString()).append(Statics.NL);
         if (dateMiseAJour != null)
         builder.append("dateMiseAJour = ").append(dateMiseAJour.toString()).append(Statics.NL);
         if (valeurs != null)
@@ -179,7 +186,7 @@ public final class Incident implements Serializable
             builder.append("Valeurs : ");
             for (Valeur valeur : valeurs) 
             {
-                builder.append("\t").append(valeur.getChamp().getName()).append(" = ").append(valeur.getValue()).append(Statics.NL);
+                builder.append("\t").append(valeur.getChamp().toString()).append(" = ").append(valeur.getValue()).append(Statics.NL);
             }
             
         }
@@ -198,7 +205,7 @@ public final class Incident implements Serializable
      * Permet de remonter une HashMap des valeurs de l'incident.
      * @return
      */
-    public Map<String, String> getMapValeurs()
+    public Map<Champ, String> getMapValeurs()
     {
         if(mapValeurs != null)
             return mapValeurs;
@@ -210,10 +217,32 @@ public final class Incident implements Serializable
         for (Valeur valeur : valeurs) 
         {
             if (valeur.getChamp() != null )
-            mapValeurs.put(valeur.getChamp().getName(), valeur.getValue());
+            mapValeurs.put(valeur.getChamp(), valeur.getValue());
         }
         return mapValeurs;
 
+    }
+    
+    /**
+     * Retourne le status de l'incident sous la forme d'une énumération
+     * 
+     * @return
+     */	
+    public Statut getStatus()
+	{
+		if (status != null)
+    	return status;
+		
+		return Statut.getStatus(statutString);
+	}
+    /**
+     * retourne le tracker de l'incident sous forme d'une énumération
+     * 
+     * @return
+     */
+    public Tracker getTracker()
+    {
+        return tracker;
     }
 
     public User getResponsable()
@@ -271,19 +300,9 @@ public final class Incident implements Serializable
         return projet;
     }
 
-    public Statut getStatut()
-    {
-        return statut;
-    }
-
     public String getSujet()
     {
         return sujet;
-    }
-
-    public Tracker getTracker()
-    {
-        return tracker;
     }
 
     public Date getDateMiseAJour()
@@ -294,10 +313,5 @@ public final class Incident implements Serializable
     public List<Journal> getJournaux()
     {
         return journaux;
-    }
-
-    public List<Valeur> getValeurs()
-    {
-        return valeurs;
     }
 }

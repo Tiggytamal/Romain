@@ -1,8 +1,22 @@
 package model;
 
 import java.io.Serializable;
-import javax.persistence.*;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.SecondaryTable;
+import javax.persistence.SecondaryTables;
+import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * The persistent class for the custom_values database table.
@@ -10,14 +24,17 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="custom_values")
+@SecondaryTables({
+	@SecondaryTable(name = "custom_fields", pkJoinColumns = @PrimaryKeyJoinColumn(name = "custom_field_id"))
+})
 //@formatter:off
 @NamedQueries (value = {
-        @NamedQuery(name="Valeur.findAll", query="SELECT c FROM Valeur c JOIN FETCH c.champ ch")
+        @NamedQuery(name="Valeur.findAll", query="SELECT c FROM Valeur c")
 })
 //@formatter:on
 public final class Valeur implements Serializable
 {
-    /* Attributes */
+    /* ---------- Attributes ---------- */
     
     private static final long serialVersionUID = 1L;
 
@@ -25,9 +42,8 @@ public final class Valeur implements Serializable
     @GeneratedValue (strategy = GenerationType.IDENTITY)
 	private int id;
 
-    @ManyToOne (targetEntity = Champ.class, fetch = FetchType.LAZY)
-	@JoinColumn (name="custom_field_id")
-	private Champ champ;
+    @Column (table = "custom_fields", name = "name", length = 50, nullable = false)
+	private String champString;
 
 	@ManyToOne (targetEntity = Incident.class, fetch = FetchType.LAZY)
 	@JoinColumn (name = "customized_id")
@@ -36,15 +52,28 @@ public final class Valeur implements Serializable
 	@Column (name = "value", columnDefinition = "TEXT")
 	private String value;
 	
-    /* Constructors */
+	@Transient
+	private model.enums.Champ champ;
 	
+    /* Constructors */
+
 	public Valeur() 
 	{
 	}
 	
-    /* Methods */
+    /* ---------- Methods ---------- */
 
-    /* Access */
+    /* ---------- Access ---------- */
+	
+	/**
+	 * Retourne l'énumration correspondante à la valeur en table du nom du champ
+	 * @return
+	 * 		L'enum
+	 */
+	public model.enums.Champ getChamp()
+	{
+		return champ;
+	}
 	
     /**
      * @return the id
@@ -52,14 +81,6 @@ public final class Valeur implements Serializable
     public int getId()
     {
         return id;
-    }
-
-    /**
-     * @return the champ
-     */
-    public Champ getChamp()
-    {
-        return champ;
     }
 
     /**
