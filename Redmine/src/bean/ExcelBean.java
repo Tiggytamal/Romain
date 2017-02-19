@@ -7,9 +7,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -33,9 +36,11 @@ import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
 import model.Incident;
+import model.IncidentSM9;
 import model.enums.Champ;
 import model.enums.Statut;
 import model.enums.Tracker;
+import utilities.DateConvert;
 import utilities.Statics;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
@@ -102,6 +107,7 @@ public class ExcelBean implements Serializable, Instance
 	{
 		wbIn = new HSSFWorkbook();
 		wbOut = new HSSFWorkbook();
+		DateConvert.convert(Temporal.class, new Object());
 	}
 
 	public void charger(FileUploadEvent event) throws IOException, EncryptedDocumentException, InvalidFormatException
@@ -164,37 +170,37 @@ public class ExcelBean implements Serializable, Instance
 						compteIndex++;
 						break;
 						
-					case ENTRANTS:
+					case ENTRANTS :
 						iEntrants = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case CLOS:
+					case CLOS :
 						iClos = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case RESOLVED:
+					case RESOLVED :
 						iResolved = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case ENCOURS:
+					case ENCOURS :
 						iEnCours = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case TRANSFERED:
+					case TRANSFERED :
 						iTransferes = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case CIBLE:
+					case CIBLE :
 						iCible = cell.getColumnIndex();
 						compteIndex++;
 						break;
 
-					case AVANCEMENT:
+					case AVANCEMENT :
 						iAvancement = cell.getColumnIndex();
 						compteIndex++;
 						break;
@@ -241,6 +247,8 @@ public class ExcelBean implements Serializable, Instance
 	
 	private void sm9(List<Incident> list, Workbook wbIn, Workbook wbOut)
 	{
+		/* ------  réation des variables ------ */
+		
 		// Création des feuilles de classeur
 		Sheet sheetSM9In = wbIn.getSheet(Statics.sheetStockSM9);
 		Sheet sheetSM9Out = wbOut.getSheet(Statics.sheetStockSM9);
@@ -249,6 +257,14 @@ public class ExcelBean implements Serializable, Instance
 		int iNumero = 0, itracker = 0, iApplication = 0,  iBanque = 0, iEnvironnement = 0, iPriorite = 0, iSujet = 0, iAssigne = 0,
 				iStatut = 0, iDateOuv = 0, idatePrisEnCharge = 0, iDateReso = 0, iReouv = 0, iLigne1 = 0, totalIndex = 0;
 		
+		//Maps
+		Map<String, IncidentSM9> mapOut = new TreeMap<>();
+		
+		for (Incident incident : list)
+		{
+			mapOut.put(incident.getMapValeurs().get(Champ.NUMERO), transco(incident));			
+		}
+				
 		// Récupération des indices de la page
 		for (Row row : sheetSM9In)
 		{
@@ -329,9 +345,25 @@ public class ExcelBean implements Serializable, Instance
 			if (totalIndex == 13)
 				break;
 		}
+
 		
+		for (int i = iLigne1; i <= sheetSM9In.getLastRowNum(); i++)
+		{
+			Row row = sheetSM9In.getRow(i);
+			String cle = row.getCell(iNumero).getStringCellValue();
+			if (mapOut.keySet().contains(cle))
+			{
+				mapOut.get(cle).setCommentaire(row.getCell(iStatut).getStringCellValue());
+			}
+		}
 	}
 	
+	private IncidentSM9 transco(Incident incident)
+	{
+		IncidentSM9 retour = new IncidentSM9();
+		
+		return retour;
+	}
 	
 	/**
 	 * Calcul de la cellule d'affichage des incidents transférés.
