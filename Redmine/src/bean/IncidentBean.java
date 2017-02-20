@@ -90,22 +90,20 @@ public class IncidentBean implements Serializable, Instance
      * Charge les incidents depuis la base Redmine en fonction du pôle choisi
      * @return
      */
-    public String chargerIncidents()
+    public void chargerIncidents()
     {
         if (nomPole == null)
         {
-            Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Vous devez choisir un pôle");
-            return "";
+            Utilities.updateGrowl("Vous devez choisir un pôle", FacesMessage.SEVERITY_ERROR, null);
         }
 
-        listIncidents.clear();
+        listIncidents = new ArrayList<>();
         listIncidents = daoi.findByProject(nomPole);
+        System.out.println("nombre d'incident du pôle : " + listIncidents.size());
         recuperationApplications();
                
        // triageIncident();       
         listBean.setListIncidents(listIncidents);
-
-        return "";
     }
     
     /**
@@ -116,7 +114,7 @@ public class IncidentBean implements Serializable, Instance
         for (Incident incident : listIncidents)
         {
             // Récupération du champ correspondant à l'application de l'incident
-            String appli = incident.getMapValeurs().get(Champ.APPLICATION.toString());
+            String appli = incident.getMapValeurs().get(Champ.APPLICATION);
             
             if (appli != null && !listApplications.contains(appli))
             {
@@ -137,12 +135,12 @@ public class IncidentBean implements Serializable, Instance
         // Itération sur la liste des incidents pour retirer tout ceux qui ne sont pas des applications choisies
         if (applicationschoisies.isEmpty())
         {
-            Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Vous devez choisir au moins une application");
+            Utilities.updateGrowl("Vous devez choisir au moins une application", FacesMessage.SEVERITY_ERROR, null);
             return "";
         }
         for (Incident incident : listIncidents)
         {
-            if (applicationschoisies.contains(incident.getMapValeurs().get(Champ.APPLICATION.toString())) )
+            if (applicationschoisies.contains(incident.getMapValeurs().get(Champ.APPLICATION)) )
             {
                 listincidentsTries.add(incident);
             }

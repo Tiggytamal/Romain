@@ -25,48 +25,28 @@ public class Utilities
         FacesContext ctx = FacesContext.getCurrentInstance();
         return ctx.getApplication().evaluateExpressionGet(ctx, El, String.class);
     }
-    
-    /**
-     * permet de mettre a jour un message dans une page jsf
-     * 
-     * @param message
-     */
-    public static void updateGrowl(String message)
-    {
-        // Crée le FaceMessage
-        FacesMessage fm = new FacesMessage(FacesMessage.SEVERITY_INFO, message, null);
-
-        // Ajoute le message au contexte
-        FacesContext.getCurrentInstance().addMessage(null, fm);
-    }
 
     /**
-     * Permet de mettre à jour un message dans une page JSF en ajoutant la sévérité
+     * Permet de mettre à jour un message dans une page JSF. La sévérité et le détail sont optionnels.<br>
+     * Si le detail est null, renvoie un message sans détail.<br>
+     * Si la severité est null, renvoie un message de type {@code SEVERITY_INFO}.<br>
+     * Renvoie un {@code IllegalArgumentException} si jamais le message est null ou vide.
      * 
      * @param severity
      * @param message
      */
-    public static void updateGrowl(Severity severity, String message)
+    public static void updateGrowl(String message, Severity severity, String detail)
     {
-        // Crée le FaceMessage
-        FacesMessage fm = new FacesMessage(severity, message, null);
+        if (message == null || message.isEmpty())
+            throw new IllegalArgumentException("Growl avec un message null");
+        
+        if (severity == null)
+            severity = FacesMessage.SEVERITY_INFO;
 
-        // Ajoute le message au contexte
-        FacesContext.getCurrentInstance().addMessage(null, fm);
-    }
+            // Crée le FaceMessage
+            FacesMessage fm = new FacesMessage(severity, message, detail);
 
-    /**
-     * Permet de mettre à jour un message dans une page JSF en ajoutant la sévérité et le détail de l'erreur
-     * 
-     * @param severity
-     * @param message
-     */
-    public static void updateGrowl(Severity severity, String message, String detail)
-    {
-        // Crée le FaceMessage
-        FacesMessage fm = new FacesMessage(severity, message, detail);
-
-        // Ajoute le message au contexte
-        FacesContext.getCurrentInstance().addMessage(null, fm);
+            // Ajoute le message au contexte
+            FacesContext.getCurrentInstance().addMessage(null, fm);
     }
 }

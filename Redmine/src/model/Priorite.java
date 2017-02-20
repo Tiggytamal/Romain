@@ -30,9 +30,6 @@ public final class Priorite implements Serializable
 
 	@Column (name = "name", length = 30, nullable = false)
 	private String nom;
-
-	@OneToMany (mappedBy = "priorite", targetEntity = Incident.class, fetch = FetchType.LAZY)
-	List<Incident> incidents;
 	
     /* Constructors */
 	
@@ -60,14 +57,4 @@ public final class Priorite implements Serializable
     {
         return nom;
     }
-
-    /**
-     * @return the incidents
-     */
-    public List<Incident> getIncidents()
-    {
-        return incidents;
-    }
-
-
 }

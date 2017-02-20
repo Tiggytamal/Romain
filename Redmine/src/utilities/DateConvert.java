@@ -127,7 +127,7 @@ public class DateConvert
             case "YearMonth" :
             	return YearMonth.from(temp);
            default :
-            	throw new UnsupportedOperationException("Classe de l'objet non supportée : " + date.getClass().getName());                              
+            	throw new UnsupportedOperationException("Classe de retour non supportée : " + classe.getClass().getName());                              
         }
     }
     
@@ -147,7 +147,7 @@ public class DateConvert
         if (date == null)
             return null;
 
-        if (date instanceof Date)
+        if (date instanceof java.sql.Date)
             return ((java.sql.Date) date).toLocalDate();
         else
             return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();

@@ -1,8 +1,11 @@
 package dao;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.ejb.Stateless;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
@@ -29,7 +32,8 @@ public class DaoIncident extends DaoModel<Incident>
     public List<Incident> findByProject(String projet)
     {
         em.clear();
-        TypedQuery<Incident> query = em.createNamedQuery("Incident.findByProject", Incident.class).setParameter("projet", projet);
+        Date oneYear = Date.valueOf(LocalDate.now().minusYears(1));
+        TypedQuery<Incident> query = em.createNamedQuery("Incident.findByProject", Incident.class).setParameter("projet", projet).setParameter("oneYear", oneYear, TemporalType.DATE);
         System.out.println(query.unwrap(EJBQueryImpl.class).getDatabaseQuery().getSQLString());
         long a = System.currentTimeMillis();
         List<Incident> list = query.getResultList();

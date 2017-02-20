@@ -44,7 +44,7 @@ public final class Projet implements Serializable
 	@Column (name = "identifier")
 	private String identifier;
 
-	@Column (name = "name")
+	@Column (name = "name", length = 255, nullable = true)
 	private String nom;
 
     @ManyToOne (targetEntity = Projet.class, optional = true, fetch = FetchType.LAZY)

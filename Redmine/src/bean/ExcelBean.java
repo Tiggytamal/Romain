@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +40,7 @@ import model.enums.Champ;
 import model.enums.Statut;
 import model.enums.Tracker;
 import utilities.DateConvert;
+import utilities.GrowlException;
 import utilities.Statics;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
@@ -107,10 +107,9 @@ public class ExcelBean implements Serializable, Instance
 	{
 		wbIn = new HSSFWorkbook();
 		wbOut = new HSSFWorkbook();
-		DateConvert.convert(Temporal.class, new Object());
 	}
 
-	public void charger(FileUploadEvent event) throws IOException, EncryptedDocumentException, InvalidFormatException
+	public String charger(FileUploadEvent event) throws IOException, EncryptedDocumentException, InvalidFormatException
 	{
 		// Récupération du fichier envoyé
 		file = event.getFile();
@@ -120,7 +119,16 @@ public class ExcelBean implements Serializable, Instance
 		wbOut = WorkbookFactory.create(file.getInputstream());
 
 		// Traitement de la page d'avancement
-		List<Incident> incidentsATraiter = avancement(wbIn, wbOut);
+		List<Incident> incidentsATraiter = new ArrayList<>();
+        try
+        {
+            incidentsATraiter = avancement(wbIn, wbOut);
+        }
+        catch (GrowlException e)
+        {
+            Utilities.updateGrowl(e.getMessage(), e.getSeverity(), e.getDetail());
+            return "";
+        }
 		
 		// Traitement de la page SM9
 		
@@ -130,7 +138,7 @@ public class ExcelBean implements Serializable, Instance
 		wbIn.write(new FileOutputStream(newFile.getName()));
 		wbIn.close();
 		upload = new DefaultStreamedContent(new FileInputStream(newFile.getName()), "application/vnd.ms-excel", "test_workbook.xls");
-
+		return "";
 	}
 
 	/**
@@ -138,8 +146,9 @@ public class ExcelBean implements Serializable, Instance
 	 * @param wbIn
 	 * @param wbOut
 	 * @return
+	 * @throws GrowlException 
 	 */
-	private List<Incident> avancement (Workbook wbIn, Workbook wbOut)
+	private List<Incident> avancement (Workbook wbIn, Workbook wbOut) throws GrowlException
 	{
 
 		/* ------ Intialisation des variables ----- */
@@ -209,7 +218,7 @@ public class ExcelBean implements Serializable, Instance
 		}
 
 		if (compteIndex != 8)
-			Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Erreur dans le format du fichier Excel");
+		    throw new GrowlException(FacesMessage.SEVERITY_ERROR, "Erreur dans le format du fichier Excel", null);
 
 		/* ------ Mise à jour du fichier Excel ------ */
 
@@ -425,8 +434,9 @@ public class ExcelBean implements Serializable, Instance
 	 * 
 	 * @param sheet
 	 * @return
+	 * @throws GrowlException 
 	 */
-	private Integer[] recupIndexLignes(Sheet sheet)
+	private Integer[] recupIndexLignes(Sheet sheet) throws GrowlException
 	{
 		Integer[] retour = new Integer[2];
 
@@ -434,9 +444,10 @@ public class ExcelBean implements Serializable, Instance
 		for (Row row : sheet)
 		{
 			Cell cell = row.getCell(INDEXCOLMOIS);
-			if (cell.getNumericCellValue() > 40000)
+			if (cell != null && cell.getCellTypeEnum().equals(CellType.NUMERIC) && cell.getNumericCellValue() > 40000)
 			{
-				LocalDate date = LocalDate.ofEpochDay((long) cell.getNumericCellValue()).minusYears(70);
+				LocalDate date = (LocalDate) DateConvert.convert(LocalDate.class, cell.getDateCellValue());
+				System.out.println("Nouveau convert : " + date);
 
 				// lorsque que l'on trouve la première ligne avec l'annèe en cours, on prend l'index + 1 pour chercher le nom des colonnes
 				if (retour[0] != null && Statics.TODAY.getYear() == date.getYear())
@@ -447,11 +458,10 @@ public class ExcelBean implements Serializable, Instance
 					retour[1] = cell.getRowIndex();
 			}
 		}
-		if (retour[0] == null || retour[1] == null)
-		{
-			Utilities.updateGrowl(FacesMessage.SEVERITY_ERROR, "Mauvaise formation du fichier Excel");
-		}
-
+		
+        if (retour[0] == null || retour[1] == null)
+              throw new GrowlException(null, "Mauvaise formation du fichier Excel - Il n'y a pas de ligne pour le mois en cours", null);
+        
 		return retour;
 	}
 

@@ -25,19 +25,20 @@ import java.util.Map;
 
 @Table(name="issues")
 @SecondaryTables({
-	@SecondaryTable(name = "issue_statuses", pkJoinColumns=@PrimaryKeyJoinColumn(name = "status_id") ),
-	@SecondaryTable(name = "trackers", pkJoinColumns=@PrimaryKeyJoinColumn(name = "tracker_id") )
+	@SecondaryTable(name = "issue_statuses", pkJoinColumns=@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "status_id") ),
+	@SecondaryTable(name = "trackers", pkJoinColumns=@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "tracker_id") ),
+	@SecondaryTable(name = "projects", pkJoinColumns=@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "project_id") ),
+	@SecondaryTable(name = "enumerations", pkJoinColumns=@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "priority_id") )
 })
 //@formatter:off
 @NamedQueries (value = {
         @NamedQuery(name="Incident.findAll", query="SELECT i FROM Incident i "),
         @NamedQuery(name="Incident.findByProject", query="SELECT distinct(i) FROM Incident i "
-                + "JOIN FETCH i.projet p "
                 + "JOIN FETCH i.responsable r "
                 + "JOIN FETCH i.createur c "
-                + "JOIN FETCH i.priorite prio "
                 + "JOIN FETCH i.valeurs v "
-                + "WHERE p.nom = :projet")
+                + "WHERE i.projet = :projet "
+                + "AND i.dateCreation > :oneYear")
 })
 //@formatter:on
 public final class Incident implements Serializable
@@ -96,16 +97,12 @@ public final class Incident implements Serializable
     private List<Incident> incidentslies;
 
 	/** Priorité de l'incident */
-	@BatchFetch(value = BatchFetchType.IN)
-	@ManyToOne (targetEntity = Priorite.class, fetch = FetchType.LAZY)
-	@JoinColumn(name="priority_id")
-	private Priorite priorite;
+	@Column(table = "enumerations", name="name", length = 30, nullable = false)
+	private String priorite;
 
 	/** Type de l'incident */
-	@BatchFetch(value = BatchFetchType.IN)
-	@ManyToOne (targetEntity = Projet.class, fetch = FetchType.LAZY)
-	@JoinColumn(name="project_id")
-	private Projet projet;
+	@Column(table = "projects", name="name", length = 255, nullable = false)
+	private String projet;
 
 	/** Statut de l'incident */
 	@Column(table = "issue_statuses", name = "name", length = 30, nullable = false)
@@ -170,9 +167,9 @@ public final class Incident implements Serializable
         if (dueDate != null)
         builder.append("dueDate = ").append(dueDate.toString()).append(Statics.NL);
         if (priorite != null)
-        builder.append("priorite = ").append(priorite.getNom()).append(Statics.NL);
+        builder.append("priorite = ").append(priorite).append(Statics.NL);
         if (priorite != null)
-        builder.append("projet = ").append(projet.getNom()).append(Statics.NL);
+        builder.append("projet = ").append(projet).append(Statics.NL);
         if (statutString != null)
         builder.append("statut = ").append(statutString).append(Statics.NL);
         if (sujet != null)
@@ -290,12 +287,12 @@ public final class Incident implements Serializable
         return incidentslies;
     }
 
-    public Priorite getPriorite()
+    public String getPriorite()
     {
         return priorite;
     }
 
-    public Projet getProjet()
+    public String getProjet()
     {
         return projet;
     }
