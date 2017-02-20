@@ -25,7 +25,7 @@ import javax.persistence.Transient;
 @Entity
 @Table(name="custom_values")
 @SecondaryTables({
-	@SecondaryTable(name = "custom_fields", pkJoinColumns = @PrimaryKeyJoinColumn(name = "custom_field_id"))
+	@SecondaryTable(name = "custom_fields", pkJoinColumns = @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "custom_field_id"))
 })
 //@formatter:off
 @NamedQueries (value = {
@@ -72,7 +72,10 @@ public final class Valeur implements Serializable
 	 */
 	public model.enums.Champ getChamp()
 	{
-		return champ;
+	    if (champ != null)
+	        return champ;
+	    
+		return model.enums.Champ.getChamp(champString);
 	}
 	
     /**
