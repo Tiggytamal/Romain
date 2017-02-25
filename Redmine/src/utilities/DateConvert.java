@@ -206,12 +206,16 @@ public class DateConvert
 
         if (date instanceof Timestamp || date instanceof Date)
             return (Date) date;
+        
         if (date instanceof LocalDate)
             return Date.from(((LocalDate) date).atStartOfDay(zone).toInstant());
+        
         if (date instanceof LocalDateTime)
             return Date.from(((LocalDateTime) date).atZone(zone).toInstant());
+        
         if (date instanceof ZonedDateTime)
             return Date.from(((ZonedDateTime) date).toInstant());
+        
         if (date instanceof Instant)
             return Date.from((Instant) date);
 

@@ -26,7 +26,7 @@
             <p:commandButton value="Trier par Appli" action="#{incident.trierParAppli}" />
         </h:panelGrid>
 
-        <p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" fileLimit="1" dragDropSupport="1" mode="advanced" auto="true" />
+        <p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" dragDropSupport="1" mode="advanced" auto="true" />
 
         <p:commandButton value="Download" ajax="false" icon="ui-icon-arrowthick-1-s">
             <p:fileDownload value="#{excel.upload}" />

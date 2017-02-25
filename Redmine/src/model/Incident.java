@@ -133,14 +133,18 @@ public final class Incident implements Serializable
 	private Map<Champ, String> mapValeurs;
 	
 	@Transient
-	private Statut status;
+	private Statut statut;
 	
 	@Transient
 	private Tracker tracker;
+	
+	@Transient
+	private String commentaire;
 
 	/* Constructors */
 
-	public Incident() 
+
+    public Incident() 
 	{
 	}
 	
@@ -225,10 +229,10 @@ public final class Incident implements Serializable
      * 
      * @return
      */	
-    public Statut getStatus()
+    public Statut getStatut()
 	{
-		if (status != null)
-    	return status;
+		if (statut != null)
+    	return statut;
 		
 		return Statut.getStatus(statutString);
 	}
@@ -310,5 +314,14 @@ public final class Incident implements Serializable
     public List<Journal> getJournaux()
     {
         return journaux;
+    }
+    public String getCommentaire()
+    {
+        return commentaire;
+    }
+
+    public void setCommentaire(String commentaire)
+    {
+        this.commentaire = commentaire;
     }
 }

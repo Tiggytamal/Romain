@@ -1,193 +1,259 @@
 package model;
 
+import java.util.Date;
+
+/**
+ * Classe représentant une ligne dans la feuille Excel du stock SM9
+ * 
+ * @author Tiggy Tamal
+ * @since 1.0
+ */
 public class IncidentSM9
 {
-    /* ---------- Attributes ---------- */
-	
-	private String numero;
-	
-	private String tracker;
-	
-	private String application;
-	
-	private String banque;
-	
-	private String environnement;
-	
-	private String priorite;
-	
-	private String sujet;
-	
-	private String assigne;
-	
-	private String commentaire;
-	
-	private long dateOuverture;
-	
-	private long datePriseEnCharge;
-	
-	private long dateResolution;
-	
-	private String reOuverture;
-	
-    /* --------- Constructors ---------- */
-	
-	public IncidentSM9()
-	{
-		
-	}
+    /* ---------- ATTIBUTES ---------- */
+ 
+    private String numero;
 
-	public IncidentSM9(String numero, String tracker, String application, String banque, String environnement, String priorite, String sujet, 
-			String assigne, String commentaire, long dateOuverture, long datePriseEnCharge, long dateResolution, String reOuverture)
-	{
-		this.numero = numero;
-		this.tracker = tracker;
-		this.application = application;
-		this.banque = banque;
-		this.environnement = environnement;
-		this.priorite = priorite;
-		this.sujet = sujet;
-		this.assigne = assigne;
-		this.commentaire = commentaire;
-		this.dateOuverture = dateOuverture;
-		this.datePriseEnCharge = datePriseEnCharge;
-		this.dateResolution = dateResolution;
-		this.reOuverture = reOuverture;
-	}
-	
-    /* ---------- Methods ---------- */
-	
-	
+    private String tracker;
+    
+    private String application;
+    
+    private String banque;
+    
+    private String environnement;
+    
+    private String priorite;
+    
+    private String sujet;
+    
+    private String assigne;
+    
+    private String statut;
+    
+    private Date dateOuvertute; 
+    
+    private Date datePriseEnCharge;
+    
+    private Date dateResolution;
+    
+    private String reouverture;
+    
+    /* ---------- CONSTUCTORS ---------- */
+    
+    public IncidentSM9()
+    {
+        
+    }
+    
+    /* ---------- METHODS ---------- */
+    
+    /* ---------- ACCESS ---------- */
+        
+    /**
+     * @return the numero
+     */
+    public String getNumero()
+    {
+        return numero;
+    }
 
-    /* ---------- Access ---------- */
-	
-	public String getNumero()
-	{
-		return numero;
-	}
+    /**
+     * @param numero the numero to set
+     */
+    public void setNumero(String numero)
+    {
+        this.numero = numero;
+    }
 
-	public void setNumero(String numero)
-	{
-		this.numero = numero;
-	}
+    /**
+     * @return the tracker
+     */
+    public String getTracker()
+    {
+        return tracker;
+    }
 
-	public String getTracker()
-	{
-		return tracker;
-	}
+    /**
+     * @param tracker the tracker to set
+     */
+    public void setTracker(String tracker)
+    {
+        this.tracker = tracker;
+    }
 
-	public void setTracker(String tracker)
-	{
-		this.tracker = tracker;
-	}
+    /**
+     * @return the application
+     */
+    public String getApplication()
+    {
+        return application;
+    }
 
-	public String getApplication()
-	{
-		return application;
-	}
+    /**
+     * @param application the application to set
+     */
+    public void setApplication(String application)
+    {
+        this.application = application;
+    }
 
-	public void setApplication(String application)
-	{
-		this.application = application;
-	}
+    /**
+     * @return the banque
+     */
+    public String getBanque()
+    {
+        return banque;
+    }
 
-	public String getBanque()
-	{
-		return banque;
-	}
+    /**
+     * @param banque the banque to set
+     */
+    public void setBanque(String banque)
+    {
+        this.banque = banque;
+    }
 
-	public void setBanque(String banque)
-	{
-		this.banque = banque;
-	}
+    /**
+     * @return the environnement
+     */
+    public String getEnvironnement()
+    {
+        return environnement;
+    }
 
-	public String getEnvironnement()
-	{
-		return environnement;
-	}
+    /**
+     * @param environnement the environnement to set
+     */
+    public void setEnvironnement(String environnement)
+    {
+        this.environnement = environnement;
+    }
 
-	public void setEnvironnement(String environnement)
-	{
-		this.environnement = environnement;
-	}
+    /**
+     * @return the priorite
+     */
+    public String getPriorite()
+    {
+        return priorite;
+    }
 
-	public String getPriorite()
-	{
-		return priorite;
-	}
+    /**
+     * @param priorite the priorite to set
+     */
+    public void setPriorite(String priorite)
+    {
+        this.priorite = priorite;
+    }
 
-	public void setPriorite(String priorite)
-	{
-		this.priorite = priorite;
-	}
+    /**
+     * @return the sujet
+     */
+    public String getSujet()
+    {
+        return sujet;
+    }
 
-	public String getSujet()
-	{
-		return sujet;
-	}
+    /**
+     * @param sujet the sujet to set
+     */
+    public void setSujet(String sujet)
+    {
+        this.sujet = sujet;
+    }
 
-	public void setSujet(String sujet)
-	{
-		this.sujet = sujet;
-	}
+    /**
+     * @return the assigne
+     */
+    public String getAssigne()
+    {
+        return assigne;
+    }
 
-	public String getAssigne()
-	{
-		return assigne;
-	}
+    /**
+     * @param assigne the assigne to set
+     */
+    public void setAssigne(String assigne)
+    {
+        this.assigne = assigne;
+    }
 
-	public void setAssigne(String assigne)
-	{
-		this.assigne = assigne;
-	}
+    /**
+     * @return the statut
+     */
+    public String getStatut()
+    {
+        return statut;
+    }
 
-	public String getCommentaire()
-	{
-		return commentaire;
-	}
+    /**
+     * @param statut the statut to set
+     */
+    public void setStatut(String statut)
+    {
+        this.statut = statut;
+    }
 
-	public void setCommentaire(String commentaire)
-	{
-		this.commentaire = commentaire;
-	}
+    /**
+     * @return the dateOuvertute
+     */
+    public Date getDateOuvertute()
+    {
+        return dateOuvertute;
+    }
 
-	public long getDateOuverture()
-	{
-		return dateOuverture;
-	}
+    /**
+     * @param dateOuvertute the dateOuvertute to set
+     */
+    public void setDateOuvertute(Date dateOuvertute)
+    {
+        this.dateOuvertute = dateOuvertute;
+    }
 
-	public void setDateOuverture(long dateOuverture)
-	{
-		this.dateOuverture = dateOuverture;
-	}
+    /**
+     * @return the datePriseEnCharge
+     */
+    public Date getDatePriseEnCharge()
+    {
+        return datePriseEnCharge;
+    }
 
-	public long getDatePriseEnCharge()
-	{
-		return datePriseEnCharge;
-	}
+    /**
+     * @param datePriseEnCharge the datePriseEnCharge to set
+     */
+    public void setDatePriseEnCharge(Date datePriseEnCharge)
+    {
+        this.datePriseEnCharge = datePriseEnCharge;
+    }
 
-	public void setDatePriseEnCharge(long datePriseEnCharge)
-	{
-		this.datePriseEnCharge = datePriseEnCharge;
-	}
+    /**
+     * @return the dateResolution
+     */
+    public Date getDateResolution()
+    {
+        return dateResolution;
+    }
 
-	public long getDateResolution()
-	{
-		return dateResolution;
-	}
+    /**
+     * @param dateResolution the dateResolution to set
+     */
+    public void setDateResolution(Date dateResolution)
+    {
+        this.dateResolution = dateResolution;
+    }
 
-	public void setDateResolution(long dateResolution)
-	{
-		this.dateResolution = dateResolution;
-	}
+    /**
+     * @return the reouverture
+     */
+    public String getReouverture()
+    {
+        return reouverture;
+    }
 
-	public String getReOuverture()
-	{
-		return reOuverture;
-	}
-
-	public void setReOuverture(String reOuverture)
-	{
-		this.reOuverture = reOuverture;
-	}
+    /**
+     * @param reouverture the reouverture to set
+     */
+    public void setReouverture(String reouverture)
+    {
+        this.reouverture = reouverture;
+    }
 }
