@@ -15,15 +15,15 @@
                 <f:selectItem itemLabel="Select One" itemValue="" />
                 <f:selectItems value="#{incident.listNomsProjets}" />
             </p:selectOneMenu>
-            <p:commandButton value="Charger les incidents" action="#{incident.chargerIncidents}" update="test" />
+            <p:commandButton value="Charger les incidents" action="#{incident.chargerIncidents}" update="list" onclick="PF('charge').show();"
+                onsuccess="PF('charge').hide();" />
         </h:panelGrid>
-
-        <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5" id="test">
+        <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5" id = "list">
             <p:outputLabel for="Application" value="Applications:" />
             <p:selectManyMenu id="Application" value="#{incident.applicationschoisies}" filter="true" filterMatchMode="contains" showCheckbox="true">
                 <f:selectItems value="#{incident.listApplications}" />
             </p:selectManyMenu>
-            <p:commandButton value="Trier par Appli" action="#{incident.trierParAppli}" />
+            <p:commandButton value="Trier par Appli" action="#{incident.trierParAppli}" onclick="PF('charge').show();" onsuccess="PF('charge').hide();" />
         </h:panelGrid>
 
         <p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" dragDropSupport="1" mode="advanced" auto="true" />
@@ -39,6 +39,9 @@
         </p:growl>
     </h:form>
 
+    <p:dialog modal="true" widgetVar="charge" minHeight="40" minWidth="40">
+        <h:outputText value=" Chargement... " />
+    </p:dialog>
 
 </h:body>
 

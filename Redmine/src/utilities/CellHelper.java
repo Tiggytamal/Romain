@@ -156,13 +156,13 @@ public class CellHelper
                 break;
                 
             case BASDROITE :
-                style.setBorderBottom(BorderStyle.THICK);
                 style.setBorderRight(BorderStyle.THICK);
+                style.setBorderBottom(BorderStyle.THICK);
                 break;
                 
             case BASGAUCHE :
-                style.setBorderBottom(BorderStyle.THICK);
                 style.setBorderLeft(BorderStyle.THICK);
+                style.setBorderBottom(BorderStyle.THICK);
                 break;
                 
             case HAUTDROITE :

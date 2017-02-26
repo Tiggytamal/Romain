@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 import model.Incident;
 import utilities.interfaces.Instance;
 
 @ManagedBean (name = "list")
-@SessionScoped
+@ViewScoped
 public class ListBean implements Serializable, Instance
 {
     /* ---------- ATTIBUTES ---------- */
