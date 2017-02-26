@@ -22,7 +22,9 @@ import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -234,14 +236,16 @@ public class ExcelBean implements Serializable, Instance
         helper.recentrage(row.getCell(iTransferes)).setCellValue(cellTransfere(retourCalcul));
 
         // Mise à jour de la cellule des incidents en cours
-        helper.recentrage(row.getCell(iEnCours)).setCellValue(cellEnCours(retourCalcul));
+        row.getCell(iEnCours).setCellValue(cellEnCours(retourCalcul));
 
         int indexFormula = moisEnCours + 1;
         // Mise à jour de la cellule du nombre d'incidents cible
-        String clos = "NUMBERVALUE(LEFT(" + CellReference.convertNumToColString(iClos) + indexFormula + "," + "FIND(\"(\"," + CellReference.convertNumToColString(iClos) + indexFormula + ")-1))";
+        String clos = "NUMBERVALUE(LEFT(" + CellReference.convertNumToColString(iClos) + indexFormula + "," + "FIND(\"(\"," + CellReference.convertNumToColString(iClos)
+                + indexFormula + ")-1))";
         String objectif = CellReference.convertNumToColString(iObjectif) + indexFormula;
-        row.getCell(iCible).setCellFormula("IF(" + clos + ">" + objectif + ",0," + CellReference.convertNumToColString(iObjectif) + indexFormula + "-" + clos + ")");
-        row.getCell(iAvancement).setCellFormula("IF(" + objectif + "<>0," + clos + "/" + objectif + ",0)");
+        helper.recentrage(row.getCell(iCible))
+                .setCellFormula("IF(" + clos + ">" + objectif + ",0," + CellReference.convertNumToColString(iObjectif) + indexFormula + "-" + clos + ")");
+        helper.recentrage(row.getCell(iAvancement)).setCellFormula("IF(" + objectif + "<>0," + clos + "/" + objectif + ",0)");
 
         // Renvoie la liste des incidents à traiter
         @SuppressWarnings ("unchecked")
@@ -437,17 +441,32 @@ public class ExcelBean implements Serializable, Instance
             // Dernière ligne
             else if (!iter.hasNext())
             {
+                
                 for (Cell cell : row)
                 {
                     if (cell.getColumnIndex() == row.getFirstCellNum())
-                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BASGAUCHE));
-                    else if (cell.getColumnIndex() == row.getLastCellNum())
-                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BASDROITE));
+                    {
+                        CellStyle style = wbOut.createCellStyle();
+                        style.cloneStyleFrom(helper.getStyle(incident.getStatut(), Side.GAUCHE));
+                        style.setBorderBottom(BorderStyle.THICK);
+                        cell.setCellStyle(style);
+                    }
+                    else if (cell.getColumnIndex() == row.getLastCellNum() - 1)
+                    {
+                        CellStyle style = wbOut.createCellStyle();
+                        style.cloneStyleFrom(helper.getStyle(incident.getStatut(), Side.DROITE));
+                        style.setBorderBottom(BorderStyle.THICK);
+                        cell.setCellStyle(style);
+                    }
                     else
-                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BAS));
+                    {
+                        CellStyle style = wbOut.createCellStyle();
+                        style.cloneStyleFrom(helper.getStyle(incident.getStatut(), null));
+                        style.setBorderBottom(BorderStyle.THICK);
+                        cell.setCellStyle(style);
+                    }
                 }
             }
-
             // Toutes les autres
             else
             {
@@ -481,7 +500,6 @@ public class ExcelBean implements Serializable, Instance
             // Incrémentation du numéro de ligne
             ligne++;
         }
-
     }
 
     /**
