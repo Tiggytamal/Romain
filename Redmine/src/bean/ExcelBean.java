@@ -11,22 +11,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 
-import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -37,19 +35,20 @@ import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
 import model.Incident;
-import model.IncidentSM9;
 import model.User;
 import model.enums.Champ;
 import model.enums.Statut;
 import model.enums.Tracker;
+import utilities.CellHelper;
 import utilities.DateConvert;
 import utilities.GrowlException;
 import utilities.Statics;
 import utilities.Utilities;
+import utilities.enums.Side;
 import utilities.interfaces.Instance;
 
 @ManagedBean (name = "excel")
-@SessionScoped
+@ViewScoped
 public class ExcelBean implements Serializable, Instance
 {
 
@@ -71,12 +70,11 @@ public class ExcelBean implements Serializable, Instance
     private Workbook wbIn;
     /** Workbook du nouveau fichier excel */
     private Workbook wbOut;
-    /** liste des incidents triés */
-    private List<Incident> listIncidents;
 
     /** Noms des colonnes de la page Avancement */
-    private final static String OBJECTIF = "NbincidentsObjectif", ENTRANTS = "NbincidentsEntrants", CLOS = "NbincidentsClos", RESOLVED = "NbincidentsResolved",
-            TRANSFERED = "NbincidentsTransférés", ENCOURS = "NbincidentsEnCours", CIBLE = "Nbd'inc.àtraiterpouratteindrelacible", AVANCEMENT = "Avancement";
+    private final static String OBJECTIF = "NbincidentsObjectif";
+    private final static String ENTRANTS = "NbincidentsEntrants", CLOS = "NbincidentsClos", RESOLVED = "NbincidentsResolved", TRANSFERED = "NbincidentsTransférés",
+            ENCOURS = "NbincidentsEnCours", CIBLE = "Nbd'inc.àtraiterpouratteindrelacible", AVANCEMENT = "Avancement";
 
     /** Identifiants pour les calculs des incidents */
     private final static String PENDING = "NbincidentsPending", PROBSRESOLVED = "NbprobsResolved", PROBSENCOURS = "NbproblèmesEnCours", LISTINCS = "Listeincidents",
@@ -98,12 +96,6 @@ public class ExcelBean implements Serializable, Instance
     }
 
     /* ---------- METHODS ---------- */
-
-    @PostConstruct
-    public void postConstruct()
-    {
-        listIncidents = listBean.getListIncidents();
-    }
 
     @Override
     public void instanciation()
@@ -164,6 +156,8 @@ public class ExcelBean implements Serializable, Instance
         // Création des feuilles de classeur
         Sheet sheetAvancementIn = wbIn.getSheet(Statics.sheetAvancement);
         Sheet sheetAvancementOut = wbOut.getSheet(Statics.sheetAvancement);
+
+        CellHelper helper = new CellHelper(wbOut);
 
         /* ------ Calcul des variables ------ */
 
@@ -234,26 +228,20 @@ public class ExcelBean implements Serializable, Instance
         HashMap<String, Object> retourCalcul = calculNbreIncidents();
 
         // Mise à jour des cellules
-        row.getCell(iEntrants).setCellValue((int) retourCalcul.get(ENTRANTS));
-        row.getCell(iClos).setCellValue((int) retourCalcul.get(CLOS));
-        row.getCell(iResolved).setCellValue((int) retourCalcul.get(RESOLVED));
-        row.getCell(iTransferes).setCellValue(cellTransfere(retourCalcul));
+        miseAJourCellule(helper.recentrage(row.getCell(iEntrants)), (int) retourCalcul.get(ENTRANTS));
+        miseAJourCellule(helper.recentrage(row.getCell(iClos)), (int) retourCalcul.get(CLOS));
+        miseAJourCellule(helper.recentrage(row.getCell(iResolved)), (int) retourCalcul.get(RESOLVED));
+        helper.recentrage(row.getCell(iTransferes)).setCellValue(cellTransfere(retourCalcul));
 
         // Mise à jour de la cellule des incidents en cours
-        Cell cellEncours = row.getCell(iEnCours);
-        CellStyle style = wbOut.createCellStyle();
-        style.setWrapText(true);
-        cellEncours.setCellStyle(style);
-        cellEncours.setCellValue(cellEnCours(retourCalcul));
+        helper.recentrage(row.getCell(iEnCours)).setCellValue(cellEnCours(retourCalcul));
 
         int indexFormula = moisEnCours + 1;
         // Mise à jour de la cellule du nombre d'incidents cible
-        Cell cellCible = row.getCell(iCible);
-        cellCible.setCellFormula("IF(" + CellReference.convertNumToColString(iClos) + indexFormula + ">" + CellReference.convertNumToColString(iObjectif) + indexFormula + ",0,"
-                + CellReference.convertNumToColString(iObjectif) + indexFormula + "-" + CellReference.convertNumToColString(iClos) + indexFormula + ")");
-        Cell cellAvanc = row.getCell(iAvancement);
-        cellAvanc.setCellFormula("IF(" + CellReference.convertNumToColString(iObjectif) + indexFormula + "<>0," + CellReference.convertNumToColString(iClos) + indexFormula + "/"
-                + CellReference.convertNumToColString(iObjectif) + indexFormula + ",0)");
+        String clos = "NUMBERVALUE(LEFT(" + CellReference.convertNumToColString(iClos) + indexFormula + "," + "FIND(\"(\"," + CellReference.convertNumToColString(iClos) + indexFormula + ")-1))";
+        String objectif = CellReference.convertNumToColString(iObjectif) + indexFormula;
+        row.getCell(iCible).setCellFormula("IF(" + clos + ">" + objectif + ",0," + CellReference.convertNumToColString(iObjectif) + indexFormula + "-" + clos + ")");
+        row.getCell(iAvancement).setCellFormula("IF(" + objectif + "<>0," + clos + "/" + objectif + ",0)");
 
         // Renvoie la liste des incidents à traiter
         @SuppressWarnings ("unchecked")
@@ -262,20 +250,54 @@ public class ExcelBean implements Serializable, Instance
         return retour;
     }
 
+    /**
+     * Met à jour les cellules avec les nouveaux calculs en affichant la différence avec le dernier point
+     * 
+     * @param cell
+     * @param nouveau
+     */
+    private void miseAJourCellule(Cell cell, int nouveau)
+    {
+        int avant = 0;
+        if (cell.getCellTypeEnum() == CellType.STRING)
+        {
+            try
+            {
+                avant = Integer.parseInt(cell.getStringCellValue());
+            }
+            catch (NumberFormatException e)
+            {
+
+            }
+
+        }
+        else if (cell.getCellTypeEnum() == CellType.NUMERIC)
+        {
+            avant = (int) cell.getNumericCellValue();
+        }
+
+        cell.setCellValue(nouveau + " (+" + (nouveau - avant) + ")");
+    }
+
     private void sm9(List<Incident> list, Workbook wbIn, Workbook wbOut) throws GrowlException
     {
-        /* ------ réation des variables ------ */
+        /* ------ Création des variables ------ */
 
         // Création des feuilles de classeur
         Sheet sheetSM9In = wbIn.getSheet(Statics.sheetStockSM9);
         Sheet sheetSM9Out = wbOut.getSheet(Statics.sheetStockSM9);
 
         // ints
-        int iNumero = 0, iTracker = 0, iApplication = 0, iBanque = 0, iEnvironnement = 0, iPriorite = 0, iSujet = 0, iAssigne = 0, iStatut = 0, iDateOuv = 0, iDatePriseEnCharge = 0,
-                iDateReso = 0, iReouv = 0, iLigne1 = 0, totalIndex = 0;
+        int iNumero = 0, iTracker = 0, iApplication = 0, iBanque = 0, iEnvironnement = 0, iPriorite = 0, iSujet = 0, iAssigne = 0, iStatut = 0, iDateOuv = 0,
+                iDatePriseEnCharge = 0, iDateReso = 0, iReouv = 0, iLigne1 = 0, totalIndex = 0;
 
         // Map des incident triés par numéro.
-        Map<String, Incident> mapOut = new TreeMap<>();
+        TreeMap<String, Incident> mapOut = new TreeMap<>();
+
+        // Création de l'Helper pour mettre à jour les cellules
+        CellHelper helper = new CellHelper(wbOut);
+
+        /* ------ Traitement ------ */
 
         for (Incident incident : list)
         {
@@ -377,22 +399,70 @@ public class ExcelBean implements Serializable, Instance
                 mapOut.get(cle).setCommentaire(row.getCell(iStatut).getStringCellValue());
 
             // Une fois le commentaire récupéré, on efface toute la ligne.
-            for (Cell cell : row)
+            for (Cell cell : sheetSM9Out.getRow(i))
             {
-                cell.setCellType(CellType.BLANK);
+                cell.setCellValue("");
+                cell.setCellStyle(helper.getStyle(null, null));
             }
         }
-        // Intialisation de la première ligne à mettre à jour
+
+        // Intialisation de la première ligne d'incident à mettre à jour
         int ligne = iLigne1;
-        
+
         // Itérateur sur les clés de la TreeMap
         for (Iterator<String> iter = mapOut.keySet().iterator(); iter.hasNext();)
         {
+            /* ------ Initialisation des variables ------ */
+
             // Récupération de la ligne à mettre à jour
             Row row = sheetSM9Out.getRow(ligne);
             // Création de l'incident
             Incident incident = mapOut.get(iter.next());
-            // Mise à jour des données depuis l'incident
+
+            /* ------ Mise à jour des données depuis l'incident ------ */
+
+            // Première ligne
+            if (ligne == iLigne1)
+            {
+                for (Cell cell : row)
+                {
+                    if (cell.getColumnIndex() == row.getFirstCellNum())
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.HAUTGAUCHE));
+                    else if (cell.getColumnIndex() == row.getLastCellNum() - 1)
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.HAUTDROITE));
+                    else
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.HAUT));
+                }
+            }
+            // Dernière ligne
+            else if (!iter.hasNext())
+            {
+                for (Cell cell : row)
+                {
+                    if (cell.getColumnIndex() == row.getFirstCellNum())
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BASGAUCHE));
+                    else if (cell.getColumnIndex() == row.getLastCellNum())
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BASDROITE));
+                    else
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.BAS));
+                }
+            }
+
+            // Toutes les autres
+            else
+            {
+                for (Cell cell : row)
+                {
+                    if (cell.getColumnIndex() == row.getFirstCellNum())
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.GAUCHE));
+                    else if (cell.getColumnIndex() == row.getLastCellNum() - 1)
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), Side.DROITE));
+                    else
+                        cell.setCellStyle(helper.getStyle(incident.getStatut(), null));
+                }
+            }
+
+            // Mise à jour des données dans chaque cellule
             row.getCell(iNumero).setCellValue(incident.getMapValeurs().get(Champ.NUMERO));
             row.getCell(iTracker).setCellValue(incident.getStatut().toString());
             row.getCell(iApplication).setCellValue(incident.getMapValeurs().get(Champ.APPLICATION));
@@ -402,15 +472,16 @@ public class ExcelBean implements Serializable, Instance
             row.getCell(iSujet).setCellValue(incident.getSujet());
             User responsable = incident.getResponsable();
             row.getCell(iAssigne).setCellValue(responsable.getPrenom() + " " + responsable.getNom());
-            row.getCell(iStatut).setCellValue(incident.getCommentaire());
+            helper.setFontColor(row.getCell(iStatut), IndexedColors.RED).setCellValue(incident.getCommentaire());
             row.getCell(iDateOuv).setCellValue(incident.getMapValeurs().get(Champ.DATEOUVERTURE));
             row.getCell(iDatePriseEnCharge).setCellValue(incident.getMapValeurs().get(Champ.DATEPRISENCHARGE));
             row.getCell(iDateReso).setCellValue(incident.getMapValeurs().get(Champ.DATERESOLUTION));
             row.getCell(iReouv).setCellValue(incident.getMapValeurs().get(Champ.REOUVERTURE));
-            
+
             // Incrémentation du numéro de ligne
             ligne++;
         }
+
     }
 
     /**
@@ -432,10 +503,13 @@ public class ExcelBean implements Serializable, Instance
 
         @SuppressWarnings ("unchecked")
         List<Incident> list = (List<Incident>) map.get(LISTINCSTRANS);
-        for (Incident incident : list)
+        for (int i = 0; i < list.size(); i++)
         {
+            Incident incident = list.get(i);
             // Ajout du numéro de l'incident et du groupe de transfert
-            retour.append(incident.getMapValeurs().get(Champ.NUMERO)).append(" - ").append(incident.getMapValeurs().get(Champ.GRTRANSFERT)).append("\n");
+            retour.append(incident.getMapValeurs().get(Champ.NUMERO)).append(" - ").append(incident.getMapValeurs().get(Champ.GRTRANSFERT));
+            if (i < list.size() - 1)
+                retour.append(Statics.NL);
         }
         return retour.toString();
     }
@@ -534,7 +608,7 @@ public class ExcelBean implements Serializable, Instance
 
         /* ----- Itération sur les incidents ----- */
 
-        for (Incident incident : listIncidents)
+        for (Incident incident : listBean.getListIncidents())
         {
             // Initialisation des variables
             datePriseEnChargeString = incident.getMapValeurs().get(Champ.DATEPRISENCHARGE);
@@ -543,11 +617,11 @@ public class ExcelBean implements Serializable, Instance
             tracker = incident.getTracker();
             statut = incident.getStatut();
             estAbandonne = Statics.ABANDON.equalsIgnoreCase(da);
-            estIncident = tracker == Tracker.INCIDENT || tracker == Tracker.DEMANDE;
-            estProbleme = tracker == Tracker.PROBLEME;
+            estIncident = (tracker == Tracker.INCIDENT || tracker == Tracker.DEMANDE);
+            estProbleme = (tracker == Tracker.PROBLEME);
 
-            // Pas de décompte si l'incident a un numéro de DA à abandon
-            if (estAbandonne)
+            // Pas de décompte si ce n'est pas un incident ou un problème et si l'incident a un numéro de DA à abandon
+            if (estAbandonne || (!estIncident && !estProbleme))
                 continue;
 
             // Incrémentation des compteurs et ajout dans les listes des incidents en cours.
@@ -555,7 +629,10 @@ public class ExcelBean implements Serializable, Instance
             {
                 case RESOLVED :
                     if (estIncident)
+                    {
                         totalResolved++;
+                        totalClosed++;
+                    }
                     else if (estProbleme)
                         totalProbsResolved++;
                     incsATraiter.add(incident);
@@ -624,7 +701,7 @@ public class ExcelBean implements Serializable, Instance
                 // Incrémentation des incidents clos
                 if (estIncident && statut == Statut.CLOSED && incident.getDateCloture() != null)
                 {
-                    dateCloture = ((java.sql.Date) incident.getDateCloture()).toLocalDate();
+                    dateCloture = DateConvert.localDate(incident.getDateCloture());
                     if (dateCloture.getYear() == Statics.TODAY.getYear() && dateCloture.getMonth().equals(Statics.TODAY.getMonth()))
                         totalClosed++;
                 }

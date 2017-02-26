@@ -75,7 +75,8 @@ public final class Valeur implements Serializable
 	    if (champ != null)
 	        return champ;
 	    
-		return model.enums.Champ.getChamp(champString);
+	    champ = model.enums.Champ.getChamp(champString);
+		return champ;
 	}
 	
     /**

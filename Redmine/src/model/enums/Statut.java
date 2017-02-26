@@ -1,16 +1,29 @@
 package model.enums;
 
+/**
+ * Contient la liste de tous les statuts possible d'un incident dans Redmine
+ * 
+ * @author Tiggy Tamal
+ * @since 1.0
+ */
 public enum Statut
 {
-    RESOLVED("Resolved"),
-    NOUVEAU("Nouveau / Open"),
-    WRKINPRG("Work In Progress"),
-    CLOSED("Closed"),
-    TRANSFERED("Transfered"),
-    REFERRED("Referred"),
-    PENDING("Pending"),
-    NONTMA("Non traité par TMA");
+    
+    RESOLVED(Valeur.RESOLVED),
+    NOUVEAU(Valeur.NOUVEAU),
+    WRKINPRG(Valeur.WRKINPRG),
+    CLOSED(Valeur.CLOSED),
+    TRANSFERED(Valeur.TRANSFERED),
+    REFERRED(Valeur.REFERRED),
+    PENDING(Valeur.PENDING),
+    NONTMA(Valeur.NONTMA),
+    REJECTED(Valeur.REJECTED),
+    ACHIFFRER(Valeur.ACHIFFRER),
+    CHIFFRE(Valeur.CHIFFRE),
+    ANALYSED(Valeur.ANALYSED);
 	//TODO Vérifier les valeurs des statuts en tables
+    
+
 
     private final String string;
 
@@ -36,24 +49,54 @@ public enum Statut
     {
     	switch (string)
     	{
-    		case "Resolved" :
+    		case Valeur.RESOLVED :
     			return RESOLVED;
-    		case "Nouveau / Open" :
+    		case Valeur.NOUVEAU :
     			return NOUVEAU;
-    		case "Work In Progress" :
+    		case Valeur.WRKINPRG :
     			return WRKINPRG;
-    		case "Closed" :
+    		case Valeur.CLOSED :
     			return CLOSED;
-    		case "Transfered" :
+    		case Valeur.TRANSFERED :
     			return TRANSFERED;
-    		case "Referred" :
+    		case Valeur.REFERRED :
     			return REFERRED;
-    		case "Pending" :
+    		case Valeur.PENDING :
     			return PENDING;
-    		case "Non traité par TMA" :
+    		case Valeur.NONTMA :
     			return NONTMA;
+            case Valeur.REJECTED :
+                return REJECTED;
+            case Valeur.ACHIFFRER :
+                return ACHIFFRER;
+            case Valeur.CHIFFRE :
+                return CHIFFRE;
+            case Valeur.ANALYSED :
+                return ANALYSED;
     		default :
-    			return null;    			
+    			throw new IllegalArgumentException("Statut non connu : " + string);    			
     	}
     }
+    
+    /**
+     * Permet de référencer les valeur des différents statuts possible en table
+     * @author Tiggy Tamal
+     * @since 1.0
+     */
+    private static class Valeur
+    {
+        private static final String RESOLVED = "Resolved";
+        private static final String NOUVEAU = "Nouveau / Open";
+        private static final String WRKINPRG = "Work In Progress";
+        private static final String CLOSED = "Closed";
+        private static final String TRANSFERED = "Transfered";
+        private static final String REFERRED = "Referred";
+        private static final String PENDING = "Pending xx";
+        private static final String NONTMA = "Non traité par TMA";
+        private static final String REJECTED = "Rejected";
+        private static final String ACHIFFRER = "A chiffrer";
+        private static final String CHIFFRE = "Chiffré";
+        private static final String ANALYSED = "Analysed and transfered";       
+    }
 }
+

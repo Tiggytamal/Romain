@@ -234,8 +234,10 @@ public final class Incident implements Serializable
 		if (statut != null)
     	return statut;
 		
-		return Statut.getStatus(statutString);
+		statut = Statut.getStatus(statutString);
+		return statut;
 	}
+    
     /**
      * retourne le tracker de l'incident sous forme d'une énumération
      * 
@@ -243,6 +245,10 @@ public final class Incident implements Serializable
      */
     public Tracker getTracker()
     {
+        if (tracker != null)
+        return tracker;
+        
+        tracker = Tracker.getTracker(trackerString);
         return tracker;
     }
 
