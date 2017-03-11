@@ -1,0 +1,42 @@
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml" 
+    xmlns:h="http://xmlns.jcp.org/jsf/html" 
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+    xmlns:p="http://primefaces.org/ui" 
+    xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:define name="title">
+        <h:outputText value="#{b['general.pointhebdo']}" />
+    </ui:define>
+
+    <ui:define name="content">
+        <h:form enctype="multipart/form-data">
+        
+            <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5">
+                <p:outputLabel for="Pole" value="#{b[pointpole.pole]}" />
+                <p:selectOneMenu id="Pole" value="#{incident.nomPole}">
+                    <f:selectItem itemLabel="Select One" itemValue="" />
+                    <f:selectItems value="#{incident.listNomsProjets}" />
+                </p:selectOneMenu>
+                <p:commandButton value="#{b[pointpole.chargerinc]}" action="#{incident.chargerIncidents}" update="list" onclick="PF('charge').show();" onsuccess="PF('charge').hide();" />
+            </h:panelGrid>
+            
+            <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5" id="list">
+                <p:outputLabel for="Application" value="#{b[pointpole.appli]}" />
+                <p:selectManyMenu id="Application" value="#{incident.applicationschoisies}" filter="true" filterMatchMode="contains" showCheckbox="true">
+                    <f:selectItems value="#{incident.listApplications}" />
+                </p:selectManyMenu>
+                <p:commandButton value="#{b[pointpole.triappli]}" action="#{incident.trierParAppli}" onclick="PF('charge').show();"
+                    onsuccess="PF('charge').hide();" />
+            </h:panelGrid>
+
+            <p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" dragDropSupport="1" mode="advanced" auto="true" />
+
+            <p:commandButton value="Download" ajax="false" icon="ui-icon-arrowthick-1-s">
+                <p:fileDownload value="#{excel.upload}" />
+            </p:commandButton>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>
