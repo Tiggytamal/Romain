@@ -17,7 +17,6 @@ import dao.DaoIncident;
 import dao.DaoProjet;
 import model.Incident;
 import model.enums.Champ;
-import model.enums.Statut;
 import utilities.Utilities;
 import utilities.interfaces.Instance;
 
@@ -91,11 +90,12 @@ public class IncidentBean implements Serializable, Instance
      * Charge les incidents depuis la base Redmine en fonction du pôle choisi
      * @return
      */
-    public void chargerIncidents()
+    public String chargerIncidents()
     {
-        if (nomPole == null)
+        if (nomPole == null || nomPole.isEmpty())
         {
             Utilities.updateGrowl("Vous devez choisir un pôle", FacesMessage.SEVERITY_ERROR, null);
+            return "";
         }
 
         listIncidents = new ArrayList<>();
@@ -105,6 +105,7 @@ public class IncidentBean implements Serializable, Instance
                
        // triageIncident();       
         listBean.setListIncidents(listIncidents);
+        return "";
     }
     
     /**

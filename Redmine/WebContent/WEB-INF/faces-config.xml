@@ -24,7 +24,6 @@
 	    <!-- Default and supported locale -->
 	    <locale-config>
 	      <default-locale>fr</default-locale>
-	      <supported-locale>en</supported-locale>
 	    </locale-config>
 	    
 	    <!-- Location for Error messages bundle -->
