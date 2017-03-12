@@ -4,11 +4,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.primefaces.model.StreamedContent;
 
+import dao.DaoProjet;
 import model.Incident;
 import utilities.interfaces.Instance;
 
@@ -20,6 +23,10 @@ public class ListBean implements Serializable, Instance
     
     private static final long serialVersionUID = 1L;
     
+    /** Dao de la classe Projet */
+    @EJB
+    private DaoProjet daop;
+    
     /** liste des incidents */
     private List<Incident> listIncidents;
     /** Liste des applications choisies */
@@ -27,16 +34,30 @@ public class ListBean implements Serializable, Instance
     /** Nouveau fichier à télécharger */
     private StreamedContent upload;
     
+    private List<String> listNomsProjets;
+    
     /* ---------- CONSTUCTORS ---------- */
 
-    /* ---------- METHODS ---------- */
-   
+    public ListBean()
+    {
+        instanciation();
+    }   
+    
     @Override
     public void instanciation()
     {
         listIncidents = new ArrayList<>();
         applicationschoisies = new ArrayList<>();
     }
+    
+    @PostConstruct
+    private void postConstruct()
+    {
+        listNomsProjets = daop.findAllPoleNames();
+    }
+    
+    /* ---------- METHODS ---------- */
+
     
     /* ---------- ACCESS ---------- */
     
@@ -55,11 +76,6 @@ public class ListBean implements Serializable, Instance
     public void setUpload(StreamedContent upload)
     {
         this.upload = upload;
-    }
-
-    public ListBean()
-    {
-        instanciation();
     }
     
     /**
@@ -92,5 +108,14 @@ public class ListBean implements Serializable, Instance
     public void setListIncidents(List<Incident> listIncidents)
     {
         this.listIncidents = listIncidents;
+    }
+    
+
+    /**
+     * @return the listNomsProjets
+     */
+    public List<String> getListNomsProjets()
+    {
+        return listNomsProjets;
     }
 }

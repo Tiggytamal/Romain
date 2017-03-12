@@ -10,37 +10,47 @@
 
             <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5">
                 <p:outputLabel for="Pole" value="#{b['pointpole.pole']}" />
-                <p:selectOneMenu id="Pole" value="#{incident.nomPole}">
+                <p:selectOneMenu id="Pole" value="#{commande.nomPole}">
                     <f:selectItem itemLabel="#{b['pointpole.choix']}" itemValue="" />
-                    <f:selectItems value="#{incident.listNomsProjets}" />
+                    <f:selectItems value="#{list.listNomsProjets}" />
                 </p:selectOneMenu>
-                <p:commandButton value="#{b['pointpole.chargerinc']}" action="#{incident.chargerIncidents}" update="appli" onclick="PF('charge').show();"
+                <p:commandButton value="#{b['pointpole.chargerinc']}" action="#{commande.charger}" update="appli" onclick="PF('charge').show();"
                     onsuccess="PF('charge').hide();" />
             </h:panelGrid>
 
-            <p:dataTable value="#{commande.listApplisBDC}" var="a" id="appli" tableStyle="width:auto">
-            
-            <f:facet name="header">
-                <h:outputText value="#{b['systeme.ep']}" />
-            </f:facet>
-            
-            <p:column>
-            <h:outputText value="#{a.nom}" />
-            </p:column>
-            
-            <p:column>
-            <h:outputText value ="#{a.bdc}"/>
-            </p:column>
-                
+            <p:dataTable value="#{commande.listApplisBDC}" var="a" id="appli" editable="true" editMode="cell" tableStyle="width:auto"
+                selection="#{commande.applisSelect}" rowIndexVar="index" rowKey="#{a.nom}">
+
+                <f:facet name="header">
+                    <h:outputText value="#{b['general.applications']}" />
+                </f:facet>
+
+                <p:column selectionMode="multiple" />
+
+                <p:column headerText="Application">
+                    <h:outputText value="#{a.nom}" />
+                </p:column>
+
+                <p:column headerText="BDC">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{a.bdc}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{a.bdc}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+
             </p:dataTable>
-            <h:panelGrid columns="3" style="margin-bottom:10px" cellpadding="5" id="list">
-                <p:outputLabel for="Application" value="#{b['pointpole.appli']}" />
-                <p:selectManyMenu id="Application" value="#{incident.applicationschoisies}" filter="true" filterMatchMode="contains" showCheckbox="true">
-                    <f:selectItems value="#{incident.listApplications}" />
-                </p:selectManyMenu>
-                <p:commandButton value="#{b['commande.choisir']}" action="#{commande.calcul}" onclick="PF('charge').show();"
-                    onsuccess="PF('charge').hide();" />
+            <h:panelGrid columns="2" cellpadding="5">
+                <p:outputLabel for="debut" value="#{b['pointcommande.debut']}" />
+                <p:calendar id="debut" value="#{commande.dateDebut}" />
+                <p:outputLabel for="fin" value="#{b['pointcommande.fin']}" />
+                <p:calendar id="fin" value="#{commande.dateFin}" />
             </h:panelGrid>
+
+            <p:commandButton value="#{b['pointcommande.creer']}" action="#{commande.calcul}" onclick="PF('charge').show();" onsuccess="PF('charge').hide();" />
 
             <p:commandButton value="#{b['pointpole.telecharger']}" ajax="false" icon="ui-icon-arrowthick-1-s">
                 <p:fileDownload value="#{list.upload}" />
