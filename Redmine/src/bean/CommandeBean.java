@@ -27,7 +27,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.primefaces.model.DefaultStreamedContent;
 
 import model.ApplicationBDC;
@@ -274,7 +273,7 @@ public class CommandeBean implements Serializable, Instance
                 else if (statut == Statut.RESOLVED && statut == statutIncident && incident.getMapValeurs().get(Champ.DATERESOLUTION) != null)
                 {
 
-                    Date dateResolved = new SimpleDateFormat("dd/MM/yyyy").parse(incident.getMapValeurs().get(Champ.DATERESOLUTION).substring(0, 9));
+                    Date dateResolved = new SimpleDateFormat("dd/MM/yyyy").parse(incident.getMapValeurs().get(Champ.DATERESOLUTION).substring(0, 10));
 
                     if (dateResolved != null && dateResolved.compareTo(dateFin) <= 0 && dateResolved.compareTo(dateDebut) >= 0)
                         total++;

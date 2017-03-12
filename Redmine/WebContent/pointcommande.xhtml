@@ -21,10 +21,6 @@
             <p:dataTable value="#{commande.listApplisBDC}" var="a" id="appli" editable="true" editMode="cell" tableStyle="width:auto"
                 selection="#{commande.applisSelect}" rowIndexVar="index" rowKey="#{a.nom}">
 
-                <f:facet name="header">
-                    <h:outputText value="#{b['general.applications']}" />
-                </f:facet>
-
                 <p:column selectionMode="multiple" />
 
                 <p:column headerText="Application">
