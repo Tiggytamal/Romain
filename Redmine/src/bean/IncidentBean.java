@@ -124,7 +124,7 @@ public class IncidentBean implements Serializable, Instance
             }
         }
         // Tri de la liste par ordre alphabétique des trigrammes d'application
-        Collections.sort(listApplications);   
+        Collections.sort(listApplications);
     }
     
     /**
@@ -150,6 +150,8 @@ public class IncidentBean implements Serializable, Instance
         
         // Renvoie au Bean de session la liste des incidents des applications choisies.
         listBean.setListIncidents(listincidentsTries);
+        //Transfert de la liste dans le Bean de session.
+        listBean.setApplicationschoisies(listApplications);
         System.out.println("taille incidents triés:" + listincidentsTries.size());
         return "";
     }

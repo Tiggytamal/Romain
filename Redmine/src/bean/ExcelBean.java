@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -33,7 +34,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.DefaultStreamedContent;
-import org.primefaces.model.StreamedContent;
 import org.primefaces.model.UploadedFile;
 
 import model.Incident;
@@ -66,8 +66,6 @@ public class ExcelBean implements Serializable, Instance
 
     /** Excel envoyé à l'application */
     private UploadedFile file;
-    /** Nouveau fichier à télécharger */
-    private StreamedContent upload;
     /** workbook correspondant au fichier envoyé */
     private Workbook wbIn;
     /** Workbook du nouveau fichier excel */
@@ -100,6 +98,7 @@ public class ExcelBean implements Serializable, Instance
     /* ---------- METHODS ---------- */
 
     @Override
+    @PostConstruct
     public void instanciation()
     {
         wbIn = new HSSFWorkbook();
@@ -135,7 +134,7 @@ public class ExcelBean implements Serializable, Instance
         wbOut.write(new FileOutputStream(newFile.getName()));
         wbIn.close();
         wbOut.close();
-        upload = new DefaultStreamedContent(new FileInputStream(newFile.getName()), "application/vnd.ms-excel", "test_workbook.xls");
+        listBean.setUpload(new DefaultStreamedContent(new FileInputStream(newFile.getName()), "application/vnd.ms-excel", "test_workbook.xls"));
         return "";
     }
 
@@ -749,11 +748,6 @@ public class ExcelBean implements Serializable, Instance
     public void setFile(UploadedFile file)
     {
         this.file = file;
-    }
-
-    public StreamedContent getUpload()
-    {
-        return upload;
     }
 
     public ListBean getListBean()

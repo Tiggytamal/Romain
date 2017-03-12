@@ -33,7 +33,7 @@
             <p:fileUpload value="#{excel.file}" fileUploadListener="#{excel.charger}" dragDropSupport="1" mode="advanced" auto="true" styleClass="inputField"/>
 
             <p:commandButton value="#{b['pointpole.telecharger']}" ajax="false" icon="ui-icon-arrowthick-1-s">
-                <p:fileDownload value="#{excel.upload}" />
+                <p:fileDownload value="#{list.upload}" />
             </p:commandButton>
 
         </h:form>
