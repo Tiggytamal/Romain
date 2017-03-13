@@ -7,11 +7,13 @@ public class ApplicationBDC implements Comparable<ApplicationBDC>, Serializable
     private static final long serialVersionUID = 1L;
     private String nom;
     private int bdc;
-    
-    public ApplicationBDC(String nom)
+    private float taux;
+
+	public ApplicationBDC(String nom)
     {
         this.nom = nom;
         bdc = 0;
+        taux = 1.3f;
     }   
 
     @Override
@@ -45,4 +47,12 @@ public class ApplicationBDC implements Comparable<ApplicationBDC>, Serializable
     {
         return nom;
     }
+    
+    public float getTaux() {
+		return taux;
+	}
+
+	public void setTaux(float taux) {
+		this.taux = taux;
+	}
 }

@@ -37,6 +37,17 @@
                         </f:facet>
                     </p:cellEditor>
                 </p:column>
+                
+                <p:column headerText="Coeficient">
+                    <p:cellEditor>
+                        <f:facet name="output">
+                            <h:outputText value="#{a.taux}" />
+                        </f:facet>
+                        <f:facet name="input">
+                            <p:inputText value="#{a.taux}" />
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
 
             </p:dataTable>
             <h:panelGrid columns="2" cellpadding="5">

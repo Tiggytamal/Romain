@@ -230,7 +230,7 @@ public class CommandeBean implements Serializable, Instance
             // Charge total des incidents clos et resolved
             cell = helper.recentrage(row.createCell(iCharge));
             cell.setCellStyle(formatStyle(statut, null, "0.0"));
-            cell.setCellFormula("(" + CellReference.convertNumToColString(iClos) + iformula + "+" + CellReference.convertNumToColString(iResolv) + iformula + ")/1.3");
+            cell.setCellFormula("(" + CellReference.convertNumToColString(iClos) + iformula + "+" + CellReference.convertNumToColString(iResolv) + iformula + ")/" + appli.getTaux());
 
             // Nombre d'incidents du bon de commande
             cell = helper.recentrage(row.createCell(iBDC));
@@ -240,8 +240,7 @@ public class CommandeBean implements Serializable, Instance
             // Pourcentage atteint du bon de commande
             cell = helper.recentrage(row.createCell(iAvanc));
             cell.setCellStyle(formatStyle(statut, Side.DROITE,"00.0%"));
-            cell.setCellFormula("(" + CellReference.convertNumToColString(iClos) + iformula + "+" + CellReference.convertNumToColString(iResolv) + iformula + ")/"
-                    + CellReference.convertNumToColString(iBDC) + iformula);
+            cell.setCellFormula("(" + CellReference.convertNumToColString(iClos) + iformula + "+" + CellReference.convertNumToColString(iResolv) + iformula + ")/" + CellReference.convertNumToColString(iBDC) + iformula);
         }
     }
 
@@ -260,7 +259,8 @@ public class CommandeBean implements Serializable, Instance
         for (Incident incident : listIncidents)
         {
             String appliIncident = incident.getMapValeurs().get(Champ.APPLICATION);
-            if (appli.getNom().equals(appliIncident))
+            String DA = incident.getMapValeurs().get(Champ.DA);
+            if (appli.getNom().equals(appliIncident) && !DA.trim().equalsIgnoreCase("abandon"))
             {
                 Statut statutIncident = incident.getStatut();
                 if (statut == Statut.CLOSED && statut == statutIncident)
@@ -268,7 +268,7 @@ public class CommandeBean implements Serializable, Instance
                     Date dateCloture = incident.getDateCloture();
 
                     if (dateCloture != null && dateCloture.compareTo(dateFin) <= 0 && dateCloture.compareTo(dateDebut) >= 0)
-                        total++;
+                    	total++;
                 }
                 else if (statut == Statut.RESOLVED && statut == statutIncident && incident.getMapValeurs().get(Champ.DATERESOLUTION) != null)
                 {
