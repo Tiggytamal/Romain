@@ -3,7 +3,7 @@
 	xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
-	
+
 	<persistence-unit name="Pointpole" transaction-type="JTA">
 		<jta-data-source>jdbc/PointPole</jta-data-source>
 		<class>model.Champ</class>
@@ -18,6 +18,12 @@
 		<class>model.User</class>
 		<properties>
 			<property name="eclipselink.read-only" value="true" />
-		</properties>
+		</properties>		
 	</persistence-unit>
+	
+	<persistence-unit name="Appli" transaction-type="JTA">
+		<jta-data-source>jdbc/Appli</jta-data-source>
+		<class>model.system.Connexion</class>
+	</persistence-unit>
+	
 </persistence>

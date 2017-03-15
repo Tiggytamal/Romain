@@ -1,4 +1,4 @@
-package dao;
+package dao.general;
 
 
 import javax.persistence.EntityManager;
@@ -6,9 +6,9 @@ import javax.persistence.PersistenceContext;
 
 import utilities.interfaces.DaoGeneric;
 
-public abstract class DaoModel<T> extends DaoGeneric<T>
+public abstract class DaoSystem<T> extends DaoGeneric<T>
 {
     
-    @PersistenceContext (unitName = "Pointpole")
+    @PersistenceContext (unitName = "Appli")
     protected EntityManager em;
 }

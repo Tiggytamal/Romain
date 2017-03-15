@@ -4,10 +4,11 @@ import java.util.List;
 
 import javax.ejb.Stateless;
 
+import dao.general.DaoRedmine;
 import model.Projet;
 
 @Stateless
-public class DaoProjet extends DaoModel<Projet>
+public class DaoProjet extends DaoRedmine<Projet>
 {
 
     @Override

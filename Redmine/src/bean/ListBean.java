@@ -33,8 +33,15 @@ public class ListBean implements Serializable, Instance
     private List<String> applicationschoisies;
     /** Nouveau fichier à télécharger */
     private StreamedContent upload;
-    
+    /** Liste des noms de projets dans la base Redmine */
     private List<String> listNomsProjets;
+    
+    // Connection
+    
+    /** nom de connexion */
+    private String connect;
+    /** vérifie si la connection est bonne */
+    private boolean connectok;
     
     /* ---------- CONSTUCTORS ---------- */
 
@@ -110,12 +117,42 @@ public class ListBean implements Serializable, Instance
         this.listIncidents = listIncidents;
     }
     
-
     /**
      * @return the listNomsProjets
      */
     public List<String> getListNomsProjets()
     {
         return listNomsProjets;
+    }
+    /**
+     * @return the connect
+     */
+    public String getConnect()
+    {
+        return connect;
+    }
+
+    /**
+     * @param connect the connect to set
+     */
+    public void setConnect(String connect)
+    {
+        this.connect = connect;
+    }
+
+    /**
+     * @return the connectok
+     */
+    public boolean isConnectok()
+    {
+        return connectok;
+    }
+
+    /**
+     * @param connectok the connectok to set
+     */
+    public void setConnectok(boolean connectok)
+    {
+        this.connectok = connectok;
     }
 }

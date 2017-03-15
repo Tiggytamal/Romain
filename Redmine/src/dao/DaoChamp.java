@@ -4,10 +4,12 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.ejb.Stateless;
+
+import dao.general.DaoRedmine;
 import model.Champ;
 
 @Stateless
-public class DaoChamp extends DaoModel<Champ> implements Serializable
+public class DaoChamp extends DaoRedmine<Champ> implements Serializable
 {
     private static final long serialVersionUID = 1L;
     

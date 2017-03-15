@@ -440,7 +440,7 @@ public class ExcelBean implements Serializable, Instance
             // Dernière ligne
             else if (!iter.hasNext())
             {
-                
+
                 for (Cell cell : row)
                 {
                     if (cell.getColumnIndex() == row.getFirstCellNum())
@@ -693,7 +693,7 @@ public class ExcelBean implements Serializable, Instance
             // Incrémentation des incidents transférés
             if (statut == Statut.TRANSFERED && dateTransfertString != null && dateTransfertString.length() > 9)
             {
-            	
+
                 dateTransfert = LocalDate.parse(dateTransfertString.substring(0, 10), f);
 
                 if (dateTransfert.getYear() == Statics.TODAY.getYear() && dateTransfert.getMonth().equals(Statics.TODAY.getMonth()))
@@ -717,9 +717,7 @@ public class ExcelBean implements Serializable, Instance
                 {
                     dateCloture = DateConvert.localDate(incident.getDateCloture());
                     if (dateCloture.getYear() == Statics.TODAY.getYear() && dateCloture.getMonth().equals(Statics.TODAY.getMonth()))
-                        {
-                    	totalClosed++;
-                        }
+                        totalClosed++;
                 }
             }
         }

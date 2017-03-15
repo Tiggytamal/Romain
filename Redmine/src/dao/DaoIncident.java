@@ -10,10 +10,11 @@ import javax.persistence.TypedQuery;
 
 import org.eclipse.persistence.internal.jpa.EJBQueryImpl;
 
+import dao.general.DaoRedmine;
 import model.Incident;
 
 @Stateless
-public class DaoIncident extends DaoModel<Incident>
+public class DaoIncident extends DaoRedmine<Incident>
 {
 
     @Override

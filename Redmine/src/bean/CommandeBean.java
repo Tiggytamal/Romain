@@ -29,10 +29,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.primefaces.model.DefaultStreamedContent;
 
-import model.ApplicationBDC;
 import model.Incident;
 import model.enums.Champ;
 import model.enums.Statut;
+import model.system.ApplicationBDC;
 import utilities.CellHelper;
 import utilities.GrowlException;
 import utilities.Utilities;
