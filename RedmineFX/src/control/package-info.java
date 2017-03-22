@@ -5,4 +5,4 @@
  * @author Tiggy Tamal
  *
  */
-package junit;
+package control;
