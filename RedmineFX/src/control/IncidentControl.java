@@ -10,7 +10,7 @@ import utilities.GrowlException;
 import utilities.enums.Severity;
 import utilities.interfaces.Instance;
 
-public class IncidentBean implements Serializable, Instance
+public class IncidentControl implements Serializable, Instance
 {
     /* ---------- ATTIBUTES ---------- */
 
@@ -21,11 +21,13 @@ public class IncidentBean implements Serializable, Instance
     /** Doa de la classe Incident */
     private DaoIncident daoi;
     
+    private XMLControl xmlControl;
+    
     // Attributs du Bean
     
     /* ---------- CONSTUCTORS ---------- */
 
-    public IncidentBean()
+    public IncidentControl()
     {
         instanciation();
     }
@@ -33,6 +35,8 @@ public class IncidentBean implements Serializable, Instance
     @Override
     public void instanciation()
     {
+        xmlControl = XMLControl.getInstance();
+        daoi = xmlControl.creationDaoI();
     }
 
     /* ---------- METHODS ---------- */
@@ -52,6 +56,7 @@ public class IncidentBean implements Serializable, Instance
         System.out.println("nombre d'incident du pôle : " + listIncidents.size());       
         return listIncidents;
     }
+    
 
     /* ---------- ACCESS ---------- */
 

@@ -5,13 +5,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import dao.DaoProjet;
 import model.Incident;
+import model.xml.Parametre;
 import utilities.interfaces.Instance;
-
-public class ListBean implements Serializable, Instance
+/**
+ * Classe singleton permettant de sauvegarder les informations de session
+ * 
+ * @author Tiggy Tamal
+ * @since 1.0
+ */
+public class ListControl implements Serializable, Instance
 {
     /* ---------- ATTIBUTES ---------- */
     
@@ -28,17 +32,15 @@ public class ListBean implements Serializable, Instance
     private File upload;
     /** Liste des noms de projets dans la base Redmine */
     private List<String> listNomsProjets;
+    /** Fichier paramètre du programme */
+    private Parametre param;
+    /** Chemin du repertoire du fichier jar */
+    private String path;
     
-    // Connection
-    
-    /** nom de connexion */
-    private String connect;
-    /** vérifie si la connection est bonne */
-    private boolean connectok;
     
     /* ---------- CONSTUCTORS ---------- */
 
-    public ListBean()
+    private ListControl()
     {
         instanciation();
     }   
@@ -48,16 +50,22 @@ public class ListBean implements Serializable, Instance
     {
         listIncidents = new ArrayList<>();
         applicationschoisies = new ArrayList<>();
+        daop = new DaoProjet();
+        listNomsProjets = daop.findAllPoleNames();
+        param = new Parametre();
     }
     
-    @PostConstruct
-    private void postConstruct()
+    private static class ListControlHelper
     {
-        listNomsProjets = daop.findAllPoleNames();
+        private static final ListControl INSTANCE = new ListControl();
     }
     
     /* ---------- METHODS ---------- */
 
+    public static ListControl getInstance()
+    {
+        return ListControlHelper.INSTANCE;
+    }
     
     /* ---------- ACCESS ---------- */
     
@@ -117,35 +125,35 @@ public class ListBean implements Serializable, Instance
     {
         return listNomsProjets;
     }
+    
     /**
-     * @return the connect
+     * @return the param
      */
-    public String getConnect()
+    public Parametre getParam()
     {
-        return connect;
+        return param;
     }
 
     /**
-     * @param connect the connect to set
+     * @param param the param to set
      */
-    public void setConnect(String connect)
+    public void setParam(Parametre param)
     {
-        this.connect = connect;
+        this.param = param;
+    }
+    /**
+     * @return the path
+     */
+    public String getPath()
+    {
+        return path;
     }
 
     /**
-     * @return the connectok
+     * @param path the path to set
      */
-    public boolean isConnectok()
+    public void setPath(String path)
     {
-        return connectok;
-    }
-
-    /**
-     * @param connectok the connectok to set
-     */
-    public void setConnectok(boolean connectok)
-    {
-        this.connectok = connectok;
+        this.path = path;
     }
 }

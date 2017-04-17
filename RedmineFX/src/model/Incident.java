@@ -53,13 +53,13 @@ public final class Incident implements Serializable
 	private int id;
 
 	/** Responsable de l'incident */
-    @BatchFetch(value = BatchFetchType.IN)	
+    @BatchFetch(value = BatchFetchType.JOIN)	
 	@ManyToOne (targetEntity = User.class, fetch = FetchType.LAZY)
 	@JoinColumn (name = "assigned_to_id")
 	private User responsable;
 
 	/** Créateur de l'incident */
-    @BatchFetch(value = BatchFetchType.IN)	
+    @BatchFetch(value = BatchFetchType.JOIN)	
 	@ManyToOne (targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn (name = "author_id")
 	private User createur;

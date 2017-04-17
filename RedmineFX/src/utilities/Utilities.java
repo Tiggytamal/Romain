@@ -26,11 +26,6 @@ public class Utilities
         
         if (severity == null)
             severity = Severity.SEVERITY_INFO;
-    
-            // Crée le FaceMessage
-//            FacesMessage fm = new FacesMessage(severity, message, detail);
-    
-            // Ajoute le message au contexte
-//            FacesContext.getCurrentInstance().addMessage(null, fm);
+
     }
 }

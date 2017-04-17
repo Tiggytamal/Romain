@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -27,24 +26,21 @@ import model.enums.Champ;
 import model.enums.Statut;
 import model.system.ApplicationBDC;
 import utilities.CellHelper;
-import utilities.GrowlException;
 import utilities.Utilities;
 import utilities.enums.Severity;
 import utilities.enums.Side;
 import utilities.interfaces.Instance;
 
-public class CommandeBean implements Serializable, Instance
+public class CommandeControl implements Serializable, Instance
 {
     /* ---------- ATTIBUTES ---------- */
 
     private static final long serialVersionUID = 1L;
 
     /* ----- Bean de gestion ----- */
+    
     // Session Bean
-    private ListBean listBean;
-
-    // Bean de chargement des incidents
-    private IncidentBean incidentBean;
+    private ListControl listControl;
 
     /* ----- Attribus du Bean ----- */
 
@@ -70,7 +66,7 @@ public class CommandeBean implements Serializable, Instance
 
     /* ---------- CONSTUCTORS ---------- */
 
-    public CommandeBean()
+    public CommandeControl()
     {
         instanciation();
     }
@@ -83,50 +79,17 @@ public class CommandeBean implements Serializable, Instance
         listApplisBDC = new ArrayList<>();
         applisSelect = new ArrayList<>();
         listIncidents = new ArrayList<>();
+        listControl = ListControl.getInstance();
     }
 
     /* ---------- METHODS ---------- */
-
-    public String charger()
-    {
-        try
-        {
-            listIncidents = incidentBean.chargerIncidents(nomPole);
-        }
-        catch (GrowlException e)
-        {
-            Utilities.updateGrowl(e.getMessage(), e.getSeverity(), e.getDetail());
-            return "";
-        }
-        recuperationApplications();
-        return "";
-    }
-
-    private void recuperationApplications()
-    {
-        List<String> listAppliAjoutees = new ArrayList<>();
-
-        for (Incident incident : listIncidents)
-        {
-            // Récupération du champ correspondant à l'application de l'incident
-            String appli = incident.getMapValeurs().get(Champ.APPLICATION);
-
-            if (appli != null && !listAppliAjoutees.contains(appli))
-            {
-                listAppliAjoutees.add(appli);
-                listApplisBDC.add(new ApplicationBDC(appli));
-            }
-        }
-        // Tri de la liste par ordre alphabétique des trigrammes d'application
-        Collections.sort(listApplisBDC);
-    }
 
     /**
      * Permet de fichier le fichier excel avec le calcul de l'avancée du bon de commande.
      * 
      * @return
      */
-    public String calcul()
+    public String calcul(File file)
     {
         // Création de la feuille de calcul - effacement si elle existe déjà.
         Sheet sheet = wb.getSheet("Calcul");
@@ -157,15 +120,13 @@ public class CommandeBean implements Serializable, Instance
         
         miseAJourdesTotaux(sheet);
         
-//        sheet.setAutoFilter(new CellRangeAddress(iNoms, iRows, iApps, iAvanc));
-
         // Sauvegarde du premier fichier sur C
-        File newFile = new File("/ressources/test.xls");
+        File newFile = new File(listControl.getPath() + "bdc.xls");
         try
         {
-            wb.write(new FileOutputStream(newFile.getName()));
+            wb.write(new FileOutputStream(newFile));
             wb.close();
-            listBean.setUpload(newFile);
+            listControl.setUpload(file);
         }
         catch (IOException e)
         {
@@ -188,7 +149,7 @@ public class CommandeBean implements Serializable, Instance
         Row row;
         Cell cell;
         iRows = iNoms;
-
+        applisSelect.add(new ApplicationBDC("VCI"));
         // Itération sur les listes des applications séléctionnées
         for (ApplicationBDC appli : applisSelect)
         {
@@ -385,23 +346,6 @@ public class CommandeBean implements Serializable, Instance
     /* ---------- ACCESS ---------- */
 
     /**
-     * @return the listBean
-     */
-    public ListBean getListBean()
-    {
-        return listBean;
-    }
-
-    /**
-     * @param listBean
-     *            the listBean to set
-     */
-    public void setListBean(ListBean listBean)
-    {
-        this.listBean = listBean;
-    }
-
-    /**
      * @return the listApplisBDC
      */
     public List<ApplicationBDC> getListApplisBDC()
@@ -424,23 +368,6 @@ public class CommandeBean implements Serializable, Instance
     public void setNomPole(String nomPole)
     {
         this.nomPole = nomPole;
-    }
-
-    /**
-     * @return the incidentBean
-     */
-    public IncidentBean getIncidentBean()
-    {
-        return incidentBean;
-    }
-
-    /**
-     * @param incidentBean
-     *            the incidentBean to set
-     */
-    public void setIncidentBean(IncidentBean incidentBean)
-    {
-        this.incidentBean = incidentBean;
     }
 
     /**

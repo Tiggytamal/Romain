@@ -2,6 +2,7 @@ package dao;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.TemporalType;
@@ -14,6 +15,16 @@ import model.Incident;
 public class DaoIncident extends DaoRedmine<Incident>
 {
 
+    public DaoIncident()
+    {
+        super();
+    }
+    
+    public DaoIncident (HashMap<String, String> map)
+    {
+        super(map);
+    }
+    
     @Override
     public List<Incident> readAll()
     {
