@@ -238,9 +238,23 @@ public class MainScreen extends Application
         commandeControl.setDateFin(DateConvert.createDate(dateFin.getValue()));
     }
     
-    private void createAlert()
+    private void createAlert(Severity severity)
     {
-        Alert alert = new Alert(AlertType.ERROR);
+        Alert alert;
+        
+        switch (severity)
+        {
+            case SEVERITY_ERROR :
+                alert = new Alert(AlertType.ERROR);
+                break;
+            case SEVERITY_INFO :
+                alert = new Alert(AlertType.INFORMATION);
+                break;
+            default :
+                break;
+            
+        }
+        alert = new Alert(AlertType.ERROR);
         alert.setTitle("Exception Dialog");
         alert.setHeaderText("Look, an Exception Dialog");
         alert.setContentText("Could not find file blabla.txt!");
