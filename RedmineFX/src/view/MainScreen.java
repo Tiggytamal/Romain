@@ -1,33 +1,38 @@
 package view;
 
-import java.awt.Desktop;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import control.CommandeControl;
 import control.IncidentControl;
 import control.ListControl;
 import control.XMLControl;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Incident;
@@ -35,8 +40,8 @@ import model.enums.Champ;
 import model.system.ApplicationBDC;
 import model.xml.ApplicationBDCXML;
 import utilities.DateConvert;
-import utilities.GrowlException;
-import utilities.Utilities;
+import utilities.FunctionalException;
+import utilities.enums.Severity;
 
 public class MainScreen extends Application
 {
@@ -44,12 +49,10 @@ public class MainScreen extends Application
 
     /* Propriétés générales */
 
-    private final Desktop desktop = Desktop.getDesktop();
     private Parent root;
     private FileChooser fileChooser;
     private Stage stage;
     private Scene scene;
-
 
     /** Liste des incidents */
     private List<Incident> listIncidents;
@@ -106,23 +109,6 @@ public class MainScreen extends Application
     }
 
     @FXML
-    public void actionFile(ActionEvent event)
-    {
-        File file = fileChooser.showOpenDialog(stage);
-        if (file != null)
-        {
-            try
-            {
-                desktop.open(file);
-            }
-            catch (IOException ex)
-            {
-                Logger.getLogger(MainScreen.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
-    @FXML
     public void initialize()
     {
         listPoles.getItems().addAll(listControl.getListNomsProjets());
@@ -149,17 +135,22 @@ public class MainScreen extends Application
     }
 
     @FXML
-    public void charger()
+    public void charger() throws Exception
     {
         try
         {
             String list = listPoles.getSelectionModel().getSelectedItem();
-            listIncidents = incidentControl.chargerIncidents(list);
-            listControl.setListIncidents(listIncidents);
+            if (!list.equals("Choisissez un Pôle"))
+            {
+                listIncidents = incidentControl.chargerIncidents(list);
+                listControl.setListIncidents(listIncidents);
+            }
+            else
+                throw new FunctionalException(Severity.SEVERITY_ERROR, "", null);
         }
-        catch (GrowlException e)
+        catch (FunctionalException e)
         {
-            Utilities.updateGrowl(e.getMessage(), e.getSeverity(), e.getDetail());
+            new MessageScreen().start(stage);
             return;
         }
         recuperationApplications();
@@ -197,7 +188,7 @@ public class MainScreen extends Application
 
                 if (mapXML.keySet().contains(appli))
                 {
-                    //Traitement si l'application éxiste dans le fichier de paramètre
+                    // Traitement si l'application éxiste dans le fichier de paramètre
                     appliBDC = new ApplicationBDC(mapXML.get(appli));
                     listApplisBDC.getItems().add(appliBDC);
                 }
@@ -212,7 +203,7 @@ public class MainScreen extends Application
         }
         xmlControl.saveParametre();
     }
-    
+
     @FXML
     public void saveExcel()
     {
@@ -230,19 +221,57 @@ public class MainScreen extends Application
         fileChooser.setTitle("Fichier Excel");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Fichiers Excel (*.xls)", "*.xls");
         fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showSaveDialog(stage);      
-        commandeControl.calcul(file);      
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null)
+            commandeControl.calcul(file);
     }
-    
+
     @FXML
     public void saveDebut()
     {
-    	commandeControl.setDateDebut(DateConvert.createDate(dateDebut.getValue()));
+        commandeControl.setDateDebut(DateConvert.createDate(dateDebut.getValue()));
     }
-    
+
     @FXML
     public void saveFin()
     {
-    	commandeControl.setDateFin(DateConvert.createDate(dateFin.getValue()));
+        commandeControl.setDateFin(DateConvert.createDate(dateFin.getValue()));
+    }
+    
+    private void createAlert()
+    {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Exception Dialog");
+        alert.setHeaderText("Look, an Exception Dialog");
+        alert.setContentText("Could not find file blabla.txt!");
+
+        Exception ex = new FileNotFoundException("Could not find file blabla.txt");
+
+        // Create expandable Exception.
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        ex.printStackTrace(pw);
+        String exceptionText = sw.toString();
+
+        Label label = new Label("The exception stacktrace was:");
+
+        TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
+
+        // Set expandable Exception into the dialog pane.
+        alert.getDialogPane().setExpandableContent(expContent);
+
+        alert.showAndWait();
     }
 }

@@ -26,8 +26,6 @@ import model.enums.Champ;
 import model.enums.Statut;
 import model.system.ApplicationBDC;
 import utilities.CellHelper;
-import utilities.Utilities;
-import utilities.enums.Severity;
 import utilities.enums.Side;
 import utilities.interfaces.Instance;
 
@@ -111,7 +109,8 @@ public class CommandeControl implements Serializable, Instance
         }
         catch (ParseException e)
         {
-            Utilities.updateGrowl("Erreur dans la création du fichier Excel " + e.getClass().getSimpleName(), Severity.SEVERITY_ERROR, null);
+            //TODO
+//            Utilities.updateGrowl("Erreur dans la création du fichier Excel " + e.getClass().getSimpleName(), Severity.SEVERITY_ERROR, null);
             return "";
         }
         
@@ -127,7 +126,8 @@ public class CommandeControl implements Serializable, Instance
         }
         catch (IOException e)
         {
-            Utilities.updateGrowl("Erreur dans la création du fichier Excel " + e.getClass().getSimpleName(), Severity.SEVERITY_ERROR, null);
+            //TODO
+//            Utilities.updateGrowl("Erreur dans la création du fichier Excel " + e.getClass().getSimpleName(), Severity.SEVERITY_ERROR, null);
             return "";
         }
 
