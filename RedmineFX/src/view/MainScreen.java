@@ -22,6 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -33,6 +34,7 @@ import model.Incident;
 import model.enums.Champ;
 import model.system.ApplicationBDC;
 import model.xml.ApplicationBDCXML;
+import utilities.DateConvert;
 import utilities.GrowlException;
 import utilities.Utilities;
 
@@ -73,6 +75,10 @@ public class MainScreen extends Application
     private TableColumn<ApplicationBDC, String> tauxCol;
     @FXML
     private Button save;
+    @FXML
+    private DatePicker dateDebut;
+    @FXML
+    private DatePicker dateFin;
 
     /* ---------- CONSTUCTORS ---------- */
 
@@ -149,6 +155,7 @@ public class MainScreen extends Application
         {
             String list = listPoles.getSelectionModel().getSelectedItem();
             listIncidents = incidentControl.chargerIncidents(list);
+            listControl.setListIncidents(listIncidents);
         }
         catch (GrowlException e)
         {
@@ -217,13 +224,25 @@ public class MainScreen extends Application
             listXML.add(new ApplicationBDCXML(appliBDC.getNom(), Integer.parseInt(appliBDC.getBdc()), Float.parseFloat(appliBDC.getTaux())));
         }
         xmlControl.saveParametre();
-        
+        commandeControl.setApplisSelect(listApplisBDC.getSelectionModel().getSelectedItems());
         // 2. Création du fichier Excel.
         fileChooser = new FileChooser();
         fileChooser.setTitle("Fichier Excel");
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Fichiers Excel (*.xls)", "*.xls");
         fileChooser.getExtensionFilters().add(extFilter);
- //       File file = fileChooser.showSaveDialog(stage);      
-        commandeControl.calcul(new File(""));      
+        File file = fileChooser.showSaveDialog(stage);      
+        commandeControl.calcul(file);      
+    }
+    
+    @FXML
+    public void saveDebut()
+    {
+    	commandeControl.setDateDebut(DateConvert.createDate(dateDebut.getValue()));
+    }
+    
+    @FXML
+    public void saveFin()
+    {
+    	commandeControl.setDateFin(DateConvert.createDate(dateFin.getValue()));
     }
 }

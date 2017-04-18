@@ -15,9 +15,9 @@
 		<class>model.Tracker</class>
 		<class>model.User</class>
 		<properties>
-			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/redmine_tma_ibp" />
-			<property name="javax.persistence.jdbc.user" value="root" />
-			<property name="javax.persistence.jdbc.password" value="root" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://srvsgbd3:3306/redmine_tma_ibp" />
+			<property name="javax.persistence.jdbc.user" value="tmaibp_consult" />
+			<property name="javax.persistence.jdbc.password" value="KjDdP06TOz1YZSeAC54J" />
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="eclipselink.read-only" value="true" />
 		</properties>

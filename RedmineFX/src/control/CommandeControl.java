@@ -46,8 +46,6 @@ public class CommandeControl implements Serializable, Instance
 
     /** nom du pôle sélectionné */
     private String nomPole;
-    /** Liste des incidents */
-    private List<Incident> listIncidents;
     /** Liste des applications selectionnées */
     private List<ApplicationBDC> applisSelect;
     /** Liste des applications sélectionnées pour le fichier Excel */
@@ -78,7 +76,6 @@ public class CommandeControl implements Serializable, Instance
         helper = new CellHelper(wb);
         listApplisBDC = new ArrayList<>();
         applisSelect = new ArrayList<>();
-        listIncidents = new ArrayList<>();
         listControl = ListControl.getInstance();
     }
 
@@ -121,10 +118,10 @@ public class CommandeControl implements Serializable, Instance
         miseAJourdesTotaux(sheet);
         
         // Sauvegarde du premier fichier sur C
-        File newFile = new File(listControl.getPath() + "bdc.xls");
+//        File newFile = new File(listControl.getPath() + "bdc.xls");
         try
         {
-            wb.write(new FileOutputStream(newFile));
+            wb.write(new FileOutputStream(file));
             wb.close();
             listControl.setUpload(file);
         }
@@ -149,7 +146,6 @@ public class CommandeControl implements Serializable, Instance
         Row row;
         Cell cell;
         iRows = iNoms;
-        applisSelect.add(new ApplicationBDC("VCI"));
         // Itération sur les listes des applications séléctionnées
         for (ApplicationBDC appli : applisSelect)
         {
@@ -207,7 +203,7 @@ public class CommandeControl implements Serializable, Instance
     {
         int total = 0;
 
-        for (Incident incident : listIncidents)
+        for (Incident incident : listControl.getListIncidents())
         {
             String appliIncident = incident.getMapValeurs().get(Champ.APPLICATION);
             String DA = incident.getMapValeurs().get(Champ.DA);

@@ -71,4 +71,9 @@
 	
 	<Button text="CrÃ©er le fichier" fx:id="save" onAction="#saveExcel" GridPane.columnIndex="2" GridPane.rowIndex="1" />
 	
+	<Text text="Date début :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+	<DatePicker fx:id="dateDebut" GridPane.columnIndex="1" GridPane.rowIndex="2" onAction="#saveDebut"/>
+	<Text text="Date fin :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+	<DatePicker fx:id="dateFin" GridPane.columnIndex="1" GridPane.rowIndex="3" onAction="#saveFin"/>
+
 </GridPane>
