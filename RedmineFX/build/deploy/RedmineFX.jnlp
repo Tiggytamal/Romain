@@ -2,13 +2,13 @@
 <jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="RedmineFX.jnlp">
   <information>
     <title>RedmineFX</title>
-    <vendor>Gregoire Mathon</vendor>
+    <vendor>None</vendor>
     <description>RedmineFX</description>
     <offline-allowed/>
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="RedmineFX.jar" size="58044" download="eager" />
+    <jar href="RedmineFX.jar" size="60853" download="eager" />
     <jar href="libs\commons-codec-1.10.jar" size="284184" download="eager" />
     <jar href="libs\commons-collections4-4.1.jar" size="751238" download="eager" />
     <jar href="libs\commons-fileupload-1.3.2.jar" size="70282" download="eager" />

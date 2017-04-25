@@ -137,8 +137,6 @@ public class MainScreen extends Application
     @FXML
     public void charger() throws Exception
     {
-        try
-        {
             String list = listPoles.getSelectionModel().getSelectedItem();
             if (!list.equals("Choisissez un Pôle"))
             {
@@ -147,12 +145,6 @@ public class MainScreen extends Application
             }
             else
                 throw new FunctionalException(Severity.SEVERITY_ERROR, "", null);
-        }
-        catch (FunctionalException e)
-        {
-            new MessageScreen().start(stage);
-            return;
-        }
         recuperationApplications();
     }
 
@@ -238,6 +230,7 @@ public class MainScreen extends Application
         commandeControl.setDateFin(DateConvert.createDate(dateFin.getValue()));
     }
     
+    @SuppressWarnings ("unused")
     private void createAlert(Severity severity)
     {
         Alert alert;

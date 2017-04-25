@@ -217,7 +217,7 @@
 			<fx:resources refid="appRes"/>
 	
 			<manifest>
-				<attribute name="Implementation-Vendor" value="Gregoire Mathon"/>
+				<attribute name="Implementation-Vendor" value="None"/>
 				<attribute name="Implementation-Title" value="RedmineFX"/>
 				<attribute name="Implementation-Version" value="1.0"/>
 				<attribute name="JavaFX-Feature-Proxy" value="None"/>
@@ -237,7 +237,7 @@
 			updatemode="background" >
 	
 			<fx:platform basedir="${java.home}"/>
-			<fx:info title="RedmineFX" vendor="Gregoire Mathon"/>
+			<fx:info title="RedmineFX" vendor="None"/>
 	
 			<fx:application refId="fxApplication"/>
 			<fx:resources refid="appRes"/>

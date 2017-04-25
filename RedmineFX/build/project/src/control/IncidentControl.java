@@ -6,7 +6,7 @@ import java.util.List;
 
 import dao.DaoIncident;
 import model.Incident;
-import utilities.GrowlException;
+import utilities.FunctionalException;
 import utilities.enums.Severity;
 import utilities.interfaces.Instance;
 
@@ -44,12 +44,12 @@ public class IncidentControl implements Serializable, Instance
     /**
      * Charge les incidents depuis la base Redmine en fonction du pôle choisi
      * @return
-     * @throws GrowlException 
+     * @throws FunctionalException 
      */
-    public List<Incident> chargerIncidents(String nomPole) throws GrowlException
+    public List<Incident> chargerIncidents(String nomPole) throws FunctionalException
     {
         if (nomPole == null || nomPole.isEmpty())
-            throw new GrowlException(Severity.SEVERITY_ERROR,"Vous devez choisir un pôle", null);
+            throw new FunctionalException(Severity.SEVERITY_ERROR,"Vous devez choisir un pôle", null);
 
         List<Incident> listIncidents = new ArrayList<>();
         listIncidents = daoi.findByProject(nomPole);
