@@ -24,6 +24,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import model.Incident;
 import model.enums.Champ;
 import model.enums.Statut;
+import model.enums.Tracker;
 import model.system.ApplicationBDC;
 import utilities.CellHelper;
 import utilities.enums.Side;
@@ -149,6 +150,7 @@ public class CommandeControl implements Serializable, Instance
         // Itération sur les listes des applications séléctionnées
         for (ApplicationBDC appli : applisSelect)
         {
+        	System.out.println(appli.getNom());
             iRows++; // Incrémente le compteur depuis la première ligne avec le nom des colonnes.
             int iformula = iRows + 1; // Il faut rajouter 1 au compteur pour les formules marchent.
             Statut statut;
@@ -201,32 +203,34 @@ public class CommandeControl implements Serializable, Instance
      */
     private int calculValeur(Statut statut, ApplicationBDC appli) throws ParseException
     {
+    	System.out.println(statut.toString());
         int total = 0;
 
         for (Incident incident : listControl.getListIncidents())
         {
+        	if (!(incident.getTracker() == Tracker.INCIDENT || incident.getTracker() == Tracker.PROBLEME || incident.getTracker() == Tracker.DEMANDE))
+        		continue;
+
             String appliIncident = incident.getMapValeurs().get(Champ.APPLICATION);
             String DA = incident.getMapValeurs().get(Champ.DA);
             if (appli.getNom().equals(appliIncident) && !DA.trim().equalsIgnoreCase("abandon"))
             {
                 Statut statutIncident = incident.getStatut();
-                if (statut == Statut.CLOSED && statut == statutIncident)
+                if (statut == statutIncident && incident.getMapValeurs().get(Champ.DATERESOLUTION) != null)
                 {
-                    Date dateCloture = incident.getDateCloture();
-
-                    if (dateCloture != null && dateCloture.compareTo(dateFin) <= 0 && dateCloture.compareTo(dateDebut) >= 0)
-                    	total++;
-                }
-                else if (statut == Statut.RESOLVED && statut == statutIncident && incident.getMapValeurs().get(Champ.DATERESOLUTION) != null)
-                {
-
                     Date dateResolved = new SimpleDateFormat("dd/MM/yyyy").parse(incident.getMapValeurs().get(Champ.DATERESOLUTION).substring(0, 10));
 
                     if (dateResolved != null && dateResolved.compareTo(dateFin) <= 0 && dateResolved.compareTo(dateDebut) >= 0)
-                        total++;
+                    	{
+                    	System.out.println(incident.getMapValeurs().get(Champ.NUMERO));
+                    	if (incident.getMapValeurs().get(Champ.NUMERO) == null)
+                    		System.out.println(incident.getId());
+                    	total++;
+                    	}
                 }
             }
         }
+        System.out.println(total);
         return total;
     }
 
