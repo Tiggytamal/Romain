@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+
+<?import java.net.*?>
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.cell.*?>
+<?import model.system.*?>
+<?import view.FormattedTableCellFactory?>
+<?import javafx.scene.control.TextField?>
+
+<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="300"	prefWidth="400">
+
+	<padding>
+		<Insets top="25" right="25" bottom="10" left="25" />
+	</padding>
+
+	<Text text="Banque :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+	<ComboBox fx:id="listeBanques" GridPane.columnIndex="1" GridPane.rowIndex="0">
+		<items>
+			<FXCollections fx:factory="observableArrayList">
+				<String fx:value="Choisissez une Banque" />
+			</FXCollections>
+		</items>
+	</ComboBox>
+	<Button text="Créer la macro" onAction="#macro" GridPane.columnIndex="2" GridPane.rowIndex="0" />
+
+	<Text text="COSCE :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+	<TextField fx:id="cosce" GridPane.columnIndex="1" GridPane.rowIndex="1" ></TextField>
+
+</GridPane>
