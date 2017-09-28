@@ -32,5 +32,7 @@
 
 	<Text text="COSCE :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
 	<TextField fx:id="cosce" GridPane.columnIndex="1" GridPane.rowIndex="1" ></TextField>
+	<Text text="N° incident :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+	<TextField fx:id="incident" GridPane.columnIndex="1" GridPane.rowIndex="2" ></TextField>
 
 </GridPane>

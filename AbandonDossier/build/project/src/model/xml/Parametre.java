@@ -26,7 +26,7 @@ public class Parametre implements Serializable
 	
 	private String url;
 	
-	private List<BanquesXML> listBanques;
+	private List<BanqueXML> listBanqueXML;
 	
     /* ---------- CONSTUCTORS ---------- */
 	
@@ -35,7 +35,7 @@ public class Parametre implements Serializable
 	 */
 	public Parametre()
 	{
-		listBanques = new ArrayList<>();
+		listBanqueXML = new ArrayList<>();
 	}
 
     /* ---------- METHODS ---------- */
@@ -46,18 +46,18 @@ public class Parametre implements Serializable
      * @return the listAppsXML
      */
 	@XmlElementWrapper
-	@XmlElement (name = "BaqnuesXML")
-    public List<BanquesXML> getListBanques()
+	@XmlElement (name = "BanqueXML")
+    public List<BanqueXML> getListBanqueXML()
     {
-        return listBanques;
+        return listBanqueXML;
     }
 
     /**
      * @param listAppsXML the listAppsXML to set
      */
-    public void setListBanques(List<BanquesXML> listAppsXML)
+    public void setListBanqueXML(List<BanqueXML> listBanqueXML)
     {
-        this.listBanques = listAppsXML;
+        this.listBanqueXML = listBanqueXML;
     }
 
 	

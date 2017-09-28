@@ -1,16 +1,14 @@
 package control;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import application.Main;
-import model.xml.BanquesXML;
+import model.xml.BanqueXML;
 import model.xml.Parametre;
 import utilities.Utilities;
 import utilities.enums.Severity;
@@ -24,9 +22,9 @@ public class XMLControl
     private Parametre param;
 
     /** Paramètres du programme. */
-    private String jarPath, url;
+    private String jarPath;
     
-    private HashMap<String,String> listeBanques;
+    private HashMap<String,BanqueXML> listeBanques;
 
     /* ---------- CONSTUCTORS ---------- */
 
@@ -36,7 +34,6 @@ public class XMLControl
         param = new Parametre();
         listeBanques = new HashMap<>();
         recupParam();
-        saveParametre();
     }
 
     private static class XMLControlHelper
@@ -83,41 +80,14 @@ public class XMLControl
             System.out.println("Le fichier XML n'existe pas");
 
         // On vérifie que le XML contient bien tous les paramètres
-        if (paramOK == true && (param.getUrl() == null))
-            System.out.println("Certaines valeurs du XML sont nulles");
-        else if (paramOK == true)
+        if (paramOK == true)
         {
             // Affectation des paramètres du programme
-            System.out.println("utilisation des valeurs du xml");
-            url = param.getUrl();
-            for (BanquesXML banque : param.getListBanques())
+            for (BanqueXML banque : param.getListBanqueXML())
             {
-                listeBanques.put(banque.getNom(), banque.getCoad());
+                listeBanques.put(banque.getNom(), banque);
             }
             
-        }
-    }
-    
-    public void saveParametre()
-    {
-        try
-        {
-            Parametre param2 = new Parametre();
-            param2.setUrl("aaa");
-            BanquesXML b = new BanquesXML();
-            b.setCoad("C");
-            b.setNom("nom");
-            param2.setListBanques(new ArrayList<>());
-            param2.getListBanques().add(b);
-            File file = new File(jarPath + "param.xml");
-            JAXBContext jaxbContext = JAXBContext.newInstance(Parametre.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            jaxbMarshaller.marshal(param2, file);
-
-        } catch (JAXBException e)
-        {
-            e.printStackTrace();
         }
     }
 
@@ -140,17 +110,9 @@ public class XMLControl
     }
 
     /**
-     * @return the url
-     */
-    public String getUrl()
-    {
-        return url;
-    }
-
-    /**
      * @return the listeBanques
      */
-    public HashMap<String, String> getListeBanques()
+    public HashMap<String, BanqueXML> getListeBanques()
     {
         return listeBanques;
     }

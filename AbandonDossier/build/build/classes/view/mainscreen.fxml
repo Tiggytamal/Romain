@@ -14,7 +14,7 @@
 <?import view.FormattedTableCellFactory?>
 <?import javafx.scene.control.TextField?>
 
-<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="300"	prefWidth="300">
+<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="300"	prefWidth="400">
 
 	<padding>
 		<Insets top="25" right="25" bottom="10" left="25" />
@@ -30,12 +30,7 @@
 	</ComboBox>
 	<Button text="Créer la macro" onAction="#macro" GridPane.columnIndex="2" GridPane.rowIndex="0" />
 
-	<Text text="CODOSB :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-	<TextField fx:id="codosb" GridPane.columnIndex="1" GridPane.rowIndex="2" ></TextField>
-	<Text text="COSCE :" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-	<TextField fx:id="cosce" GridPane.columnIndex="1" GridPane.rowIndex="3" ></TextField>
-	<Text text="COEM :" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-	<TextField fx:id="coem" GridPane.columnIndex="1" GridPane.rowIndex="4" ></TextField>
-	<Text text="COPO :" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-	<TextField fx:id="copo" GridPane.columnIndex="1" GridPane.rowIndex="5" ></TextField>
+	<Text text="COSCE :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+	<TextField fx:id="cosce" GridPane.columnIndex="1" GridPane.rowIndex="1" ></TextField>
+
 </GridPane>

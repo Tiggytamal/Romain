@@ -44,6 +44,8 @@ public class MainScreen extends Application
     private ComboBox<String> listeBanques;
     @FXML
     private TextField cosce;
+    @FXML
+    private TextField incident;
     
 
     /* ---------- CONSTUCTORS ---------- */
@@ -159,7 +161,8 @@ public class MainScreen extends Application
         File file = fileChooser.showSaveDialog(stage);
         if (file != null)
         {
-            MacroControl macroControl = new MacroControl(cosce.getText(), banque);
+            
+            MacroControl macroControl = new MacroControl(cosce.getText(), banque, incident.getText());
             macroControl.creerMacro(file);
         }
 

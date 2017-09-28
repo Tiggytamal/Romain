@@ -127,7 +127,7 @@
 	
 		<mkdir dir="project" />
 		<copy todir="project">
-			<fileset dir="G:\Workspace\AbandonDossier">
+			<fileset dir="C:\Users\Tiggy Tamal\git\Redmine\AbandonDossier">
 				<include name="src/**" />
 			</fileset>
 		</copy>

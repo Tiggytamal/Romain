@@ -1,8 +1,10 @@
 package view;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import control.MacroControl;
 import control.XMLControl;
 import javafx.application.Application;
 import javafx.fxml.FXML;
@@ -19,6 +21,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.xml.BanqueXML;
 import utilities.enums.Severity;
 
 public class MainScreen extends Application
@@ -40,13 +43,7 @@ public class MainScreen extends Application
     @FXML
     private ComboBox<String> listeBanques;
     @FXML
-    private TextField codosb;
-    @FXML
     private TextField cosce;
-    @FXML
-    private TextField coem;
-    @FXML
-    private TextField copo;
     
 
     /* ---------- CONSTUCTORS ---------- */
@@ -146,14 +143,26 @@ public class MainScreen extends Application
     @FXML
     public void macro() throws Exception
     {
-        String pole = listeBanques.getSelectionModel().getSelectedItem();
+        String nom = listeBanques.getSelectionModel().getSelectedItem();
+        BanqueXML banque = xmlControl.getListeBanques().get(nom);
         
-        if (!pole.equals("Choisissez une Banque"))
+        if (nom.equals("Choisissez une Banque"))
         {
-
-        }
-        else
             createAlert(Severity.SEVERITY_INFO, null, "Vous devez choisir un pôle");
+        }
+        
+        // 2. Création de la macro.
+        fileChooser = new FileChooser();
+        fileChooser.setTitle("Macro Quick");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Fichiers Macro (*.qmc)", "*.qmc");
+        fileChooser.getExtensionFilters().add(extFilter);
+        File file = fileChooser.showSaveDialog(stage);
+        if (file != null)
+        {
+            MacroControl macroControl = new MacroControl(cosce.getText(), banque);
+            macroControl.creerMacro(file);
+        }
+
     }
     
     /* ---------- ACCESS ---------- */
