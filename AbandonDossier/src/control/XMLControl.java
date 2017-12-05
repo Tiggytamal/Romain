@@ -1,10 +1,13 @@
 package control;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import application.Main;
@@ -56,10 +59,9 @@ public class XMLControl
      *         retourne vrai si le fichier est présent et que tous les paramètres sont bons.
      * @throws FunctionalException 
      */
-    public void recupParam()
+    private void recupParam()
     {
         File file = new File(jarPath + "\\param.xml"); // Creation objet correstondant au fichier XML
-        boolean paramOK = false; // boolean pour vérifier si le fichier XML existe
 
         if (file.exists())
         {
@@ -69,27 +71,81 @@ public class XMLControl
                 JAXBContext jaxbContext = JAXBContext.newInstance(Parametre.class);
                 Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
                 param = (Parametre) jaxbUnmarshaller.unmarshal(file);
-                paramOK = true;
             }
             catch (JAXBException e)
             {
-                MainScreen.createAlert(Severity.SEVERITY_INFO, null, null);
+                // Si on a une erreur utilisation des données par défault et remontée d'un message d'information
+                MainScreen.createAlert(Severity.SEVERITY_INFO, e, "Impossible de déchiffrer le fichier de paramétrage, utilisation des données par default");
+                createXML();
             }
         }
         else
-            System.out.println("Le fichier XML n'existe pas");
-
-        // On vérifie que le XML contient bien tous les paramètres
-        if (paramOK == true)
-        {
-            // Affectation des paramètres du programme
-            for (BanqueXML banque : param.getListBanqueXML())
             {
-                listeBanques.put(banque.getNom(), banque);
+                // Si le fichier n'existe pas, création d'un message d'information et utilisation des données par défault
+                MainScreen.createAlert(Severity.SEVERITY_INFO, null, "Fichier de paramétrage inéxistant, utilisant données par default");
+                createXML();
             }
-            
+
+        // Affectation des paramètres du programme
+        for (BanqueXML banque : param.getListBanqueXML())
+        {
+            listeBanques.put(banque.getNom(), banque);
         }
     }
+    
+    /**
+     * Méthode de création de paramètres par défault en cas de problème
+     */
+    private void createXML()
+    {
+        // Création des données par défault des banques
+        Parametre parametre = new Parametre();
+        List<BanqueXML> liste = new ArrayList<>();
+        liste.add(new BanqueXML("BPBFC", "2", "008", "31"));
+        liste.add(new BanqueXML("BPAURA", "3", "068", "31"));
+        liste.add(new BanqueXML("BPRI", "C", "002", "31"));
+        liste.add(new BanqueXML("BQSAV", "S", "552", "31"));
+        liste.add(new BanqueXML("CASDN", "1", "013", "31"));
+        liste.add(new BanqueXML("BPVF", "8", "087", "31"));
+        liste.add(new BanqueXML("BPPN", "J", "035", "31"));
+        liste.add(new BanqueXML("BPS", "P", "066", "31"));
+        liste.add(new BanqueXML("BPO", "B", "067", "31"));
+        liste.add(new BanqueXML("CMMBN", "W", "534", "31"));
+        liste.add(new BanqueXML("BPATL", "D", "038", "71"));
+        liste.add(new BanqueXML("BPMED", "G", "046", "31"));
+        liste.add(new BanqueXML("CMMAT", "Z", "536", "31"));
+        liste.add(new BanqueXML("BPACA", "M", "009", "31"));
+        liste.add(new BanqueXML("BPALC", "N", "047", "31"));
+        liste.add(new BanqueXML("BPOC", "Q", "078", "31"));
+        liste.add(new BanqueXML("CMSOU", "T", "537", "31"));        
+        parametre.setListBanqueXML(liste);
+        parametre.setNomFichier("TN5B-TN5F");
+        parametre.setUrl("C:\\Users\\Tiggy Tamal\\Downloads\\Mes Docs");
+
+        // Assignation des données au programme
+        param = parametre;
+        saveXML();
+    }
+    
+    public void saveXML()
+    {
+        try
+        {
+            File file = new File(jarPath + "\\param.xml");
+            JAXBContext jaxbContext = JAXBContext.newInstance(Parametre.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            jaxbMarshaller.marshal(param, file);
+
+        } catch (JAXBException e)
+        {
+            MainScreen.createAlert(Severity.SEVERITY_ERROR, e, "Impossible de créer le fichier de paramètre par default");
+        }
+    }
+    
+    
 
     /* ---------- ACCESS ---------- */
 

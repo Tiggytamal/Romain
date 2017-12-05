@@ -3,6 +3,7 @@ package view;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.regex.Pattern;
 
 import control.MacroControl;
 import control.XMLControl;
@@ -151,21 +152,40 @@ public class MainScreen extends Application
         if (nom.equals("Choisissez une Banque"))
         {
             createAlert(Severity.SEVERITY_INFO, null, "Vous devez choisir un pôle");
+            return;
+        }
+        if (cosce.getText().isEmpty())
+        {
+            createAlert(Severity.SEVERITY_INFO, null, "Vous devez rentrez un numéro de scénario");
+            return;
+        }
+        if (incident.getText().isEmpty())
+        {
+            createAlert(Severity.SEVERITY_INFO, null, "Vous devez rentrez le numéro de l'incident");
+            return;
         }
         
         // 2. Création de la macro.
         fileChooser = new FileChooser();
         fileChooser.setTitle("Macro Quick");
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Fichiers Macro (*.qmc)", "*.qmc");
-        fileChooser.getExtensionFilters().add(extFilter);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers Macro (*.qmc)", "*.qmc"));  
+        // Ajout du repertoire par défault s'il est valide
+        File init = new File(xmlControl.getParam().getUrl());       
+        if (init.exists())
+            fileChooser.setInitialDirectory(init);
+        // Ajout du nom de fichier par défault s'il est valide
+        if (Pattern.matches("^[A-Za-z0-9-]+\\.[A-Za-z]+$", xmlControl.getParam().getNomFichier()))
+            fileChooser.setInitialFileName("TN5B-TN5F");
+        
         File file = fileChooser.showSaveDialog(stage);
         if (file != null)
-        {
-            
+        {           
             MacroControl macroControl = new MacroControl(cosce.getText(), banque, incident.getText());
             macroControl.creerMacro(file);
+            xmlControl.getParam().setUrl(file.getParentFile().getAbsolutePath());
+            xmlControl.getParam().setNomFichier(file.getName());
+            xmlControl.saveXML();           
         }
-
     }
     
     /* ---------- ACCESS ---------- */

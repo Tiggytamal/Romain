@@ -26,7 +26,9 @@ public class Parametre implements Serializable
 	
 	private String url;
 	
-	private List<BanqueXML> listBanqueXML;
+	private String nomFichier;
+	
+    private List<BanqueXML> listBanqueXML;
 	
     /* ---------- CONSTUCTORS ---------- */
 	
@@ -49,6 +51,8 @@ public class Parametre implements Serializable
 	@XmlElement (name = "BanqueXML")
     public List<BanqueXML> getListBanqueXML()
     {
+	    if (listBanqueXML == null)
+	        return new ArrayList<BanqueXML>();
         return listBanqueXML;
     }
 
@@ -71,4 +75,15 @@ public class Parametre implements Serializable
 	{
 		this.url = url;
 	}
+	
+    @XmlAttribute (required = true)
+    public String getNomFichier()
+    {
+        return nomFichier;
+    }
+
+    public void setNomFichier(String nomFichier)
+    {
+        this.nomFichier = nomFichier;
+    }
 }

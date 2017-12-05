@@ -1,11 +1,12 @@
 package utilities;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import utilities.enums.Severity;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Classe de méthode utilitaires statiques
@@ -15,25 +16,6 @@ import utilities.enums.Severity;
  */
 public class Utilities
 {
-    /**
-     * Permet de mettre à jour un message d'erreur. La sévérité et le détail sont optionnels.<br>
-     * Si le detail est null, renvoie un message sans détail.<br>
-     * Si la severité est null, renvoie un message de type {@code SEVERITY_INFO}.<br>
-     * Renvoie un {@code IllegalArgumentException} si jamais le message est null ou vide.
-     * 
-     * @param severity
-     * @param message
-     */
-    public static void updateGrowl(String message, Severity severity, String detail)
-    {
-        if (message == null || message.isEmpty())
-            throw new IllegalArgumentException("Growl avec un message null");
-
-        if (severity == null)
-            severity = Severity.SEVERITY_INFO;
-
-    }
-
     /**
      * Gets the base location of the given class.
      * <p>
@@ -63,11 +45,11 @@ public class Utilities
             if (codeSourceLocation != null)
                 return codeSourceLocation;
         }
-        catch (final SecurityException e)
+        catch (SecurityException e)
         {
             // NB: Cannot access protection domain.
         }
-        catch (final NullPointerException e)
+        catch (NullPointerException e)
         {
             // NB: Protection domain or code source is null.
         }

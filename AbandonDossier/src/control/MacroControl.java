@@ -13,10 +13,15 @@ public class MacroControl
 {
     /* ---------- ATTIBUTES ---------- */
     
+    /** COSCE du scénario à archiver */
     private String cosce;
+    /** Banque du scénario à archiver */
     private BanqueXML banque;
+    /** Numéro de l'incident */
     private String incident;
+    /** Stringbuilder de créatin de la macro*/
     private StringBuilder sbFile;
+    /** Sate de l'archivage*/
     private String date;
 
     
@@ -27,6 +32,7 @@ public class MacroControl
         this.cosce = cosce;
         this.banque = banque;
         
+        // Traitement pour prendre que les 7 derniers chiffres de l'incident
         if (incident.length() > 7)
             this.incident = incident.substring(incident.length()-7);
         else
@@ -34,11 +40,17 @@ public class MacroControl
         
         sbFile = new StringBuilder();
         
+        // Récupération de la date du jour au bon format
         date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
     }
     
     /* ---------- METHODS ---------- */
     
+    /**
+     * Ecriture de la macro
+     * 
+     * @param file
+     */
     public void creerMacro(File file)
     {               
         try (BufferedWriter brFile = new BufferedWriter(new FileWriter(file)))
@@ -52,166 +64,219 @@ public class MacroControl
                 
     }
     
+    /**
+     * Création de la macro
+     * @return
+     */
     private String concatenationMacro()
     {
         varInit();
         recupCODOSB();
         recupCOEMCOPO();
         creationRequete();
+        MsgBox();
         return sbFile.toString();
     }
     
+    /**
+     * Récupération du CODOSB en TN5C
+     */
     private void recupCODOSB()
     {
-        mT(23,12);
-        sK(banque.getCodePlaque(), false);
-        enterKey();
-        wait(3, 14, 3, 15);
-        enterKey();
-        wait(3, 14, 3, 15);
-        loop();
+        sbFile.append("\n'----- Récupération du CODOSB depuis le COSCE -----\n");
+        loop(banque.getCodePlaque());
         mT(3,15);
-        wait(3, 14, 3, 15);
         sK("fad", true);
         enterKey();
-        wait(2, 14, 2, 15);
         mT(2,15);
-        wait(2, 14, 2, 15);
         sK("1", true);
         enterKey();
-        wait(2, 14, 2, 15);
         mT(7,21);
-        wait(7, 20, 7, 21);
         sK("TN5C", true);
         mT(6,23);
         sK(banque.getCoad(), true);        
         enterKey();
-        wait(10, 1, 10, 2);
         sK("<Tab><Tab><Tab>='", false);
-        sK(banque.getCoetb(), false);
-        sK("'<Down>='", false);
-        sK(cosce, false);
-        sK("'", true);
-        wait(11, 54 , 11, 79);
+        sbFile.append(banque.getCoetb());
+        sbFile.append("'<Down>='");
+        sbFile.append(cosce);
+        sbFile.append("'\"\n");
         mT(23, 3);
-        wait(23, 1, 23, 3);
         sK("s", true);
         enterKey();
-        wait (23, 1, 23, 2);
         sK("<Pf6>", true);
-        wait(4, 14, 4, 15);
         mT(9, 11);
-        wait(9, 10,94, 11);
         sbFile.append("CODOSB = GetString(09,11,15)\n");
         sK("<Pf3>", true);
-        wait(11, 1, 11, 2);
         sK("<Pf3>", true);
-        wait(2, 14, 2, 15);
     }
     
+    /**
+     * Récupération du COEM et du COPO en TN5F
+     */
     private void recupCOEMCOPO()
     {
+        sbFile.append("\n'----- Récupération du COPO et COEM du dernier agent ayant traité le scénario -----\n");
         mT(7,24);
-        wait(7, 20, 7, 24);
         sK("F", true);
         enterKey();
-        wait(10, 1, 10, 2);
         mT(10,3);
-        wait(10, 1, 10, 3);
         sK("<Tab><Tab><Tab>='", false);
-        sK(banque.getCoetb(), false);
-        sK("'<Down>='", false);
-        sK(cosce, false);
-        sK("'", true);
+        sbFile.append(banque.getCoetb());
+        sbFile.append("'<Down>='");
+        sbFile.append(cosce);
+        sbFile.append("'\"\n");
         mT(12,3);
         sK("<Tab>1<Tab>d<Pf6>", true);
-        wait(4, 14, 4, 15);
         mT(15,3);
-        wait(15, 1, 15, 3);
-        sK("s", false);
+        sK("s", true);
         mT(16,3);
-        wait(16, 1, 16, 3);
         sK("s<Pf6>", true);
-        wait(4, 14, 4, 15);
         mT(9,11);
-        wait(9, 10, 9, 11);
         sbFile.append("COEM = GetString(09,11,7)\n");
         mT(9,20);
         sbFile.append("COPO = GetString(09,20,5)\n");
         sK("<Pf3>", true);
-        wait(15, 1, 15,23);
         sK("<Pf3>", true);
-        wait(2, 14, 2, 15);
         sK("<Pf3>", true);
-        wait(2, 14, 2, 15);
-        sK("<Esc>", true);       
+        sK("<Attn>", true);       
     }
     
+    /**
+     * Création des requêtes sur DD01
+     */
     private void creationRequete()
     {
-        mT(23,12);
-        sK("1", true);
-        enterKey();
-        wait(3, 14, 3, 15);
-        enterKey();
-        wait(3, 14, 3, 15);
+        sbFile.append("\n'----- Création des requêtes sur l'environnement de DEV -----\n");
+        loop("1");
         sK("DEV", true);
         enterKey();
-        wait(2, 14, 2, 15);
+        wForU();
         sK("t", true);
         enterKey();
-        wait(3, 12, 3, 13);
+        wForU();
         sK("1", true);
         enterKey();
-        wait(1, 1, 1, 1);
+        wForU();
         enterKey();
+        sbFile.append("'Requête TN5B\n");
         mT(9,42);
-        sK("TN5B<Tab>I<Tab>1<Tab>MCE<Tab><Tab>", false);
+        sK("TN5B<Tab>I<Tab>1<Tab>MCE<Tab><Tab>I", false);
         sbFile.append(incident);
         nL("\"");
         enterKey();
-        wait(7, 5, 7, 6);
+        wForU();
         enterKey();
-        wait(1, 1, 1, 1);
+        wForU();
         enterKey();
-        wait(27, 5, 27, 6);
+        wForU();
         mT(27,22);
-        wait(27, 21, 27, 22);
         sK("C£", false);
         sbFile.append(banque.getCoad());
         sbFile.append("E0");
         nL("\"");
         enterKey();
         mT(28,6);
-        wait(28, 5, 28, 6);
         sK("s", true);
         enterKey();
-        wait(27, 5, 27, 6);
         sK("<Pf3>", true);
-        wait(1, 1, 1, 1);
         enterKey();
-        wait(2, 5, 2, 6);
+        wForU();
         enterKey();
-        wait(4, 14, 4, 15);
+        wForU();
         mT(15,11);
-        wait(15, 8, 15, 11);
         sK("COETB, CODOSB, DDETDV, HEETDV, CTETDV, COEM, COPO, ZTSUP )", true);
         mT(17, 6);
         sK("i", true);
         enterKey();
-        wait(18, 8, 18, 9);
         mT(17, 11);
-        wait(17, 8, 17, 11);
         sK("'", false);
         sbFile.append(banque.getCoetb());
-        sbFile.append("', '");
-        nL("\"");
-        sK(" CODOSB", true);
-        sK("'", false);
+        sbFile.append("', '\" & CODOSB & \"', '");
         sbFile.append(date);
-        sbFile.append("', '23.00.00',");
-        nL("\"");
+        sbFile.append("', '23.00.00',\"\n");
         mT(18,9);
+        sK("'02', '\" & COEM & \"', '\" & COPO & \"', CURRENT TIMESTAMP );", true);
+        enterKey();
+        wForU();
+        enterKey();
+        sK("<Pf3>", true);
+        wForU();
+        sK("<Pf3>", true);
+        wForU();       
+        sK("1", true);
+        enterKey();
+        wForU();
+        enterKey();
+        wForU();
+        sbFile.append("'Requête TN5F\n");
+        mT(9,42);
+        sK("TN5F<Tab>I<Tab>1<Tab>MCE<Tab><Tab>I", false);
+        sbFile.append(incident);
+        nL("\"");
+        enterKey();
+        wForU();
+        enterKey();
+        wForU();
+        enterKey();
+        wForU();
+        mT(27,22);
+        sK("C£", false);
+        sbFile.append(banque.getCoad());
+        sbFile.append("E0");
+        nL("\"");
+        enterKey();
+        mT(28,6);
+        sK("s", true);
+        enterKey();
+        sK("<Pf3>", true);
+        wForU();
+        enterKey();
+        wForU();
+        enterKey();
+        wForU();
+        mT(15,11);
+        sK("COETB, COSCE, DDETSC, HEETSC, CTETSC, COEM, COPO, ZTSUP )", true);
+        mT(17, 6);
+        sK("i", true);
+        enterKey();
+        mT(17, 11);
+        sK("'", false);
+        sbFile.append(banque.getCoetb());
+        sbFile.append("', '\" & COSCE & \"', '");
+        sbFile.append(date);
+        sbFile.append("', '23.00.00',\"\n");
+        mT(18,9);
+        sK("'02', '\" & COEM & \"', '\" & COPO & \"', CURRENT TIMESTAMP );", true);
+        enterKey();
+        wForU();
+        sK("<Pf3>", true);
+        wForU();
+        enterKey();
+        wForU();
+        sK("<Pf3>", true);
+        wForU();
+        sK("<Pf3>", true);
+        wForU();
+        sK("2", true);
+        enterKey();
+        wForU();
+        sK("m<Pf8>", true);
+        mT(41,2);
+        sK("d", true);
+        mT(42,2);
+        sK("d", true);
+        enterKey();      
+    }
+    
+    /**
+     * Crée le message de retour à la fin de la macro
+     */
+    private void MsgBox()
+    {
+        sbFile.append("\n' ----- Création du message de fin -----\n" );
+        sbFile.append("Result = MsgBox(\"Requêtes créées et envoyées en production\", vbOKOnly, \"Archivage TN5B / TN5F\")\n");
+        sbFile.append("End");
     }
     
     /**
@@ -225,7 +290,9 @@ public class MacroControl
         sbFile.append(a);
         sbFile.append(", ");
         sbFile.append(b);
-        nL("\n");
+        nL(")");
+        wForC(a, b);
+        wForU();
     }
     
     /**
@@ -251,30 +318,6 @@ public class MacroControl
     {
         sK("<Enter>", true);
     }
-
-    /**
-     * Pause pour être sûr de la position du curseur et que l'on a récupéré la main
-     * @param a
-     * @param b
-     * @param c
-     * @param d
-     */
-    private void wait(int a, int b, int c, int d)
-    {
-        wForA(a, b);
-        wForC(c, d);
-        wForU();
-    }
-    
-    private void wForA(int a, int b)
-    {
-        sbFile.append("WaitForAttrib(");
-        sbFile.append(a);
-        sbFile.append(", ");
-        sbFile.append(b);
-        sbFile.append(", &H08, &H3C)\n");
-        
-    }
     
     private void wForC(int a, int b)
     {
@@ -292,17 +335,32 @@ public class MacroControl
     
     /**
      * Boucle pour retourner à l'écran initial d'une plaque
+     * @param numeroPlaque
+     *              numéro de le plaque
      */
-    private void loop()
+    private void loop(String numeroPlaque)
     {
+        sbFile.append("\n'-- Boucle pour retourner sur l'écran initial de la plaque ");
+        sbFile.append(numeroPlaque);        
+        nL();
+        sK(numeroPlaque, true);
+        mT(23,12);
+        enterKey();
+        enterKey();
         sbFile.append("TEST = GetString(09,11,40)\n");
-        sbFile.append("Do While TEST is not GOODVALUE\n");
-        sK("<Pf3>", true);
-        wForU();
+        sbFile.append("fin = 0\n");
+        sbFile.append("Do While fin = 0\n");
+        sbFile.append("If StrComp(TEST, GOODVALUE) = 0 Then fin = 1\n");
+        sbFile.append("Else SendKeys \"<Pf3>\"\n");
+        sbFile.append("Endif\n");
         sbFile.append("Loop\n");
-        wForU();
+        sbFile.append("'-- Fin de la boucle\n");
+        nL();
     }
     
+    /**
+     * Initialisation des variables de la MACRO
+     */
     private void varInit()
     {
         sbFile.append("'-------------------------------------\n");
@@ -313,13 +371,17 @@ public class MacroControl
         nL();
         sbFile.append("'Initialisation des variables\n");
         sbFile.append("Dim CODOSB as String '-- CODOSB du scénario à archiver\n");
-        sbFile.append("Dim COEM as String '-- COEM du banquier ayant modifier en dernier le scénario\n");
-        sbFile.append("Dim COPO as String '-- COPO du banquier ayant modifier en dernier le scénario\n");
+        sbFile.append("Dim COEM as String '-- COEM du banquier ayant modifié en dernier le scénario\n");
+        sbFile.append("Dim COPO as String '-- COPO du banquier ayant modifié en dernier le scénario\n");
         sbFile.append("Dim TEST as String '-- variable permettant de tester si on est revenu sur l'écran initial d'une plaque\n");
         sbFile.append("Const GOODVALUE =  \"1  PDF/1    - View - Display Source Data\" '-- constante de contrôle de l'écran initial d'une plaque.\n");
         nL();
     }
     
+    /**
+     * Saut de ligne avec ajout
+     * @param string
+     */
     private void nL(String string)
     {
         if (string != null)
@@ -327,6 +389,9 @@ public class MacroControl
         sbFile.append("\n");        
     }
     
+    /**
+     * Saut de ligne
+     */
     private void nL()
     {
         sbFile.append("\n");        
