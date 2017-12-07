@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import model.xml.BanqueXML;
+import utilities.FunctionalException;
+import utilities.enums.Severity;
 
 public class MacroControl
 {
@@ -23,6 +25,14 @@ public class MacroControl
     private StringBuilder sbFile;
     /** Sate de l'archivage*/
     private String date;
+    
+    /** Touche F6 */
+    private static final String F3 = "<Pf3>";
+    /** Touche F3 */
+    private static final String F6 = "<Pf6>";
+    /** Touche ESC */
+    private static final String ESC = "<Attn>";
+    
 
     
     /* ---------- CONSTUCTORS ---------- */
@@ -50,8 +60,9 @@ public class MacroControl
      * Ecriture de la macro
      * 
      * @param file
+     * @throws FunctionalException 
      */
-    public void creerMacro(File file)
+    public void creerMacro(File file) throws FunctionalException
     {               
         try (BufferedWriter brFile = new BufferedWriter(new FileWriter(file)))
         {                    
@@ -59,9 +70,8 @@ public class MacroControl
         }
         catch (IOException e)
         {
-            
-        }
-                
+            throw new FunctionalException(Severity.SEVERITY_ERROR, "Erreur à l'écriture de la macro", true);
+        }                
     }
     
     /**
@@ -74,7 +84,7 @@ public class MacroControl
         recupCODOSB();
         recupCOEMCOPO();
         creationRequete();
-        MsgBox();
+        msgBox();
         return sbFile.toString();
     }
     
@@ -104,11 +114,11 @@ public class MacroControl
         mT(23, 3);
         sK("s", true);
         enterKey();
-        sK("<Pf6>", true);
+        sK(F6, true);
         mT(9, 11);
         sbFile.append("CODOSB = GetString(09,11,15)\n");
-        sK("<Pf3>", true);
-        sK("<Pf3>", true);
+        sK(F3, true);
+        sK(F3, true);
     }
     
     /**
@@ -136,10 +146,10 @@ public class MacroControl
         sbFile.append("COEM = GetString(09,11,7)\n");
         mT(9,20);
         sbFile.append("COPO = GetString(09,20,5)\n");
-        sK("<Pf3>", true);
-        sK("<Pf3>", true);
-        sK("<Pf3>", true);
-        sK("<Attn>", true);       
+        sK(F3, true);
+        sK(F3, true);
+        sK(F3, true);
+        sK(ESC, true);       
     }
     
     /**
@@ -151,13 +161,10 @@ public class MacroControl
         loop("1");
         sK("DEV", true);
         enterKey();
-        wForU();
         sK("t", true);
         enterKey();
-        wForU();
         sK("1", true);
         enterKey();
-        wForU();
         enterKey();
         sbFile.append("'Requête TN5B\n");
         mT(9,42);
@@ -165,11 +172,8 @@ public class MacroControl
         sbFile.append(incident);
         nL("\"");
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         mT(27,22);
         sK("C£", false);
         sbFile.append(banque.getCoad());
@@ -179,11 +183,9 @@ public class MacroControl
         mT(28,6);
         sK("s", true);
         enterKey();
-        sK("<Pf3>", true);
+        sK(F3, true);
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         mT(15,11);
         sK("COETB, CODOSB, DDETDV, HEETDV, CTETDV, COEM, COPO, ZTSUP )", true);
         mT(17, 6);
@@ -198,28 +200,20 @@ public class MacroControl
         mT(18,9);
         sK("'02', '\" & COEM & \"', '\" & COPO & \"', CURRENT TIMESTAMP );", true);
         enterKey();
-        wForU();
         enterKey();
-        sK("<Pf3>", true);
-        wForU();
-        sK("<Pf3>", true);
-        wForU();       
+        sK(F3, true);
+        sK(F3, true);      
         sK("1", true);
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         sbFile.append("'Requête TN5F\n");
         mT(9,42);
         sK("TN5F<Tab>I<Tab>1<Tab>MCE<Tab><Tab>I", false);
         sbFile.append(incident);
         nL("\"");
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         mT(27,22);
         sK("C£", false);
         sbFile.append(banque.getCoad());
@@ -229,12 +223,9 @@ public class MacroControl
         mT(28,6);
         sK("s", true);
         enterKey();
-        sK("<Pf3>", true);
-        wForU();
+        sK(F3, true);
         enterKey();
-        wForU();
         enterKey();
-        wForU();
         mT(15,11);
         sK("COETB, COSCE, DDETSC, HEETSC, CTETSC, COEM, COPO, ZTSUP )", true);
         mT(17, 6);
@@ -249,20 +240,13 @@ public class MacroControl
         mT(18,9);
         sK("'02', '\" & COEM & \"', '\" & COPO & \"', CURRENT TIMESTAMP );", true);
         enterKey();
-        wForU();
-        sK("<Pf3>", true);
-        wForU();
+        sK(F3, true);
         enterKey();
-        wForU();
-        sK("<Pf3>", true);
-        wForU();
-        sK("<Pf3>", true);
-        wForU();
+        sK(F3, true);
+        sK(F3, true);
         sK("2", true);
         enterKey();
-        wForU();
         sK("m<Pf8>", true);
-        mT(41,2);
         sK("d", true);
         mT(42,2);
         sK("d", true);
@@ -272,7 +256,7 @@ public class MacroControl
     /**
      * Crée le message de retour à la fin de la macro
      */
-    private void MsgBox()
+    private void msgBox()
     {
         sbFile.append("\n' ----- Création du message de fin -----\n" );
         sbFile.append("Result = MsgBox(\"Requêtes créées et envoyées en production\", vbOKOnly, \"Archivage TN5B / TN5F\")\n");
@@ -286,7 +270,7 @@ public class MacroControl
      */
     private void mT(int a, int b)
     {
-        sbFile.append("MoveTo(");
+        sbFile.append("Result = MoveTo(");
         sbFile.append(a);
         sbFile.append(", ");
         sbFile.append(b);
@@ -303,12 +287,15 @@ public class MacroControl
      * @param chariot
      *          indique s'il y a besoin d'un retour à la ligne
      */
-    private void sK(String string, boolean chariot)
+    private void sK(String string, Boolean chariot)
     {
         sbFile.append("SendKeys \"");
         sbFile.append(string);
         if (chariot)
+        {
             nL("\"");
+            wForU();
+        }
     }
     
     /**
@@ -321,7 +308,7 @@ public class MacroControl
     
     private void wForC(int a, int b)
     {
-        sbFile.append("WaitForCursor(");
+        sbFile.append("Result = WaitForCursor(");
         sbFile.append(a);
         sbFile.append(", ");
         sbFile.append(b);
@@ -330,7 +317,7 @@ public class MacroControl
     
     private void wForU()
     {
-        sbFile.append("WaitForKbdUnlock()\n");
+        sbFile.append("Result = WaitForKbdUnlock()\n");
     }
     
     /**
@@ -340,19 +327,17 @@ public class MacroControl
      */
     private void loop(String numeroPlaque)
     {
+        mT(23,12);
+        sK(numeroPlaque, true);
+        enterKey();
+        enterKey();
         sbFile.append("\n'-- Boucle pour retourner sur l'écran initial de la plaque ");
         sbFile.append(numeroPlaque);        
         nL();
-        sK(numeroPlaque, true);
-        mT(23,12);
-        enterKey();
-        enterKey();
         sbFile.append("TEST = GetString(09,11,40)\n");
-        sbFile.append("fin = 0\n");
-        sbFile.append("Do While fin = 0\n");
-        sbFile.append("If StrComp(TEST, GOODVALUE) = 0 Then fin = 1\n");
-        sbFile.append("Else SendKeys \"<Pf3>\"\n");
-        sbFile.append("Endif\n");
+        sbFile.append("Do While StrComp(TEST, GOODVALUE) <> 0\n");
+        sK(F3, true);
+        sbFile.append("TEST = GetString(09,11,40)\n");
         sbFile.append("Loop\n");
         sbFile.append("'-- Fin de la boucle\n");
         nL();

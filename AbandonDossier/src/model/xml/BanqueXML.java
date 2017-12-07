@@ -1,13 +1,17 @@
 package model.xml;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class BanqueXML
+public class BanqueXML implements Serializable
 {
     /* ---------- ATTIBUTES ---------- */
 
+    private static final long serialVersionUID = 1L;
+    
     private String nom;
     private String coad;
     private String coetb;

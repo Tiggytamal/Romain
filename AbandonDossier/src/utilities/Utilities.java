@@ -2,6 +2,8 @@ package utilities;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,6 +18,32 @@ import org.apache.commons.io.FileUtils;
  */
 public class Utilities
 {
+    // Constructeur privé
+    private Utilities() {}
+    
+    /**
+     * Permet d'appeler une méthode privée d'une classe
+     * @param classe
+     * @param objet
+     * @param nomMethode
+     * @param typeParametre
+     * @param parametre
+     * @return
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public static Object callPrivate(Class<?> classe, Object objet, String nomMethode, Class<?>[] typeParametre, Object[] parametres) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+    {
+        Method methode = classe.getDeclaredMethod(nomMethode, typeParametre);      
+        methode.setAccessible(true);
+        for(int i = 0; i < parametres.length; i++)
+        {
+            parametres[i] = typeParametre[i].cast(parametres[i]);
+        }           
+        return methode.getReturnType().cast(methode.invoke(objet, parametres));
+    }
+    
     /**
      * Gets the base location of the given class.
      * <p>
@@ -45,13 +73,9 @@ public class Utilities
             if (codeSourceLocation != null)
                 return codeSourceLocation;
         }
-        catch (SecurityException e)
+        catch (SecurityException | NullPointerException e)
         {
             // NB: Cannot access protection domain.
-        }
-        catch (NullPointerException e)
-        {
-            // NB: Protection domain or code source is null.
         }
 
         // NB: The easy way failed, so we try the hard way. We ask for the class
@@ -81,9 +105,8 @@ public class Utilities
         {
             return new URL(path);
         }
-        catch (final MalformedURLException e)
+        catch (MalformedURLException e)
         {
-            e.printStackTrace();
             return null;
         }
     }
@@ -132,14 +155,11 @@ public class Utilities
             }
             return new File(new URL(path).toURI());
         }
-        catch (final MalformedURLException e)
+        catch (MalformedURLException | URISyntaxException e)
         {
             // NB: URL is not completely well-formed.
         }
-        catch (final URISyntaxException e)
-        {
-            // NB: URL is not completely well-formed.
-        }
+
         if (path.startsWith("file:"))
         {
             // pass through the URL as-is, minus "file:" prefix

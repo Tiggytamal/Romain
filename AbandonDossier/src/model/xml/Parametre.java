@@ -39,6 +39,16 @@ public class Parametre implements Serializable
 	{
 		listBanqueXML = new ArrayList<>();
 	}
+	
+    /**
+     * Constructeur par default
+     */
+    public Parametre(String url, String nomDeFichier)
+    {
+        this();
+        this.url = url;
+        this.nomFichier = nomDeFichier;
+    }
 
     /* ---------- METHODS ---------- */
 
@@ -52,7 +62,7 @@ public class Parametre implements Serializable
     public List<BanqueXML> getListBanqueXML()
     {
 	    if (listBanqueXML == null)
-	        return new ArrayList<BanqueXML>();
+	        return new ArrayList<>();
         return listBanqueXML;
     }
 

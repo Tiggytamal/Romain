@@ -2,23 +2,15 @@ package application;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import utilities.enums.Severity;
 import view.MainScreen;
 
 public class Main extends Application
 {
     @Override
-    public void start(Stage stage)
+    public void start(Stage stage) throws Exception
     {
         MainScreen mainSreen = new MainScreen();
-        try
-        {
-            mainSreen.start(stage);    
-        }
-        catch (Exception e)
-        {
-            MainScreen.createAlert(Severity.SEVERITY_ERROR, e, "Une exception est arrivée");
-        }
+        mainSreen.start(stage);    
     }
 
     public static void main(String[] args)

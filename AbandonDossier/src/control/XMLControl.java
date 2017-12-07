@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -13,6 +14,7 @@ import javax.xml.bind.Unmarshaller;
 import application.Main;
 import model.xml.BanqueXML;
 import model.xml.Parametre;
+import utilities.FunctionalException;
 import utilities.Utilities;
 import utilities.enums.Severity;
 import view.MainScreen;
@@ -41,6 +43,7 @@ public class XMLControl
 
     private static class XMLControlHelper
     {
+        private XMLControlHelper() {}
         private static final XMLControl INSTANCE = new XMLControl();
     }
 
@@ -95,6 +98,7 @@ public class XMLControl
     
     /**
      * Méthode de création de paramètres par défault en cas de problème
+     * @throws FunctionalException 
      */
     private void createXML()
     {
@@ -168,7 +172,7 @@ public class XMLControl
     /**
      * @return the listeBanques
      */
-    public HashMap<String, BanqueXML> getListeBanques()
+    public Map<String, BanqueXML> getListeBanques()
     {
         return listeBanques;
     }

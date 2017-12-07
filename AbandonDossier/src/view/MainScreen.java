@@ -3,6 +3,7 @@ package view;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.regex.Pattern;
 
 import control.MacroControl;
@@ -23,6 +24,7 @@ import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.xml.BanqueXML;
+import utilities.FunctionalException;
 import utilities.enums.Severity;
 
 public class MainScreen extends Application
@@ -31,10 +33,7 @@ public class MainScreen extends Application
     
     /* Propriétés générales */
 
-    private Parent root;
-    private FileChooser fileChooser;
     private Stage stage;
-    private Scene scene;
     
     /* Controleur */
     private XMLControl xmlControl;
@@ -59,11 +58,25 @@ public class MainScreen extends Application
     /* ---------- METHODS ---------- */
 
     @Override
-    public void start(Stage Primarystage) throws Exception
+    public void start(Stage primarystage) throws Exception
     {
-        root = FXMLLoader.load(getClass().getResource("mainscreen.fxml"));
-        scene = new Scene(root);
-        stage = Primarystage;
+        Thread.setDefaultUncaughtExceptionHandler((t, e) ->
+               { 
+                   if (e.getCause() instanceof InvocationTargetException && ((InvocationTargetException) e.getCause()).getTargetException() instanceof FunctionalException)
+                   {
+                       FunctionalException ex1 = (FunctionalException) ((InvocationTargetException) e.getCause()).getTargetException();
+                       createAlert(ex1.getSeverity(), ex1, ex1.getMessage());
+                   }
+                   else
+                   {
+                       createAlert(Severity.SEVERITY_ERROR, e, e.getMessage());
+                   }
+               });
+        
+        
+        Parent root = FXMLLoader.load(getClass().getResource("mainscreen.fxml"));
+        Scene scene = new Scene(root);
+        stage = primarystage;
         stage.setTitle("Création TN5B -TN5F");
         stage.setResizable(true);
         stage.setScene(scene);
@@ -81,10 +94,10 @@ public class MainScreen extends Application
      * Méthode permettant de créer un message d'erreur
      * 
      * @param severity
-     * @param exception
+     * @param ex
      * @param detail
      */
-    public static void createAlert(Severity severity, Exception exception, String detail)
+    public static void createAlert(Severity severity, Throwable ex, String detail)
     {
         // instance de l'alerte
         Alert alert;
@@ -113,11 +126,11 @@ public class MainScreen extends Application
         }
 
         // Création du message d'exception si celle-ci est fournie.
-        if (exception != null)
+        if (ex != null && ex instanceof FunctionalException ? ((FunctionalException) ex).isShowException() : true)
         {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
-            exception.printStackTrace(pw);
+            ex.printStackTrace(pw);
             String exceptionText = sw.toString();
 
             Label label = new Label("Stacktrace :");
@@ -144,29 +157,26 @@ public class MainScreen extends Application
     }
     
     @FXML
-    public void macro() throws Exception
+    public void macro() throws FunctionalException
     {
         String nom = listeBanques.getSelectionModel().getSelectedItem();
         BanqueXML banque = xmlControl.getListeBanques().get(nom);
         
         if (nom.equals("Choisissez une Banque"))
         {
-            createAlert(Severity.SEVERITY_INFO, null, "Vous devez choisir un pôle");
-            return;
+            throw new FunctionalException(Severity.SEVERITY_INFO, "Vous devez choisir un pôle", false);
         }
         if (cosce.getText().isEmpty())
         {
-            createAlert(Severity.SEVERITY_INFO, null, "Vous devez rentrez un numéro de scénario");
-            return;
+            throw new FunctionalException(Severity.SEVERITY_INFO, "Vous devez rentrez un numéro de scénario", false);
         }
         if (incident.getText().isEmpty())
         {
-            createAlert(Severity.SEVERITY_INFO, null, "Vous devez rentrez le numéro de l'incident");
-            return;
+            throw new FunctionalException(Severity.SEVERITY_INFO, "Vous devez rentrez le numéro de l'incident", false);
         }
         
         // 2. Création de la macro.
-        fileChooser = new FileChooser();
+        FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Macro Quick");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers Macro (*.qmc)", "*.qmc"));  
         // Ajout du repertoire par défault s'il est valide
