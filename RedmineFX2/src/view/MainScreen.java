@@ -85,10 +85,6 @@ public class MainScreen extends Application
 
     /* ---------- CONSTUCTORS ---------- */
 
-    public MainScreen()
-    {
-
-    }
 
     /* ---------- METHODS ---------- */
 
@@ -179,7 +175,8 @@ public class MainScreen extends Application
             // Si l'on a pas déjà trouvé cette application
             if (appli != null && !listAppliAjoutees.contains(appli))
             {
-                listAppliAjoutees.add(appli); // Ajout à la liste des applications déjà trouvées
+            	// Ajout à la liste des applications déjà trouvées
+                listAppliAjoutees.add(appli); 
                 ApplicationBDC appliBDC;
 
                 if (mapXML.keySet().contains(appli))
