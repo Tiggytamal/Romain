@@ -14,9 +14,10 @@ public class Main extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {
+        	//TODO
+        	});
         MainScreen main = new MainScreen();
         main.start(stage);
-        Thread.currentThread().setUncaughtExceptionHandler((t, e) -> {//TODO
-        	});
     }
 }

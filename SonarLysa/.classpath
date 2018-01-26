@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-api-2.5.0-b60.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-locator-2.5.0-b60.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-utils-2.5.0-b60.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

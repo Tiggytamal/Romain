@@ -1,38 +1,46 @@
 package control;
 
-import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-
-import sonarAPI.model.Views;
+import sonarapi.SonarAPI;
+import sonarapi.model.View;
+import sonarapi.model.Views;
+import utilities.Statics;
 
 public class RestHandler 
 {
-	private static final String uri = "http://ttp10-snar.ca-technologies.fr/api/views/list";
+	private SonarAPI api;
+	
+	public RestHandler()
+	{
+		String name = "ETP8137";
+        String password = "28H02m89,;:!";
+		api = SonarAPI.getInstance(Statics.URI, name, password);		
+	}
+	
 	
 	/**
 	 * @param arg
 	 */
 	public static void main (String... arg) 
 	{
-		
-		Client client = ClientBuilder.newClient();
-		WebTarget webTarget  = client.target("http://ttp10-snar.ca-technologies.fr");
-		WebTarget listViews = webTarget.path("api/views/list");
-		String name = "ETP8137";
-        String password = "28H02m89,;:!";
-        
-        String authString = name + ":" + password;
-        String authStringEnc = Base64.getEncoder().encodeToString(authString.getBytes());
-        System.out.println("Base64 encoded auth string: " + authStringEnc);
-		Invocation.Builder invocationBuilder = listViews.request(MediaType.APPLICATION_JSON).header("Authorization", authStringEnc) ;
-		Views response = invocationBuilder.get(Views.class);
-
-  
+		RestHandler handler = new RestHandler();
+        Views views = handler.api.getViews();
+        System.out.println(views.getListeViews().size());
+        System.out.println(handler.api.verificationUtilisateur());       
+	}
+	
+	public Map<String, View> recupererLots()
+	{
+		Map<String, View> map = new HashMap<>();
+		Views views = api.getViews();
+		for (View view : views.getListeViews()) 
+		{
+			if (view.getName().startsWith("Lot "))
+				map.put(view.getName(), view);
+		}
+		return map;
 	}
 	
 	
