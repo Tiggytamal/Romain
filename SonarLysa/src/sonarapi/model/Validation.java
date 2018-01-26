@@ -7,19 +7,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Validation
 {
 	/*Attibuts*/
-	
+
 	private boolean valid;
 
-	
+
 	/* Accesseurs */
-	
+
 	@XmlAttribute (name = "valid", required = true)
 	public boolean isValid()
 	{
 		return valid;
 	}
 
-	public void setValid(boolean valid)
+	public void setValid(final boolean valid)
 	{
 		this.valid = valid;
 	}

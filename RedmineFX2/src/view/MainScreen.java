@@ -45,7 +45,7 @@ import utilities.enums.Severity;
 
 public class MainScreen extends Application
 {
-    /* ---------- ATTIBUTES ---------- */
+    /* ---------- ATTRIBUTES ---------- */
 
     /* Propriétés générales */
 

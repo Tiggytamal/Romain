@@ -54,22 +54,22 @@ public class Utilities
     public static URL getLocation(final Class<?> c)
     {
         if (c == null)
-            return null; // could not load the class
+        {
+        	return null; // could not load the class
+        }
 
         // try the easy way first
         try
         {
             final URL codeSourceLocation = c.getProtectionDomain().getCodeSource().getLocation();
             if (codeSourceLocation != null)
-                return codeSourceLocation;
+            {
+            	return codeSourceLocation;
+            }
         }
-        catch (final SecurityException e)
+        catch (SecurityException | NullPointerException e)
         {
             // NB: Cannot access protection domain.
-        }
-        catch (final NullPointerException e)
-        {
-            // NB: Protection domain or code source is null.
         }
 
         // NB: The easy way failed, so we try the hard way. We ask for the class
@@ -79,12 +79,12 @@ public class Utilities
         // get the class's raw resource path
         final URL classResource = c.getResource(c.getSimpleName() + ".class");
         if (classResource == null)
-            return null; // cannot find class resource
+            return null;
 
         final String url = classResource.toString();
         final String suffix = c.getCanonicalName().replace('.', '/') + ".class";
         if (!url.endsWith(suffix))
-            return null; // weird URL
+            return null;
 
         // strip the class's path from the URL string
         final String base = url.substring(0, url.length() - suffix.length());
@@ -93,7 +93,9 @@ public class Utilities
 
         // remove the "jar:" prefix and "!/" suffix, if present
         if (path.startsWith("jar:"))
-            path = path.substring(4, path.length() - 2);
+        {
+        	path = path.substring(4, path.length() - 2);
+        }
 
         try
         {
@@ -139,7 +141,7 @@ public class Utilities
         if (path.startsWith("jar:"))
         {
             // remove "jar:" prefix and "!/" suffix
-            final int index = path.indexOf("!/");
+            int index = path.indexOf("!/");
             path = path.substring(4, index);
         }
         try
@@ -150,14 +152,11 @@ public class Utilities
             }
             return new File(new URL(path).toURI());
         }
-        catch (final MalformedURLException e)
+        catch (MalformedURLException | URISyntaxException e)
         {
             // NB: URL is not completely well-formed.
         }
-        catch (final URISyntaxException e)
-        {
-            // NB: URL is not completely well-formed.
-        }
+
         if (path.startsWith("file:"))
         {
             // pass through the URL as-is, minus "file:" prefix
@@ -170,7 +169,7 @@ public class Utilities
     /** Gets the name of the operating system. */
     public static String osName()
     {
-        final String osName = System.getProperty("os.name");
+        String osName = System.getProperty("os.name");
         return osName == null ? "Unknown" : osName;
     }
 }

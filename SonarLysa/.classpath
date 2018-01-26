@@ -23,5 +23,9 @@
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-locator-2.5.0-b60.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-utils-2.5.0-b60.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/ooxml-schemas-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

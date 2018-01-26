@@ -41,6 +41,7 @@ public class XMLControl
 
     private static class XMLControlHelper
     {
+    	private XMLControlHelper() {}
         private static final XMLControl INSTANCE = new XMLControl();
     }
 
@@ -74,8 +75,10 @@ public class XMLControl
      */
     private void recupParam()
     {
-        File file = new File(jarPath + "\\param.xml"); // Creation objet correstondant au fichier XML
-        boolean paramOK = false; // boolean pour vérifier si le fichier XML existe
+    	// Creation objet correstondant au fichier XML
+        File file = new File(jarPath + "\\param.xml"); 
+        // boolean pour vérifier si le fichier XML existe
+        boolean paramOK = false; 
 
         if (file.exists())
         {
@@ -94,12 +97,16 @@ public class XMLControl
             }
         }
         else
-            System.out.println("Le fichier XML n'existe pas");
+        {
+        	System.out.println("Le fichier XML n'existe pas");
+        }
 
         // On vérifie que le XML contient bien tous les paramètres
         if (paramOK == true && (param.getDriver() == null || param.getPass() == null || param.getUrl() == null || param.getUser() == null))
-            System.out.println("Certaines valeurs du XML sont nulles");
-        else if (paramOK == true)
+        {
+        	System.out.println("Certaines valeurs du XML sont nulles");
+        }
+        else if (paramOK)
         {
             // Affectation des paramètres du programme
             System.out.println("utilisation des valeurs du xml");
@@ -115,20 +122,26 @@ public class XMLControl
      */
     private void recupDefault()
     {
-        HashMap<String, String> map = new HashMap<>(); // Creation map des propriétés
+    	// Creation map des propriétés
+        HashMap<String, String> map = new HashMap<>(); 
 
         // On ajoute le paramètre dans la map s'il a été renseigné
         if (pass != null)
-            map.put("javax.persistence.jdbc.password", pass);
-
+        {
+        	map.put("javax.persistence.jdbc.password", pass);
+        }
         if (driver != null)
-            map.put("javax.persistence.jdbc.driver", driver);
-
+        {
+        	map.put("javax.persistence.jdbc.driver", driver);
+        }
         if (url != null)
-            map.put("javax.persistence.jdbc.url", url);
-
+        {
+        	map.put("javax.persistence.jdbc.url", url);
+        }
         if (user != null)
-            map.put("javax.persistence.jdbc.user", user);
+        {
+        	map.put("javax.persistence.jdbc.user", user);
+        }
 
         // Creation de la connection et on récupère les paramètres
         listControl.createFactory(map);

@@ -8,14 +8,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Views 
+public class Views
 {
 
 	private List<View> listeViews;
 
 	@XmlElementWrapper (name = "views")
 	@XmlElement (name = "views")
-	public List<View> getListeViews() 
+	public List<View> getListeViews()
 	{
 		if (listeViews == null)
 		{
@@ -24,18 +24,18 @@ public class Views
 		return listeViews;
 	}
 
-	public void setListeViews(List<View> views) 
+	public void setListeViews(final List<View> views)
 	{
-		this.listeViews = views;
+		listeViews = views;
 	}
 
 	@Override
-	public String toString() 
+	public String toString()
 	{
-		StringBuilder builder = new StringBuilder();
+		final StringBuilder builder = new StringBuilder();
 		if (listeViews != null)
 		{
-			for (int i = 0; i < listeViews.size(); i++) 
+			for (int i = 0; i < listeViews.size(); i++)
 			{
 				builder.append(listeViews.get(i).toString());
 				builder.append("\n");

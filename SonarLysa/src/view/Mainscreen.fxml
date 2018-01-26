@@ -13,21 +13,27 @@
 <?import model.system.*?>
 <?import view.FormattedTableCellFactory?>
 
-<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500"
-	prefWidth="500">
+<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
 
 	<padding>
 		<Insets top="25" right="25" bottom="10" left="25" />
 	</padding>
 
-	<Text text="Pôles :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-	<ComboBox fx:id="listPoles" GridPane.columnIndex="1" GridPane.rowIndex="0">
+	<Text text="Mois :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+	<ComboBox fx:id="listeMois" GridPane.columnIndex="1" GridPane.rowIndex="0">
 		<items>
 			<FXCollections fx:factory="observableArrayList">
-				<String fx:value="Choisissez un Pôle" />
+				<String fx:value="Choisissez un Mois" />
 			</FXCollections>
 		</items>
 	</ComboBox>
+	
+		<Text text="Date début :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+	<DatePicker fx:id="dateDebut" GridPane.columnIndex="1" GridPane.rowIndex="1" onAction="#saveDebut"/>
+	<Text text="Date fin :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+	<DatePicker fx:id="dateFin" GridPane.columnIndex="1" GridPane.rowIndex="2" onAction="#saveFin"/>
+	
+	<Button text="Charger un fichier excel" fx:id="charger" onAction="#chargerExcel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
 	
 </GridPane>
 
