@@ -1,4 +1,4 @@
-package view;
+package control.view;
 
 import java.text.Format;
 

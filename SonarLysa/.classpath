@@ -1,31 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry including="**/*.java" kind="src" output="target/classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-fileupload-1.3.3.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-io-2.6.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-lang3-3.7.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/itextpdf-5.5.12.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-ooxml-3.17.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-codec-1.11.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-media-json-jackson-2.26.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-core-2.9.3.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-client-2.26.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-entity-filtering-2.26.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-databind-2.9.3.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-annotations-2.9.3.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-module-jaxb-annotations-2.9.3.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.persistence-2.2.0.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.annotation-api-1.2-b02.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jaxrs-ri-2.26.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-api-2.5.0-b60.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-locator-2.5.0-b60.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-utils-2.5.0-b60.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-3.17.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/xmlbeans-2.6.0.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-collections4-4.1.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/ooxml-schemas-1.3.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>

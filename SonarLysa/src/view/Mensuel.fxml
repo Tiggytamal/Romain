@@ -11,9 +11,9 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.cell.*?>
 <?import model.system.*?>
-<?import view.FormattedTableCellFactory?>
+<?import control.view.FormattedTableCellFactory?>
 
-<GridPane fx:controller="view.MainScreen" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
+<GridPane fx:id="pane" fx:controller="control.view.MensuelControl" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
 
 	<padding>
 		<Insets top="25" right="25" bottom="10" left="25" />
