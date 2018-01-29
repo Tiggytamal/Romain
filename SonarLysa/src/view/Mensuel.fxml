@@ -12,29 +12,78 @@
 <?import javafx.scene.control.cell.*?>
 <?import model.system.*?>
 <?import control.view.FormattedTableCellFactory?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<GridPane fx:id="pane" fx:controller="control.view.MensuelControl" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
-
+<GridPane fx:id="backgroundPane" fx:controller="control.view.MensuelControl" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
 	<padding>
 		<Insets top="25" right="25" bottom="10" left="25" />
-	</padding>
-
-	<Text text="Mois :" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-	<ComboBox fx:id="listeMois" GridPane.columnIndex="1" GridPane.rowIndex="0">
-		<items>
-			<FXCollections fx:factory="observableArrayList">
-				<String fx:value="Choisissez un Mois" />
-			</FXCollections>
-		</items>
-	</ComboBox>
+	</padding>	
+	<children>
 	
-		<Text text="Date début :" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-	<DatePicker fx:id="dateDebut" GridPane.columnIndex="1" GridPane.rowIndex="1" onAction="#saveDebut"/>
-	<Text text="Date fin :" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-	<DatePicker fx:id="dateFin" GridPane.columnIndex="1" GridPane.rowIndex="2" onAction="#saveFin"/>
+		<!-- RadioBoutons -->
+	  	<fx:define>
+	  		<ToggleGroup fx:id="toggleGroup" />  
+		</fx:define>
 	
-	<Button text="Charger un fichier excel" fx:id="charger" onAction="#chargerExcel" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-	
+		<RadioButton fx:id="radioMois" text="Par Mois" toggleGroup = "$toggleGroup" onAction="#afficherParMois"/>
+		<RadioButton fx:id="radioDate" text="Par Date" GridPane.rowIndex="1" toggleGroup = "$toggleGroup" onAction="#afficherParDate"/>
+		<RadioButton fx:id="radioActuel" text="Mois en cours" GridPane.rowIndex="2" toggleGroup = "$toggleGroup" onAction="#afficherParMoisEnCours"/>
+		
+		
+		<!-- GridPane -->
+		<GridPane fx:id="selectPane" GridPane.columnIndex="1" GridPane.rowSpan="2" alignment="CENTER" GridPane.halignment="CENTER">
+			<children>		
+					
+				<!-- Combo de la liste des mois -->
+				<HBox fx:id="listeMoisHBox" alignment="CENTER">
+					<children>
+						<Text text="Mois :" />
+						<ComboBox fx:id="listeMois" >
+							<items>
+								<FXCollections fx:factory="observableArrayList">
+									<String fx:value="Choisissez un Mois" />
+								</FXCollections>
+							</items>
+						</ComboBox>
+					</children>
+				</HBox>
+				
+				<!-- DatePicker pour la date de début -->
+				<HBox fx:id="dateDebutHBox" alignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+					<padding>
+						<Insets bottom="5"/>
+					</padding>	
+					<children>
+						<Text text="Date début :" />
+						<DatePicker fx:id="dateDebut" onAction="#saveDebut"/>
+					</children>
+				</HBox>
+				
+				<!-- DatePicker pour la date de fin -->
+				<HBox fx:id="dateFinHBox" GridPane.rowIndex="1" alignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+					<padding>
+						<Insets top="5"/>
+					</padding>	
+					<children>
+						<Text text="Date fin :" />
+						<DatePicker fx:id="dateFin" onAction="#saveFin"/>
+					</children>
+				</HBox>
+				
+				<!-- Bouton pour sélectionner le fichier Excel -->
+				<Button text="Charger un fichier excel" fx:id="charger" onAction="#chargerExcel" />
+				
+			</children>
+		</GridPane>
+		
+		<!-- Bouton pour créer la nouvelle vue dans Sonar -->
+		<Button text="Créer la vue" GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="creer" onAction="#creerVue" GridPane.halignment="CENTER"/>
+		
+	</children>
 </GridPane>
 
 

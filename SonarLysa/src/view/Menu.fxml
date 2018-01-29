@@ -10,7 +10,7 @@
 
 <MenuBar fx:controller="control.view.MenuControl" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml">
 	<menus>
-		<Menu text="Menu">
+		<Menu text="Fonction">
 			<items>
 				<MenuItem fx:id="mensuel" text="Mensuel" onAction="#switchToMensuel"  />
 			</items>

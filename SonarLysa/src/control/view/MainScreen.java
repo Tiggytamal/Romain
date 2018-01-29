@@ -17,17 +17,14 @@ public class MainScreen extends Application
     private static Stage stage;
     private static BorderPane root = new BorderPane();
 	
-	/* Attributs FXML */
-	
-
-    
+	/* Attributs FXML */    
     
 	/*---------- CONSTRUCTEURS ----------*/
     
     @FXML
     public void initialize()
     {
-
+        
     }
     
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -36,7 +33,7 @@ public class MainScreen extends Application
 	public void start(final Stage stageIn) throws Exception
 	{  
 	    // Menu de l'application 
-	    final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/menu.fxml"));
+	    final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
 		// Ajout au panneau principal
 		root.setTop(menu);
 		
