@@ -3,6 +3,8 @@ package junit.control;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +13,14 @@ import control.ControlHandler;
 class ControlTest
 {
 
-
+    private static final Logger logger = LogManager.getLogger("commons");
+    private static final Logger logger2 = LogManager.getLogger("analytics");
+    
 	@Test
 	void test()
 	{
-		final ControlHandler handler = new ControlHandler("ETP8137", "28H02m89,;:!");
-		handler.recupererLotsSonarQube();
+	    logger.info("test");
+	    logger2.info("test");
 	}
 	
 	@Test
