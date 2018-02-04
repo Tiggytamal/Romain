@@ -28,8 +28,8 @@
 		</fx:define>
 
 		<VBox minHeight="200" minWidth="100" alignment="CENTER">
-			<RadioButton fx:id="radioMois" text="Par Excel" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER" onAction="#afficherParMois" />
-			<RadioButton fx:id="radioDate" text="Par Date" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER" onAction="#afficherParDate" />
+			<RadioButton fx:id="radioMois" text="Par Excel" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER_LEFT" onAction="#afficherParMois" />
+			<RadioButton fx:id="radioDate" text="Par Date" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER_LEFT" onAction="#afficherParDate" />
 		</VBox>
 
 
@@ -42,7 +42,7 @@
 					<children>
 						<Text text="Date début :" textAlignment="LEFT" />
 						<Region  prefWidth="10" HBox.hgrow="ALWAYS" />
-						<DatePicker fx:id="dateDebut" onAction="#saveDebut" />
+						<DatePicker fx:id="dateDebutPicker" onAction="#saveDebut" />
 					</children>
 				</HBox>
 
@@ -51,7 +51,7 @@
 					<children>
 						<Text text="Date fin :" textAlignment="LEFT"/>
 						<Region  prefWidth="10" HBox.hgrow="ALWAYS" />
-						<DatePicker fx:id="dateFin" onAction="#saveFin" />
+						<DatePicker fx:id="dateFinPicker" onAction="#saveFin" />
 					</children>
 				</HBox>
 

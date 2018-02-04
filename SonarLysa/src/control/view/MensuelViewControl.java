@@ -2,13 +2,13 @@ package control.view;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import control.ControlAPI;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
@@ -17,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import utilities.DateConvert;
-import utilities.Statics;
 
 public class MensuelViewControl
 {
@@ -25,7 +24,8 @@ public class MensuelViewControl
     
     
     private ControlAPI handler;
-
+    private LocalDate dateDebut;
+    private LocalDate dateFin;
     
     @FXML
     public void initialize()
@@ -40,11 +40,11 @@ public class MensuelViewControl
     @FXML
     private HBox listeMoisHBox;
     @FXML
-    private DatePicker dateDebut;
+    private DatePicker dateDebutPicker;
     @FXML
     private HBox dateDebutHBox;
     @FXML
-    private DatePicker dateFin;
+    private DatePicker dateFinPicker;
     @FXML
     private HBox dateFinHBox;
     @FXML
@@ -72,13 +72,13 @@ public class MensuelViewControl
     @FXML
     public void saveDebut()
     {
-        DateConvert.convertToOldDate(dateDebut.getValue());
+        dateDebut = dateDebutPicker.getValue();
     }
 
     @FXML
     public void saveFin()
     {
-        DateConvert.convertToOldDate(dateFin.getValue());
+        dateFin = dateFinPicker.getValue();
     }
     
     @FXML
@@ -114,6 +114,7 @@ public class MensuelViewControl
     @FXML
     public void creerVue()
     {
-
+        System.out.println(dateDebut);
+        System.out.println(dateFin);
     }
 }

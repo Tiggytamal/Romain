@@ -32,7 +32,7 @@ public class MenuViewControl
     @FXML
     public void switchToApplications(ActionEvent event) throws IOException 
     {
-        GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Mensuel.fxml"));        
+        GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Applications.fxml"));        
         BorderPane border = MainScreen.getRoot();
         border.setCenter(mensuelPane);
     }
