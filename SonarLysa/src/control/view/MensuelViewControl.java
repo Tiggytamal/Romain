@@ -16,7 +16,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import utilities.DateConvert;
 
 public class MensuelViewControl
 {
@@ -90,7 +89,7 @@ public class MensuelViewControl
         File file = fileChooser.showOpenDialog(backgroundPane.getScene().getWindow());
         if (file != null)
         {
-            handler.creerVueMensuelle(file);
+            handler.creerVueProduction(file);
         }      
     }
     
@@ -108,7 +107,6 @@ public class MensuelViewControl
         selectPane.getChildren().add(dateDebutHBox);
         selectPane.getChildren().add(dateFinHBox);
         selectPane.getChildren().add(creer);
-
     }
     
     @FXML

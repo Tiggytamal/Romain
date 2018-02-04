@@ -55,14 +55,22 @@ public class ControlAPI
 		return map;
 	}
 
-	public void creerVueMensuelle(File file) throws InvalidFormatException, IOException
+	public void creerVueProduction(File file) throws InvalidFormatException, IOException
 	{
 	    Map<String, List<View>> mapLot = recupMapLotExcel(file);	
+	    if(mapLot.size() == 1)
+	    {
+	        creerVueMensuelle(mapLot);
+	    }
+	    else if (mapLot.size() == 3)
+	    {
+	        creerVueTrimestrielle(mapLot);
+	    }
 	    
 	    
 	}
-	
-	/*---------- METHODES PRIVEES ----------*/
+
+    /*---------- METHODES PRIVEES ----------*/
 	
 	private Map<String, List<View>> recupMapLotExcel(File file) throws InvalidFormatException, IOException
 	{
@@ -92,7 +100,7 @@ public class ControlAPI
 			else if (cell.getCellTypeEnum() == CellType.STRING && cell.getStringCellValue().equals("Livraison édition"))
 			{
 			    colDate = cell.getColumnIndex();
-			}			
+			}	
 		}
 		
 		// parcours de la feuille Excel pour récupérer tous les lots et leurs dates de mise en production
@@ -126,6 +134,20 @@ public class ControlAPI
 		wb.close();
 		return retour;
 	}
+	
+	   
+    private void creerVueTrimestrielle(Map<String, List<View>> mapLot)
+    {
+        // TODO Auto-generated method stub
+        
+    }
+
+    private void creerVueMensuelle(final Map<String, List<View>> mapLot)
+    {
+            String nomVue = mapLot.keySet().stream().findFirst().get();
+            System.out.println(nomVue);
+        
+    }
 	
 	/*---------- ACCESSEURS ----------*/
 }

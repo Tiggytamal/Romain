@@ -27,6 +27,6 @@ class ControlTest
 	void creerVueMensuelle() throws InvalidFormatException, IOException
 	{
 		final ControlAPI handler = new ControlAPI("ETP8137", "28H02m89,;:!");
-		handler.creerVueMensuelle(new File("d:\\Classeur1.xlsx"));
+		handler.creerVueProduction(new File("d:\\Classeur1.xlsx"));
 	}
 }
