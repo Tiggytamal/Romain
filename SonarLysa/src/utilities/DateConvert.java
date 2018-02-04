@@ -21,6 +21,8 @@ import java.util.Date;
  */
 public class DateConvert
 {
+    
+    private DateConvert() {}
     /**
      * Appel de {@link #convert(Class, Object, ZoneId)} avec la time-zone par default du système, 
      * et l'Offset de Greenwich.
@@ -33,8 +35,7 @@ public class DateConvert
     /**
      * Permet de convertir un objet dans les nouveaux formats temporels du JDK 1.8.<br>
      * La time-zone est nécessaire pour {@code java.time.LocalDate} et {@code java.time.LocalDateTime}.<br>
-     * Par défault, utilise celle du système.<br>
-     * S'il n'y a pas de time-zone, celle du système pas défault est utilisée. Null-safe.
+     * Par défault, utilise celle du système. Null-safe.
      * 
      * @param classe
      * 			Le choix de la classe de retour.
@@ -149,8 +150,8 @@ public class DateConvert
 
         if (date instanceof java.sql.Date)
             return ((java.sql.Date) date).toLocalDate();
-        else
-            return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
+
+        return Instant.ofEpochMilli(date.getTime()).atZone(zone).toLocalDate();
     }
 
     /**
@@ -178,9 +179,9 @@ public class DateConvert
     /**
      * Appel {@link #createDate(Object, ZoneId)} avec la time-zone par default du système.
      */
-    public static Date createDate(Object date)
+    public static Date convertToOldDate(Object date)
     {
-        return createDate(date, ZoneId.systemDefault());
+        return convertToOldDate(date, ZoneId.systemDefault());
     }
 
     /**
@@ -199,7 +200,7 @@ public class DateConvert
      *            Time zone, utilisée seulement pour LocalDate ou LocalDateTime.
      * @return {@link java.util.Date}
      */
-    public static Date createDate(Object date, ZoneId zone)
+    public static Date convertToOldDate(Object date, ZoneId zone)
     {
         if (date == null)
             return null;
@@ -252,4 +253,47 @@ public class DateConvert
         return instant(date).atZone(zone);
     }
 
+    /**
+     * Retourne le mois en français de la date en paramètre.
+     * Utilise le format {@code java.time.LocalDate}
+     * 
+     * @param date
+     * @return
+     */
+    public static String moisFrancais(LocalDate date)
+    {
+        if (date == null)
+            throw new UnsupportedOperationException("La date en paramètre est nulle.");
+        
+        switch (date.getMonth())
+        {
+            case APRIL :
+                return "Avril";
+            case AUGUST :
+                return "Aout";
+            case DECEMBER :
+                return "Decembre";
+            case FEBRUARY :
+                return "Février";
+            case JANUARY :
+                return "Janvier";
+            case JULY :
+                return "Juillet";
+            case JUNE :
+                return "Juin";
+            case MARCH :
+                return "Mars";
+            case MAY :
+                return "Mai";
+            case NOVEMBER :
+                return "Novembre";
+            case OCTOBER :
+                return "Octobre";
+            case SEPTEMBER :
+                return "Septembre";
+        }
+            
+        throw new UnsupportedOperationException("Mois inconnu :" + date.getMonth());
+    }
+    
 }

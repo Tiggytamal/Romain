@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
-import control.ControlHandler;
+import control.ControlAPI;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -14,33 +14,29 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import utilities.DateConvert;
 import utilities.Statics;
 
-public class MensuelControl
+public class MensuelViewControl
 {
     /* ---------- ATTIBUTS ---------- */
     
     
-    private ControlHandler handler;
+    private ControlAPI handler;
 
     
     @FXML
     public void initialize()
     {
-        listeMois.getItems().addAll(Statics.JANVIER, Statics.FEVRIER, Statics.MARS, Statics.AVRIL, Statics.MAI, Statics.JUIN, Statics.JUILLET, Statics.AOUT, Statics.SEPTEMBRE, Statics.OCTOBRE, Statics.NOVEMBRE, Statics.DECEMBRE);
-        listeMois.getSelectionModel().selectFirst();
-        handler = new ControlHandler("ETP8137", "28H02m89,;:!");
+        handler = new ControlAPI("ETP8137", "28H02m89,;:!");
         selectPane.getChildren().clear();
-        backgroundPane.getChildren().remove(creer);
-        
+        backgroundPane.getChildren().remove(creer);       
     }
     
     /* Attributs FXML */
     
-    @FXML
-    private ComboBox<String> listeMois;
     @FXML
     private HBox listeMoisHBox;
     @FXML
@@ -66,7 +62,7 @@ public class MensuelControl
     @FXML
     private ToggleGroup toggleGroup;
     @FXML
-    private GridPane selectPane;
+    private VBox selectPane;
 
 
     
@@ -76,13 +72,13 @@ public class MensuelControl
     @FXML
     public void saveDebut()
     {
-        DateConvert.createDate(dateDebut.getValue());
+        DateConvert.convertToOldDate(dateDebut.getValue());
     }
 
     @FXML
     public void saveFin()
     {
-        DateConvert.createDate(dateFin.getValue());
+        DateConvert.convertToOldDate(dateFin.getValue());
     }
     
     @FXML
@@ -102,8 +98,7 @@ public class MensuelControl
     public void afficherParMois()
     {
         selectPane.getChildren().clear();
-        selectPane.getChildren().add(listeMois);
-        backgroundPane.getChildren().add(creer);
+        selectPane.getChildren().add(charger);
     }
     
     @FXML
@@ -112,15 +107,8 @@ public class MensuelControl
         selectPane.getChildren().clear();
         selectPane.getChildren().add(dateDebutHBox);
         selectPane.getChildren().add(dateFinHBox);
-        backgroundPane.getChildren().add(creer);
+        selectPane.getChildren().add(creer);
 
-    }
-    
-    @FXML
-    public void afficherParMoisEnCours()
-    {
-        selectPane.getChildren().clear();
-        backgroundPane.getChildren().add(creer);
     }
     
     @FXML

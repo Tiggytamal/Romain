@@ -8,81 +8,64 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.cell.*?>
-<?import model.system.*?>
-<?import control.view.FormattedTableCellFactory?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
 
-<GridPane fx:id="backgroundPane" fx:controller="control.view.MensuelControl" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
+<GridPane fx:id="backgroundPane" fx:controller="control.view.MensuelViewControl" xmlns:fx="http://javafx.com/fxml" alignment="center" hgap="10" vgap="10" prefHeight="500" prefWidth="500">
 	<padding>
 		<Insets top="25" right="25" bottom="10" left="25" />
-	</padding>	
+	</padding>
 	<children>
-	
+
 		<!-- RadioBoutons -->
-	  	<fx:define>
-	  		<ToggleGroup fx:id="toggleGroup" />  
+		<fx:define>
+			<ToggleGroup fx:id="toggleGroup" />
 		</fx:define>
-	
-		<RadioButton fx:id="radioMois" text="Par Mois" toggleGroup = "$toggleGroup" onAction="#afficherParMois"/>
-		<RadioButton fx:id="radioDate" text="Par Date" GridPane.rowIndex="1" toggleGroup = "$toggleGroup" onAction="#afficherParDate"/>
-		<RadioButton fx:id="radioActuel" text="Mois en cours" GridPane.rowIndex="2" toggleGroup = "$toggleGroup" onAction="#afficherParMoisEnCours"/>
-		
-		
+
+		<VBox minHeight="200" minWidth="100" alignment="CENTER">
+			<RadioButton fx:id="radioMois" text="Par Excel" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER" onAction="#afficherParMois" />
+			<RadioButton fx:id="radioDate" text="Par Date" toggleGroup="$toggleGroup" minHeight="30" alignment="CENTER" onAction="#afficherParDate" />
+		</VBox>
+
+
 		<!-- GridPane -->
-		<GridPane fx:id="selectPane" GridPane.columnIndex="1" GridPane.rowSpan="2" alignment="CENTER" GridPane.halignment="CENTER">
-			<children>		
-					
-				<!-- Combo de la liste des mois -->
-				<HBox fx:id="listeMoisHBox" alignment="CENTER">
-					<children>
-						<Text text="Mois :" />
-						<ComboBox fx:id="listeMois" >
-							<items>
-								<FXCollections fx:factory="observableArrayList">
-									<String fx:value="Choisissez un Mois" />
-								</FXCollections>
-							</items>
-						</ComboBox>
-					</children>
-				</HBox>
-				
+		<VBox fx:id="selectPane" GridPane.columnIndex="1" alignment="CENTER" minWidth="250" minHeight="200">
+			<children>
+
 				<!-- DatePicker pour la date de début -->
-				<HBox fx:id="dateDebutHBox" alignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-					<padding>
-						<Insets bottom="5"/>
-					</padding>	
+				<HBox fx:id="dateDebutHBox" alignment="CENTER" minHeight="50">
 					<children>
-						<Text text="Date début :" />
-						<DatePicker fx:id="dateDebut" onAction="#saveDebut"/>
+						<Text text="Date début :" textAlignment="LEFT" />
+						<Region  prefWidth="10" HBox.hgrow="ALWAYS" />
+						<DatePicker fx:id="dateDebut" onAction="#saveDebut" />
 					</children>
 				</HBox>
-				
+
 				<!-- DatePicker pour la date de fin -->
-				<HBox fx:id="dateFinHBox" GridPane.rowIndex="1" alignment="CENTER" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-					<padding>
-						<Insets top="5"/>
-					</padding>	
+				<HBox fx:id="dateFinHBox" alignment="CENTER" minHeight="50">
 					<children>
-						<Text text="Date fin :" />
-						<DatePicker fx:id="dateFin" onAction="#saveFin"/>
+						<Text text="Date fin :" textAlignment="LEFT"/>
+						<Region  prefWidth="10" HBox.hgrow="ALWAYS" />
+						<DatePicker fx:id="dateFin" onAction="#saveFin" />
 					</children>
 				</HBox>
-				
+
 				<!-- Bouton pour sélectionner le fichier Excel -->
-				<Button text="Charger un fichier excel" fx:id="charger" onAction="#chargerExcel" />
+				<Button text="Charger un fichier excel" fx:id="charger" onAction="#chargerExcel" alignment="CENTER" />
 				
+				<!-- Bouton pour créer la nouvelle vue dans Sonar -->
+				<Button text="Créer la vue" fx:id="creer" onAction="#creerVue" alignment="CENTER" />	
+
 			</children>
-		</GridPane>
-		
-		<!-- Bouton pour créer la nouvelle vue dans Sonar -->
-		<Button text="Créer la vue" GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="creer" onAction="#creerVue" GridPane.halignment="CENTER"/>
-		
+		</VBox>
+
+
+
 	</children>
 </GridPane>
 
