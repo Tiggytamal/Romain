@@ -9,8 +9,10 @@ import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.Temporal;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Utilitaire de conversion entre les deux formats de Date
@@ -259,38 +261,10 @@ public class DateConvert
      * @param date
      * @return
      */
-    public static String moisFrancais(LocalDate date)
+    public static String dateFrancais(LocalDate date, String pattern)
     {
-        if (date == null)
-            throw new UnsupportedOperationException("La date en paramètre est nulle.");
-        
-        switch (date.getMonth())
-        {
-            case APRIL :
-                return "AVRIL";
-            case AUGUST :
-                return "AOUT";
-            case DECEMBER :
-                return "DECEMBRE";
-            case FEBRUARY :
-                return "FEVRIERr";
-            case JANUARY :
-                return "JANVIER";
-            case JULY :
-                return "JUILLLET";
-            case JUNE :
-                return "JUIN";
-            case MARCH :
-                return "MARS";
-            case MAY :
-                return "MAI";
-            case NOVEMBER :
-                return "NOVEMBRE";
-            case OCTOBER :
-                return "OOCTOBRE";
-            case SEPTEMBER :
-                return "SEPTEMBRE";
-        }            
-        throw new UnsupportedOperationException("Mois inconnu :" + date.getMonth());
+        if (pattern == null || date == null)
+            throw new UnsupportedOperationException("La date et le pattern ne peuvent être nuls");
+        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRENCH));
     }   
 }

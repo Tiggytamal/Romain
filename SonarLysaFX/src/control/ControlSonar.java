@@ -4,13 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,9 +113,9 @@ public class ControlSonar
 		return creerMapApplication(mapProjets);
 	}
 
-	public void creerVueProduction(File file) throws InvalidFormatException, IOException
+	public void creerVueProduction(File file)
 	{
-	    Map<String, List<Vue>> mapLot = recupMapLotExcel(file);	
+	    Map<LocalDate, List<Vue>> mapLot = recupMapLotExcel(file);	
 	    if(mapLot.size() == 1)
 	    {
 	        creerVueMensuelle(mapLot);
@@ -164,9 +167,9 @@ public class ControlSonar
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	private Map<String, List<Vue>> recupMapLotExcel(File file)
+	private Map<LocalDate, List<Vue>> recupMapLotExcel(File file)
 	{
-		Map<String, List<Vue>> retour = new HashMap<>();
+		Map<LocalDate, List<Vue>> retour = new HashMap<>();
 	    // Création du workbook depuis le fichier excel
 		try (Workbook wb = WorkbookFactory.create(file))
 		{
@@ -187,10 +190,10 @@ public class ControlSonar
 		return retour;
 	}
 	
-	private Map<String, List<Vue>> traitementExcel(Sheet sheet, Workbook wb)
+	private Map<LocalDate, List<Vue>> traitementExcel(Sheet sheet, Workbook wb)
 	{
 		// Initialisation de la map de retour		
-		Map<String, List<Vue>> retour = new HashMap<>();
+		Map<LocalDate, List<Vue>> retour = new HashMap<>();
 		
 		// Récupération depuis SOnar de tous les lots existants
 	    Map<String, Vue> mapQube = recupererLotsSonarQube();
@@ -238,7 +241,7 @@ public class ControlSonar
 	 * @param wb
 	 * 			Workbook 
 	 */
-	private void traitementLigneExcel(Row row, int colLot, int colDate, Map<String, List<Vue>> retour, Map<String, Vue> mapQube, Workbook wb)
+	private void traitementLigneExcel(Row row, int colLot, int colDate, Map<LocalDate, List<Vue>> retour, Map<String, Vue> mapQube, Workbook wb)
 	{
 	    Cell cellLot = row.getCell(colLot);
 	    Cell cellDate = row.getCell(colDate);
@@ -248,13 +251,17 @@ public class ControlSonar
 	    
 	    String lot = String.valueOf((int)cellLot.getNumericCellValue());
 	    
+	    // ON teste si le numéro de lot est bien présent dans Sonar.
 	    if (mapQube.keySet().contains(lot))
 	    {
+	        // Récupération de la date depuis le fichier Excel en format JDK 1.8.
 	        LocalDate date = DateConvert.localDate(cellDate.getDateCellValue());
-            String clef = DateConvert.moisFrancais(date) + " " + date.getYear();
+	        // Création d'une nouvelle date au 1er du mois qui servira du clef à la map.
+            LocalDate clef = LocalDate.of(date.getYear(), date.getMonth(), 1);
             
+            // Itération sur toutes les cellules de la ligne pour mettre à jour et changer la couleur de celles-ci.
             for (int j = 0; j < row.getLastCellNum(); j++)
-			{
+			{               
             	Cell cell = row.getCell(j, MissingCellPolicy.CREATE_NULL_AS_BLANK);
 				CellStyle style = wb.createCellStyle();
 				style.cloneStyleFrom(cell.getCellStyle());					
@@ -262,7 +269,7 @@ public class ControlSonar
 				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				cell.setCellStyle(style);
 			}
-            	            
+            	                    
             if (retour.keySet().contains(clef))
             {
                 retour.get(clef).add(mapQube.get(lot));
@@ -348,6 +355,14 @@ public class ControlSonar
 		return mapApplications;
 	}
 	
+	/**
+	 * Vérifie qu'une application d'un composant SOnar est présente dans la liste des applications de la PIC.
+	 * 
+	 * @param application
+	 *         Application enregistrée pour le composant dans Sonar.
+	 * @param nom
+	 *         Nom du composant Sonar.
+	 */
 	private boolean testAppli(String application, String nom)
 	{
 		if(application.equals(Statics.INCONNUE))
@@ -371,30 +386,41 @@ public class ControlSonar
 		return false;
 	}
 	
-    private void creerVueTrimestrielle(Map<String, List<Vue>> mapLot)
+	/**
+	 * Crée la vue Sonar pour une recherche trimetrielle des composants mis en production .
+	 * 
+	 * @param mapLot
+	 */
+    private void creerVueTrimestrielle(Map<LocalDate, List<Vue>> mapLot)
     {
+        //Création des varaibles. Transfert de la HashMap dans une TreeMap pour trier les dates.
         List<Vue> lotsTotal = new ArrayList<>();
-    	Iterator<Entry<String, List<Vue>>> iter = mapLot.entrySet().iterator();
+        Map<LocalDate, List<Vue>> treeLot = new TreeMap<>(mapLot);
+    	Iterator<Entry<LocalDate, List<Vue>>> iter = treeLot.entrySet().iterator();
     	StringBuilder builderNom = new StringBuilder();
     	StringBuilder builderDate = new StringBuilder();
     	List<String> dates = new ArrayList<>();
     	
     	while (iter.hasNext())
     	{
-    		Entry<String, List<Vue>> entry =  iter.next();
+    		Entry<LocalDate, List<Vue>> entry =  iter.next();
     		lotsTotal.addAll(entry.getValue());
-    		String clef = entry.getKey();
-    		builderNom.append(clef.substring(0, 3));
+    		LocalDate clef = entry.getKey();
+    		builderNom.append(DateConvert.dateFrancais(clef, "MMM"));
+            if (iter.hasNext())
+            {
+                builderNom.append("-");
+            }
     		
-    		String date = clef.substring(clef.length() - 4);
+    		String date = DateConvert.dateFrancais(clef, "yyyy");
     		if (!dates.contains(date))
     		{
     			dates.add(date);
     			builderDate.append(date);
-    		}
-    		if (iter.hasNext())
-    		{
-    			builderNom.append("-");
+    			if (iter.hasNext())
+    			{
+    			    builderDate.append("-");
+    			}
     		}
     	}
     	
@@ -402,6 +428,7 @@ public class ControlSonar
     	{
     		builderDate.deleteCharAt(builderDate.length()-1);
     	}
+    	
     	String nom = builderNom.toString();
     	String date = builderDate.toString();
     	
@@ -415,16 +442,20 @@ public class ControlSonar
 		api.ajouterSousVues(lotsTotal, vue);
     }
 
-    private void creerVueMensuelle(final Map<String, List<Vue>> mapLot)
+    /**
+     * Crée la vue Sonar pour une recherche mensuelle des composants mis en production .
+     * @param mapLot
+     */
+    private void creerVueMensuelle(final Map<LocalDate, List<Vue>> mapLot)
     {
-    	Iterator<Entry<String, List<Vue>>> iter = mapLot.entrySet().iterator();
-    	Entry<String, List<Vue>> entry =  iter.next();
-    	String nomVue =  new StringBuilder("MEP ").append(entry.getKey()).toString();
+    	Iterator<Entry<LocalDate, List<Vue>>> iter = mapLot.entrySet().iterator();
+    	Entry<LocalDate, List<Vue>> entry =  iter.next();
+    	String nomVue =  new StringBuilder("MEP ").append(DateConvert.dateFrancais(entry.getKey(),"MMM yyyy")).toString();
      
 		// Création de la vue principale
 		Vue vue = new Vue();
 		vue.setName(nomVue);
-		vue.setKey(new StringBuilder("MEP").append(nomVue.replace(" ", "")).append("Key").toString());
+		vue.setKey(new StringBuilder("MEP").append(DateConvert.dateFrancais(entry.getKey(),"MMMyyyy")).append("Key").toString());
 		vue.setDescription(new StringBuilder("Vue des lots mis en production pendant le mois de ").append(entry.getKey()).toString());
 		api.creerVue(vue);
 		
