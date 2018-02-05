@@ -33,7 +33,11 @@
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-entity-filtering-2.26.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-media-json-jackson-2.26.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/org.eclipse.persistence.moxy-2.5.0.jar"/>
-	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-3.17.jar" sourcepath="D:/WorkspaceOxygen/Library/poi-3.17-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/WorkspaceOxygen/Library/poi-3.17-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-ooxml-3.17.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-ooxml-schemas-3.17.jar"/>
 	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/xmlbeans-2.6.0.jar"/>

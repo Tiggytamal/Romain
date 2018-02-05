@@ -671,12 +671,6 @@ public class ExcelBean implements Serializable, Instance
                     break;
 
                 case WRKINPRG :
-                    if (estIncident)
-                        totalWorkInPrg++;
-                    else if (estProbleme)
-                        totalProbs++;
-                    incsATraiter.add(incident);
-                    break;
 
                 case REFERRED :
                     if (estIncident)

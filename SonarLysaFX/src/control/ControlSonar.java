@@ -1,11 +1,16 @@
 package control;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,18 +18,25 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
 import model.xml.Application;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Projet;
 import sonarapi.model.Vue;
+import utilities.DateConvert;
 import utilities.Statics;
 
 public class ControlSonar
@@ -97,60 +109,18 @@ public class ControlSonar
 		// Création de la liste des composants par application
 		return creerMapApplication(mapProjets);
 	}
-	
-	/**
-	 * Récupère tous les lots créer dans Sonar.
-	 * 
-	 * @return
-	 */
-	public Map<String, Vue> recupererLotsSonarQube()
-	{
-		Map<String, Vue> map = new HashMap<>();
-		List<Vue> views = api.getVues();
-		for (final Vue view : views)
-		{
-			if (view.getName().startsWith("Lot "))
-			{
-				map.put(view.getName().substring(4), view);
-			}
-		}
-		return map;
-	}
 
-	/**
-	 * Permet de créer une vue de tous les composants qui ont été mise en production un mois donné.
-	 * 
-	 * @param mois
-	 * @param annee
-	 * @param file
-	 * @throws InvalidFormatException
-	 * @throws IOException
-	 */
-	public void creerVueSonarMensuelle(String mois, String annee, File file) throws InvalidFormatException, IOException
+	public void creerVueProduction(File file) throws InvalidFormatException, IOException
 	{
-		// Récupération des lots depuis le fichier Excel
-		List<Integer> listeLot = recuperationListeLotExcel(file);
-		
-		// Récupératoin de tous les lots SonarQube
-		Map<String, Vue> mapQube = recupererLotsSonarQube();
-		
-		// Comparaison des deux pour ne prendre que les lots existants déjà dans Sonar
-		List<Vue> listeViewAjour = new ArrayList<>();
-		for (Map.Entry<String, Vue> entry : mapQube.entrySet())
-		{
-			if (listeLot.contains(Integer.valueOf(entry.getKey())))
-				listeViewAjour.add(entry.getValue());
-		}
-		
-		// Création de la vue principale
-		Vue vue = new Vue();
-		vue.setName(new StringBuilder("MEP ").append(mois).append(Statics.SPACE).append(annee).toString());
-		vue.setKey(new StringBuilder("MEPMEP").append(mois).append(annee).append("Key").toString());
-		vue.setDescription(new StringBuilder("Vue des lots mis en production pendant le mois de ").append(mois).append(Statics.SPACE).append(annee).toString());
-		api.creerVue(vue);
-		
-		// Ajout des sous-vue
-		api.ajouterSousVues(listeViewAjour, vue);
+	    Map<String, List<Vue>> mapLot = recupMapLotExcel(file);	
+	    if(mapLot.size() == 1)
+	    {
+	        creerVueMensuelle(mapLot);
+	    }
+	    else if (mapLot.size() == 3)
+	    {
+	        creerVueTrimestrielle(mapLot);
+	    }
 	}
 
 	/**
@@ -163,39 +133,150 @@ public class ControlSonar
 
 	/*---------- METHODES PRIVEES ----------*/
 
+	
 	/**
-	 * Récupère la liste des lots envoyées en production depuis un fichier Excel 
+	 * Récupère tous les lots créer dans Sonar.
+	 * 
+	 * @return
+	 */
+	private Map<String, Vue> recupererLotsSonarQube()
+	{
+		Map<String, Vue> map = new HashMap<>();
+		List<Vue> views = api.getVues();
+		for (final Vue view : views)
+		{
+			if (view.getName().startsWith("Lot "))
+			{
+				map.put(view.getName().substring(4), view);
+			}
+		}
+		return map;
+	}
+	
+	/**
+	 * Permet de classer tous les lots Sonar du fichier dans une map. On enlève d'abord tout ceux qui ne sont asp présents dans SonarQube.<br>
+	 * Puis on les classes dans des listes, la clef de chaque liste correspond au mois et à l'année de mise en production du lot.<br>
+	 * Le fichier excel doit avoir un formattage spécifique, avec une colonne <b>Lot</b> (numérique) et un colonne <b>livraison édition</b> (date).<br>
+	 * 
 	 * @param file
+	 * 			Le fichier excel envoyé par l'interface
 	 * @return
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	private List<Integer> recuperationListeLotExcel(File file) throws InvalidFormatException, IOException
+	private Map<String, List<Vue>> recupMapLotExcel(File file)
 	{
-		Workbook wb = WorkbookFactory.create(file);
-		Sheet sheet = wb.getSheetAt(0);
-		List<Integer> listeLot = new ArrayList<>();
-		int colLot = 0;
+		Map<String, List<Vue>> retour = new HashMap<>();
+	    // Création du workbook depuis le fichier excel
+		try (Workbook wb = WorkbookFactory.create(file))
+		{
+			// Récupération de la première feuille
+			Sheet sheet = wb.getSheetAt(0);
+			
+			//Traitement Excel et contrôle avec SonarQube
+			retour = traitementExcel(sheet, wb);
+			
+			// Ecriture du fichier Excel
+			wb.write(new FileOutputStream(file.getName()));
+			
+		} catch (EncryptedDocumentException | InvalidFormatException | IOException e)
+		{
+			// TODO Auto-generated catch block
+		}
 
-		// Récupération de la colonne ou les numéro de lot sont affichés.
-		for (Cell cell : sheet.getRow(0))
+		return retour;
+	}
+	
+	private Map<String, List<Vue>> traitementExcel(Sheet sheet, Workbook wb)
+	{
+		// Initialisation de la map de retour		
+		Map<String, List<Vue>> retour = new HashMap<>();
+		
+		// Récupération depuis SOnar de tous les lots existants
+	    Map<String, Vue> mapQube = recupererLotsSonarQube();
+				
+		// Index des colonnes des lots et des dates
+		int colLot = 0;
+		int colDate = 0;
+		
+		//Récupération des indices de colonnes pour le numérod e lot et la date de mise en production
+		for (Cell cell : sheet.getRow(0)) 
 		{
 			if (cell.getCellTypeEnum() == CellType.STRING && cell.getStringCellValue().equals("Lot"))
 			{
 				colLot = cell.getColumnIndex();
 			}
+			else if (cell.getCellTypeEnum() == CellType.STRING && cell.getStringCellValue().equals("Livraison édition"))
+			{
+			    colDate = cell.getColumnIndex();
+			}	
 		}
-
-		// parcours de la feuille Excel pour récupérer tous les lots sauf la première
-		// ligne
-		for (int i = 1; i < sheet.getLastRowNum(); i++)
+		
+		// parcours de la feuille Excel pour récupérer tous les lots et leurs dates de mise en production avec mise à jour du fichier Excel
+		for (int i = 1; i < sheet.getLastRowNum(); i++) 
 		{
-			listeLot.add((int) sheet.getRow(i).getCell(colLot).getNumericCellValue());
+			Row row = sheet.getRow(i);
+		    traitementLigneExcel(row, colLot, colDate, retour, mapQube, wb);
 		}
-		wb.close();
-		return listeLot;
+		return retour;		
 	}
+
 	
+	/**
+	 * Effectue le traitement de chaque ligne du fichier Excel
+	 * 
+	 * @param row
+	 * 			Ligne du fichier Excel à traiter
+	 * @param colLot
+	 * 			Indice de la colonne des numéros de lot
+	 * @param colDate
+	 * 			Indice de la colonne des dates de livraison en production
+	 * @param retour
+	 * 			Map retournant tous les lots à rajouter dans la vue
+	 * @param mapQube
+	 * 			Map des vues retournées par SonarQube
+	 * @param wb
+	 * 			Workbook 
+	 */
+	private void traitementLigneExcel(Row row, int colLot, int colDate, Map<String, List<Vue>> retour, Map<String, Vue> mapQube, Workbook wb)
+	{
+	    Cell cellLot = row.getCell(colLot);
+	    Cell cellDate = row.getCell(colDate);
+	    
+	    if (cellLot.getCellTypeEnum() != CellType.NUMERIC && cellDate.getCellTypeEnum() != CellType.NUMERIC)
+	        return;
+	    
+	    String lot = String.valueOf((int)cellLot.getNumericCellValue());
+	    
+	    if (mapQube.keySet().contains(lot))
+	    {
+	        LocalDate date = DateConvert.localDate(cellDate.getDateCellValue());
+            String clef = DateConvert.moisFrancais(date) + " " + date.getYear();
+            
+            for (int j = 0; j < row.getLastCellNum(); j++)
+			{
+            	Cell cell = row.getCell(j, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+				CellStyle style = wb.createCellStyle();
+				style.cloneStyleFrom(cell.getCellStyle());					
+				style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
+				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				cell.setCellStyle(style);
+			}
+            	            
+            if (retour.keySet().contains(clef))
+            {
+                retour.get(clef).add(mapQube.get(lot));
+            }
+            else
+            {
+                List<Vue> liste = new ArrayList<>();
+                liste.add(mapQube.get(lot));
+                retour.put(clef, liste);
+            }           	            
+	    }   
+		
+	}
+
 	/**
 	 * Permet de récupérer la dernière version de chaque composants créés dans Sonar
 	 * @return
@@ -289,6 +370,67 @@ public class ControlSonar
 		lognonlistee.warn("Application n'existant pas dans le référenciel : " + application + " - composant : " + nom);				
 		return false;
 	}
+	
+    private void creerVueTrimestrielle(Map<String, List<Vue>> mapLot)
+    {
+        List<Vue> lotsTotal = new ArrayList<>();
+    	Iterator<Entry<String, List<Vue>>> iter = mapLot.entrySet().iterator();
+    	StringBuilder builderNom = new StringBuilder();
+    	StringBuilder builderDate = new StringBuilder();
+    	List<String> dates = new ArrayList<>();
+    	
+    	while (iter.hasNext())
+    	{
+    		Entry<String, List<Vue>> entry =  iter.next();
+    		lotsTotal.addAll(entry.getValue());
+    		String clef = entry.getKey();
+    		builderNom.append(clef.substring(0, 3));
+    		
+    		String date = clef.substring(clef.length() - 4);
+    		if (!dates.contains(date))
+    		{
+    			dates.add(date);
+    			builderDate.append(date);
+    		}
+    		if (iter.hasNext())
+    		{
+    			builderNom.append("-");
+    		}
+    	}
+    	
+    	if (builderDate.charAt(builderDate.length()-1) == '-')	
+    	{
+    		builderDate.deleteCharAt(builderDate.length()-1);
+    	}
+    	String nom = builderNom.toString();
+    	String date = builderDate.toString();
+    	
+    	Vue vue = new Vue();
+		vue.setName(new StringBuilder("TEP ").append(nom).append(Statics.SPACE).append(date).toString());
+		vue.setKey(new StringBuilder("TEPTEP").append(nom).append(date).toString());
+		vue.setDescription(new StringBuilder("Vue des lots mis en production pendant les mois de ").append(nom).append(Statics.SPACE).append(date).toString());    	
+		api.creerVue(vue);
+    	
+		// Ajout des sous-vue
+		api.ajouterSousVues(lotsTotal, vue);
+    }
+
+    private void creerVueMensuelle(final Map<String, List<Vue>> mapLot)
+    {
+    	Iterator<Entry<String, List<Vue>>> iter = mapLot.entrySet().iterator();
+    	Entry<String, List<Vue>> entry =  iter.next();
+    	String nomVue =  new StringBuilder("MEP ").append(entry.getKey()).toString();
+     
+		// Création de la vue principale
+		Vue vue = new Vue();
+		vue.setName(nomVue);
+		vue.setKey(new StringBuilder("MEP").append(nomVue.replace(" ", "")).append("Key").toString());
+		vue.setDescription(new StringBuilder("Vue des lots mis en production pendant le mois de ").append(entry.getKey()).toString());
+		api.creerVue(vue);
+		
+		// Ajout des sous-vue
+		api.ajouterSousVues(entry.getValue(), vue);
+    }
 	
 	/*---------- ACCESSEURS ----------*/
 }

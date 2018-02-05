@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import control.ControlSonar;
-import utilities.Statics;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControlSonarTest
@@ -29,15 +28,24 @@ class ControlSonarTest
 	}
 
 	@Test
-	public void recupererLotsSonarQube()
+	public void recupererLotsSonarQube() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
 	{
-		handler.recupererLotsSonarQube();
+		Method[] methods = ControlSonar.class.getDeclaredMethods();
+		for (Method method : methods)
+		{
+			if (method.getName().equals("recupererLotsSonarQube"))
+			{
+				method.setAccessible(true);
+				method.invoke(handler);
+				break;
+			}
+		}
 	}
 
 	@Test
-	public void creerVueSonarMensuelle() throws InvalidFormatException, IOException
+	public void testCreerVuteProduction() throws InvalidFormatException, IOException
 	{
-		handler.creerVueSonarMensuelle(Statics.NOVEMBRE, "2017", new File("d:\\MEP novembre 2017.xlsx"));
+		handler.creerVueProduction(new File("d:\\Classeur1.xlsx"));
 	}
 
 	@Test
@@ -47,7 +55,7 @@ class ControlSonarTest
 	}
 
 	@Test
-	public void testt3() throws InvalidFormatException, IOException
+	public void créationHeader() throws InvalidFormatException, IOException
 	{
 		String codeUser;
 		StringBuilder builder = new StringBuilder("ETP8137");
@@ -59,7 +67,7 @@ class ControlSonarTest
 		builder.append(":");
 		builder.append("admin");
 		codeUser = Base64.getEncoder().encodeToString(builder.toString().getBytes());
-		
+		codeUser.length();		
 	}
 
 	@Test

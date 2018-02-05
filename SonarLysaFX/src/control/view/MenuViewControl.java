@@ -9,23 +9,34 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
-public class MenuControl
+public class MenuViewControl
 {
     /* ---------- ATTIBUTS ---------- */
     
     /** Element du ménu lançant les contrôles mensuels */
-    @FXML // fx:id="mensuel"
+    @FXML
     private MenuItem mensuel;
+    @FXML
+    private MenuItem applications;
     
     /* ---------- METHODES PUBLIQUES ---------- */
     
     @FXML
-    void switchToMensuel(ActionEvent event) throws IOException 
+    public void switchToMensuel(ActionEvent event) throws IOException 
     {
         GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Mensuel.fxml"));        
         BorderPane border = MainScreen.getRoot();
         border.setCenter(mensuelPane);
     }
+    
+    @FXML
+    public void switchToApplications(ActionEvent event) throws IOException 
+    {
+        GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Applications.fxml"));        
+        BorderPane border = MainScreen.getRoot();
+        border.setCenter(mensuelPane);
+    }
+
     /* ---------- METHODES PRIVEES ---------- */
         
     /* ---------- ACCESSEURS ---------- */

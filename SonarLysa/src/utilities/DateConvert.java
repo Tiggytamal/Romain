@@ -291,9 +291,7 @@ public class DateConvert
                 return "Octobre";
             case SEPTEMBER :
                 return "Septembre";
-        }
-            
+        }            
         throw new UnsupportedOperationException("Mois inconnu :" + date.getMonth());
-    }
-    
+    }   
 }
