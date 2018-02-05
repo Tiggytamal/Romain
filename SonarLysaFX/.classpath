@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="logs/" kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-codec-1.11.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-fileupload-1.3.3.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-io-2.6.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/curvesapi-1.05.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-api-2.5.0-b60.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-locator-2.5.0-b60.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/hk2-utils-2.5.0-b60.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/itextpdf-5.5.12.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-annotations-2.9.3.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-core-2.9.3.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-databind-2.9.3.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jackson-module-jaxb-annotations-2.9.3.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.annotation-api-1.2-b02.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.inject-1.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.inject-2.5.0-b61.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.persistence-2.2.0.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/javax.ws.rs-api-2.1.jar" sourcepath="D:/WorkspaceOxygen/Library/javax.ws.rs-api-2.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/WorkspaceOxygen/Library/javax.ws.rs-api-2.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jaxrs-ri-2.26.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-client-2.26.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-common-2.26.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-entity-filtering-2.26.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jersey-media-json-jackson-2.26.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/org.eclipse.persistence.moxy-2.5.0.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/log4j-api-2.10.0.jar" sourcepath="D:/WorkspaceOxygen/Library/log4j-api-2.10.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/WorkspaceOxygen/Library/log4j-api-2.10.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/log4j-core-2.10.0.jar" sourcepath="D:/WorkspaceOxygen/Library/log4j-core-2.10.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/WorkspaceOxygen/Library/log4j-core-2.10.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="src/logs"/>
+	<classpathentry kind="lib" path="D:/WorkspaceOxygen/Library/jaxb-api-2.3.0.jar" sourcepath="D:/WorkspaceOxygen/Library/jaxb-api-2.3.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/D:/WorkspaceOxygen/Library/jaxb-api-2.3.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

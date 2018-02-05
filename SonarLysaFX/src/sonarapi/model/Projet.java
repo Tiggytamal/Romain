@@ -1,0 +1,71 @@
+package sonarapi.model;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class Projet implements ModeleSonar
+{
+	private String id;
+	private String key;
+	private String nom;
+	private String sc;
+	private String qu;
+	
+
+	@XmlAttribute (name = "k", required = true)
+	public String getKey()
+	{
+		return key;
+	}
+
+	public void setKey(String key)
+	{
+		this.key = key;
+	}
+	
+	@XmlAttribute (name = "id")
+	public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	@XmlAttribute (name = "nm")
+	public String getNom()
+	{
+		return nom;
+	}
+
+	public void setNom(String nom)
+	{
+		this.nom = nom;
+	}
+
+	@XmlAttribute (name = "sc")
+	public String getSc()
+	{
+		return sc;
+	}
+
+	public void setSc(String sc)
+	{
+		this.sc = sc;
+	}
+
+	@XmlAttribute (name = "qu")
+	public String getQu()
+	{
+		return qu;
+	}
+
+	public void setQu(String qu)
+	{
+		this.qu = qu;
+	}
+
+}
