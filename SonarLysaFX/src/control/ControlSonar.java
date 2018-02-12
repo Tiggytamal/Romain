@@ -14,12 +14,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
 import org.apache.logging.log4j.LogManager;
@@ -57,6 +54,7 @@ public class ControlSonar
 	private static final Logger logSansApp = LogManager.getLogger("sansapp-log");
 	private static final Logger loginconnue = LogManager.getLogger("inconnue-log");
 	private static final Logger lognonlistee = LogManager.getLogger("nonlistee-log");
+	private static final String SANSVERSION = "-";
 
 	/*---------- CONSTRUCTEURS ----------*/
 	
@@ -133,31 +131,34 @@ public class ControlSonar
 	    }
 	}
 	
-	public void creerVueQGErreur()
+	public void creerVuesQGErreur()
 	{
 		// Récupération des lots Sonar en erreur.
-		Set<String> setLots = lotSonarQGError();
+		Map<String,List<String>> mapLots = lotSonarQGError();
 		
-		System.out.println("ok");
-    	// Création de la lvue et envoie vers SonarQube
-    	Vue vue = new Vue();
-		vue.setName("Lots en erreur");
-		vue.setKey("LotsErreurKey");
-		vue.setDescription("Vue regroupant toutes les vues avec des composants en erreur");    	
-//		api.creerVue(vue);
-		
-		List<Vue> listeVues = new ArrayList<>();
-		
-		for (String key : setLots)
+		for (Map.Entry<String,List<String>> entry : mapLots.entrySet())
 		{
-			Vue vueAdd = new Vue();
-			vueAdd.setKey("view_lot_" + key);
-			vueAdd.setName("Lot " + key);
-			System.out.println(key);
+	    	// Création de la lvue et envoie vers SonarQube
+	    	Vue vue = new Vue();
+			vue.setName("Lots en erreur " + entry.getKey());
+			vue.setKey("LotsErreurKey" + entry.getKey());
+			vue.setDescription("Vue regroupant toutes les vues avec des composants en erreur");    	
+//			api.creerVue(vue);
+			
+			List<Vue> listeVues = new ArrayList<>();
+			
+			for (String lot : entry.getValue())
+			{
+				Vue vueAdd = new Vue();
+				vueAdd.setKey("view_lot_" + lot);
+				vueAdd.setName("Lot " + lot);
+				System.out.println(lot);
+				// Ajout des sous-vue
+//				api.ajouterSousVues(listeVues, vue);
+			}
+	    	
+
 		}
-    	
-		// Ajout des sous-vue
-//		api.ajouterSousVues(listeVues, vue);
 	}
 
 	/**
@@ -343,43 +344,89 @@ public class ControlSonar
 		return retour;		
 	}
 	
-	private Set<String> lotSonarQGError()
-	{	    
-		// Récupération des composants Sonar
-		Collection<Projet> listProjets = recupererComposantsSonar().values();
-	    
-	    Set<String> setLotErreur = new TreeSet<>();
-
-	    // Iteration sur la liste des projets
-		for (Projet projet : listProjets)
+	/**
+	 * Permet de récupérer les composants de Sonar triés par version
+	 * 
+	 * @return
+	 */
+	private Map<String, List<Projet>> recupererComposantsSonarVersion(String... versions)
+	{		
+		// Appel du webservice pour remonter tous les composants
+		List<Projet> projets = api.getComposants();
+		
+		// Création de la map de retour en utilisant les versions données
+		Map<String, List<Projet>> retour = new HashMap<>();		
+		
+		for (String version : versions)
 		{
-			//Récupération du composant
-			Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"lot","alert_status"});
-			
-			if (!composant.getListeMeriques().isEmpty())
-			{					
-				String lot = "";
-				String alert = "";
-				for (Metrique metrique : composant.getListeMeriques())
-				{
-					if (metrique.getMetric().equals("lot"))
-					{
-						lot = metrique.getValue();
-					}
-					else if (metrique.getMetric().equals("alert_status"))
-					{
-						alert = metrique.getValue();
-					}
-				}
-				
-				if (Status.getStatus(alert) == Status.ERROR && !lot.isEmpty())
-				{
-					setLotErreur.add(lot);
-				}
-			}	
+			retour.put(version, new ArrayList<>());
 		}
+		retour.put(SANSVERSION, new ArrayList<>());
+		
+		boolean ajoute = false;
+		
+		for (Projet projet : projets)
+		{			
+			for (String version : versions)
+			{
+				if (projet.getNom().endsWith(version))
+				{				
+					retour.get(version).add(projet);
+					ajoute = true;
+				}
+			}
+			if (!ajoute)
+			{
+				retour.get(SANSVERSION).add(projet);
+			}
+		}
+		return retour;		
+	}
+	
+	private Map<String,List<String>> lotSonarQGError()
+	{	    
+		// Récupération des composants Sonar selon les version demandées
+		Map<String, List<Projet>> mapProjets = recupererComposantsSonarVersion("13","14");
+	    
+		// Création de la map de retour
+		Map<String,List<String>> retour = new HashMap<>();
 
-	    return setLotErreur;	    
+		// Itération sur les composants pour remplir la map de retour avec les lot en erreur par version
+	    for (Map.Entry<String, List<Projet>> entry : mapProjets.entrySet())
+		{
+	    	retour.put(entry.getKey(), new ArrayList<>());
+	    	// Iteration sur la liste des projets
+			for (Projet projet : entry.getValue())
+			{
+				//Récupération du composant
+				Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"lot","alert_status"});
+				
+				// Itération sur la liste des métriques pour récupérer le numéro de lot et le status de la quality gate
+				List<Metrique> metriques = composant.getMetriques();
+				if (metriques != null && !composant.getMetriques().isEmpty())
+				{					
+					String lot = "";
+					String alert = "";
+					for (Metrique metrique : metriques)
+					{
+						if (metrique.getMetric().equals("lot"))
+						{
+							lot = metrique.getValue();
+						}
+						else if (metrique.getMetric().equals("alert_status"))
+						{
+							alert = metrique.getValue();
+						}
+					}
+					
+					if (Status.getStatus(alert) == Status.ERROR && !lot.isEmpty())
+					{
+						retour.get(entry.getKey()).add(lot);
+					}
+				}	
+			}
+		}
+	    return retour;	    
 	}
 	
 	/**
@@ -400,9 +447,9 @@ public class ControlSonar
 			Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"application"});
 			
 			// Test si la liste est vide, cela veut dire que le projet n'a pas de code application.
-			if (!composant.getListeMeriques().isEmpty())
+			if (!composant.getMetriques().isEmpty())
 			{					
-				String application = composant.getListeMeriques().get(0).getValue().trim().toUpperCase();		
+				String application = composant.getMetriques().get(0).getValue().trim().toUpperCase();		
 
 				// Si l'application n'est pas dans la PIC, on continue au projet suivant.
 				if(!testAppli(application, composant.getNom()))

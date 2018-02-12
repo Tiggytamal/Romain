@@ -8,7 +8,10 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @XmlRootElement(name = "component")
+@JsonIgnoreProperties({"id", "key", "name", "description", "qualifier", "language", "path"})
 public class Composant implements ModeleSonar
 {
 	/*---------- ATTRIBUTS ----------*/
@@ -20,7 +23,7 @@ public class Composant implements ModeleSonar
 	private String qualifier;
 	private String langage;
 	private String path;
-	private List<Metrique> listeMeriques;
+	private List<Metrique> metriques;
 
 	/*---------- ACCESSEURS ----------*/
 
@@ -103,15 +106,15 @@ public class Composant implements ModeleSonar
 
 	@XmlElementWrapper
 	@XmlElement(name = "measures")
-	public List<Metrique> getListeMeriques()
+	public List<Metrique> getMetriques()
 	{
-		if (listeMeriques == null)
+		if (metriques == null)
 			return new ArrayList<>();
-		return listeMeriques;
+		return metriques;
 	}
 
-	public void setListeMeriques(List<Metrique> listeMeriques)
+	public void setListeMeriques(List<Metrique> metriques)
 	{
-		this.listeMeriques = listeMeriques;
+		this.metriques = metriques;
 	}
 }

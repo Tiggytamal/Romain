@@ -23,8 +23,8 @@ class ControlSonarTest
 	@BeforeAll
 	public void init() throws InvalidFormatException, JAXBException, IOException
 	{
-		handler = new ControlSonar();
-//		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
+//		handler = new ControlSonar();
+		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
 	}
 
 	@Test
@@ -100,8 +100,8 @@ class ControlSonarTest
 	}
 	
 	@Test
-	public void testcreerVueQGErreur()
+	public void testcreerVuesQGErreur()
 	{
-		handler.creerVueQGErreur();
+		handler.creerVuesQGErreur();
 	}
 }

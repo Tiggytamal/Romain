@@ -195,43 +195,12 @@ public class SonarAPI
 		{
 			return response.readEntity(Retour.class).getComponent();
 		}
-		
-		return null;
-	}
-	
-	/**
-	 * Remonte les données métriques spécifiques à un composant
-	 * 
-	 * @param composantKey
-	 * 					clé du composant dans la base SonarQube
-	 * @param metricKeys
-	 * 					clé des métriques désirées (issues, bugs, vulnerabilitie, etc..)
-	 * @return
-	 * 			un objet de type {@link Composant} avec toutes les informations sur celui-ci
-	 */
-	public Future<Response> getMetriquesComposantAsync(final String composantKey, String[] metricKeys)
-	{		
-		// 1. Création des paramètres
-		Parametre paramComposant = new Parametre("componentKey", composantKey);
-		
-		Parametre paramMetrics = new Parametre();
-		paramMetrics.setClef("metricKeys");
-		StringBuilder valeur = new StringBuilder();
-		for (int i = 0; i < metricKeys.length; i++)
+		else
 		{
-			valeur.append(metricKeys[i]);
-			if (i+1 < metricKeys.length)
-			{
-				valeur.append(",");
-			}
+			return getMetriquesComposant(composantKey, metricKeys);
 		}
-		paramMetrics.setValeur(valeur.toString());
-		
-		// 2. appel du webservices
-		return appelWebserviceAsyncGET("api/measures/component", paramComposant, paramMetrics);
-		
 	}
-	
+		
 	/**
 	 * Retourne tous les composants présents dans SonarQube
 	 * @return
@@ -389,33 +358,6 @@ public class SonarAPI
 		}
 		
 		return requete.request(MediaType.APPLICATION_JSON).header(AUTHORIZATION, codeUser).get();
-	}
-	
-	/**
-	 * Appel des webservices en GET en asynchrone
-	 * @param url
-	 * 			Url du webservices
-	 * @param params
-	 * 			Paramètres optionnels de la requête
-	 * @return
-	 */
-	private Future<Response> appelWebserviceAsyncGET(final String url, Parametre... params)
-	{
-		// Création de la requête
-		WebTarget requete = webTarget.path(url);
-		Invocation.Builder builder = requete.request(MediaType.APPLICATION_JSON).header(AUTHORIZATION, codeUser);
-		
-		if (params == null)
-		{
-			return builder.async().get();
-		}
-		
-		for (Parametre parametre : params)
-		{
-			requete = requete.queryParam(parametre.getClef(), parametre.getValeur());
-		}
-		
-		return builder.async().get();
 	}
 
 	/**
