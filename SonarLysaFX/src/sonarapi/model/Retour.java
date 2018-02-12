@@ -14,8 +14,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Retour implements ModeleSonar
 {
+	/*---------- ATTRIBUTS ----------*/
+	
 	private Composant component;
 	private List<Vue> listeVues;
+	private StatusProjet statusProjet;
+	private List<Vue> results;
+	private boolean more;
+	
+	/*---------- ACCESSEURS ----------*/
 
 	@XmlAttribute (name = "component", required = false)
 	public Composant getComponent()
@@ -28,4 +35,29 @@ public class Retour implements ModeleSonar
 	{
 		return listeVues;
 	}	
+	
+	@XmlAttribute (name = "projectStatus", required = false)
+	public StatusProjet getStatusProjet()
+	{
+		return statusProjet;
+	}
+	
+	@XmlAttribute (name = "results", required = false)
+	public List<Vue> getResults()
+	{
+		return results;
+	}
+
+	@XmlAttribute (name = "more", required = false)
+	public boolean isMore()
+	{
+		return more;
+	}
+
+	public void setMore(boolean more)
+	{
+		this.more = more;
+	}
+	
+	
 }

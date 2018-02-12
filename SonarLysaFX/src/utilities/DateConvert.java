@@ -265,6 +265,6 @@ public class DateConvert
     {
         if (pattern == null || date == null)
             throw new UnsupportedOperationException("La date et le pattern ne peuvent être nuls");
-        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRENCH));
+        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRANCE)).replaceAll("\\.", "");
     }   
 }

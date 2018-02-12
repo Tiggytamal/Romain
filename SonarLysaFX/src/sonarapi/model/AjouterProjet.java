@@ -16,7 +16,6 @@ public class AjouterProjet implements ModeleSonar
 	
 	public AjouterProjet(String key, String projectKey)
 	{
-		super();
 		this.key = key;
 		this.projectKey = projectKey;
 	}

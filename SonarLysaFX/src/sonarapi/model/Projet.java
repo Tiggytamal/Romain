@@ -11,7 +11,7 @@ public class Projet implements ModeleSonar
 	private String nom;
 	private String sc;
 	private String qu;
-	
+	private String lot;
 
 	@XmlAttribute (name = "k", required = true)
 	public String getKey()
@@ -68,4 +68,13 @@ public class Projet implements ModeleSonar
 		this.qu = qu;
 	}
 
+	public String getLot()
+	{
+		return lot;
+	}
+
+	public void setLot(String lot)
+	{
+		this.lot = lot;
+	}
 }

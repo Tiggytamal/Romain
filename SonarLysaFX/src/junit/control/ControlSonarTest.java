@@ -23,27 +23,29 @@ class ControlSonarTest
 	@BeforeAll
 	public void init() throws InvalidFormatException, JAXBException, IOException
 	{
-//		handler = new ControlSonar();
-		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
+		handler = new ControlSonar();
+//		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
 	}
 
 	@Test
 	public void recupererLotsSonarQube() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
 	{
 		Method[] methods = ControlSonar.class.getDeclaredMethods();
+		Method call = null;
 		for (Method method : methods)
 		{
 			if (method.getName().equals("recupererLotsSonarQube"))
 			{
-				method.setAccessible(true);
-				method.invoke(handler);
+				call = method;
+				call.setAccessible(true);
 				break;
 			}
-		}
+		}		
+		call.invoke(handler);
 	}
 
 	@Test
-	public void testCreerVuteProduction() throws InvalidFormatException, IOException
+	public void testCreerVutetroduction() throws InvalidFormatException, IOException
 	{
 		handler.creerVueProduction(new File("d:\\Classeur1.xlsx"));
 	}
@@ -95,5 +97,11 @@ class ControlSonarTest
 	public void testControlerSonar()
 	{
 		handler.controlerSonarQube();
+	}
+	
+	@Test
+	public void testcreerVueQGErreur()
+	{
+		handler.creerVueQGErreur();
 	}
 }

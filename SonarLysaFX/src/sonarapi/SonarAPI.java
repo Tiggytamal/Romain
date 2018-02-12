@@ -26,6 +26,7 @@ import sonarapi.model.ModeleSonar;
 import sonarapi.model.Parametre;
 import sonarapi.model.Projet;
 import sonarapi.model.Retour;
+import sonarapi.model.StatusProjet;
 import sonarapi.model.Validation;
 import sonarapi.model.Vue;
 import utilities.Statics;
@@ -38,7 +39,6 @@ public class SonarAPI
 	private final WebTarget webTarget;
 	private final String codeUser;
 	private static final Logger logger = LogManager.getLogger("complet.log");
-
 	private static final String AUTHORIZATION = "Authorization";
 
 	/*---------- CONSTRUCTEURS ----------*/
@@ -106,6 +106,36 @@ public class SonarAPI
 		
 		return new ArrayList<>();
 	}
+	
+	/**
+	 * Récupère tous les projets d'une vue
+	 * @param vue
+	 * @return
+	 */
+	public List<Vue> getListeProjetsVue(Vue vue)
+	{
+		List<Vue> retour = new ArrayList<>();
+		Parametre param = new Parametre("key", vue.getKey());
+		Parametre page;
+		int i = 1;
+		boolean more = false;
+		do
+		{
+			page = new Parametre("page", String.valueOf(i));
+			Response response = appelWebserviceGET("api/views/projects", param, page);
+			if (response.getStatus() == Status.OK.getStatusCode())
+			{			
+				Retour retourApi =  response.readEntity(Retour.class);
+				more = retourApi.isMore();
+				retour.addAll(retourApi.getResults());
+				i++;
+			}
+			
+		}
+		while (more);
+
+		return retour;
+	}
 
 	/**
 	 * Permet de vérifier si l'utilisateur a bien les accès à SonarQube
@@ -163,11 +193,43 @@ public class SonarAPI
 		// 3. Test du retour et renvoie du composant si ok.
 		if (response.getStatus() == Status.OK.getStatusCode())
 		{
-			Composant composant = response.readEntity(Retour.class).getComponent();
-			return composant;
+			return response.readEntity(Retour.class).getComponent();
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Remonte les données métriques spécifiques à un composant
+	 * 
+	 * @param composantKey
+	 * 					clé du composant dans la base SonarQube
+	 * @param metricKeys
+	 * 					clé des métriques désirées (issues, bugs, vulnerabilitie, etc..)
+	 * @return
+	 * 			un objet de type {@link Composant} avec toutes les informations sur celui-ci
+	 */
+	public Future<Response> getMetriquesComposantAsync(final String composantKey, String[] metricKeys)
+	{		
+		// 1. Création des paramètres
+		Parametre paramComposant = new Parametre("componentKey", composantKey);
+		
+		Parametre paramMetrics = new Parametre();
+		paramMetrics.setClef("metricKeys");
+		StringBuilder valeur = new StringBuilder();
+		for (int i = 0; i < metricKeys.length; i++)
+		{
+			valeur.append(metricKeys[i]);
+			if (i+1 < metricKeys.length)
+			{
+				valeur.append(",");
+			}
+		}
+		paramMetrics.setValeur(valeur.toString());
+		
+		// 2. appel du webservices
+		return appelWebserviceAsyncGET("api/measures/component", paramComposant, paramMetrics);
+		
 	}
 	
 	/**
@@ -176,7 +238,7 @@ public class SonarAPI
 	 */
 	public List<Projet> getComposants()
 	{
-		Parametre param = new Parametre("search", "composant");
+		Parametre param = new Parametre("search", "composant ");
 		final Response response = appelWebserviceGET("api/projects/index", param);
 		
 		if (response.getStatus() == Status.OK.getStatusCode())
@@ -187,6 +249,18 @@ public class SonarAPI
 		return new ArrayList<>();
 	}
 
+	public StatusProjet getComposantQualityGate(final String composantKey)
+	{
+		Parametre param = new Parametre("projectKey", composantKey);
+		final Response response = appelWebserviceGET("api/qualitygates/project_status", param);
+		
+		if (response.getStatus() == Status.OK.getStatusCode())
+		{
+			return response.readEntity(Retour.class).getStatusProjet();			
+		}
+		return new StatusProjet();
+	}
+	
 	/*---------- METHODES PUBLIQUES POST ----------*/
 
 	/**
@@ -195,7 +269,7 @@ public class SonarAPI
 	 * @param vue
 	 * @return
 	 */
-	public boolean creerVue(Vue vue)
+ 	public boolean creerVue(Vue vue)
 	{
 		Response response = appelWebservicePOST("api/views/create", vue);
 		System.out.println("retour webservice creer vue : " + response.getStatus() + " " + response.getStatusInfo());
@@ -212,6 +286,11 @@ public class SonarAPI
 		return appelWebserviceAsyncPOST("api/views/create", vue);
 	}
 	
+	/**
+	 * Supprime une vue dans SonarQube
+	 * @param vue
+	 * @return
+	 */
 	public boolean supprimerVue(Vue vue)
 	{
 		Response response = appelWebservicePOST("api/views/delete", new Clef(vue.getKey()));
@@ -273,7 +352,7 @@ public class SonarAPI
 	 */
 	public void ajouterProjet(Vue parent, Projet projet)
 	{
-		// TODO
+		// Non implémenté
 	}
 
 	/**
@@ -311,6 +390,33 @@ public class SonarAPI
 		
 		return requete.request(MediaType.APPLICATION_JSON).header(AUTHORIZATION, codeUser).get();
 	}
+	
+	/**
+	 * Appel des webservices en GET en asynchrone
+	 * @param url
+	 * 			Url du webservices
+	 * @param params
+	 * 			Paramètres optionnels de la requête
+	 * @return
+	 */
+	private Future<Response> appelWebserviceAsyncGET(final String url, Parametre... params)
+	{
+		// Création de la requête
+		WebTarget requete = webTarget.path(url);
+		Invocation.Builder builder = requete.request(MediaType.APPLICATION_JSON).header(AUTHORIZATION, codeUser);
+		
+		if (params == null)
+		{
+			return builder.async().get();
+		}
+		
+		for (Parametre parametre : params)
+		{
+			requete = requete.queryParam(parametre.getClef(), parametre.getValeur());
+		}
+		
+		return builder.async().get();
+	}
 
 	/**
 	 * Appel des webservices en POST
@@ -335,7 +441,7 @@ public class SonarAPI
 	}
 	
 	/**
-	 * Appel des webservices en POST
+	 * Appel des webservices en POST en asynchrone
 	 * @param url
 	 * 			Url du webservices
 	 * @param entite
@@ -345,7 +451,7 @@ public class SonarAPI
 	 */
 	public Future<Response> appelWebserviceAsyncPOST(final String url, ModeleSonar entite)
 	{
-		// Création ed la requête
+		// Création de la requête
 		WebTarget requete = webTarget.path(url);
 		Invocation.Builder builder = requete.request(MediaType.APPLICATION_JSON).header(AUTHORIZATION, codeUser);
 		
