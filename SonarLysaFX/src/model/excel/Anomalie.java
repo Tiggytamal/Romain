@@ -1,5 +1,7 @@
 package model.excel;
 
+import model.enums.Environnement;
+
 /**
  * Classe de modèle uqi correspond aux données du fichier Excel des anomalies
  * 
@@ -19,7 +21,7 @@ public class Anomalie
 	private String cpiProjet;
 	private String edition;
 	private String lot;
-	private String environnement;
+	private Environnement environnement;
 	private String numeroAnomalie;
 	private String etat;
 	private String remarque;
@@ -101,11 +103,11 @@ public class Anomalie
 	{
 		this.lot = lot;
 	}
-	public String getEnvironnement()
+	public Environnement getEnvironnement()
 	{
 		return environnement;
 	}
-	public void setEnvironnement(String environnement)
+	public void setEnvironnement(Environnement environnement)
 	{
 		this.environnement = environnement;
 	}

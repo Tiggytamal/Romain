@@ -14,7 +14,6 @@ public class MainScreen extends Application
 
 	/* Attibuts généraux */
 
-	private static Stage stage;
 	private static BorderPane root = new BorderPane();
 
 	/* Attributs FXML */
@@ -30,7 +29,7 @@ public class MainScreen extends Application
 	/*---------- METHODES PUBLIQUES ----------*/
 
 	@Override
-	public void start(final Stage stageIn) throws Exception
+	public void start(final Stage stage) throws Exception
 	{
 		// Menu de l'application
 		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
@@ -39,7 +38,6 @@ public class MainScreen extends Application
 
 		// Affichage de l'interface
 		final Scene scene = new Scene(root, 640, 480);
-		stage = stageIn;
 		stage.setTitle("Sonar Lysa");
 		stage.setResizable(true);
 		stage.setScene(scene);
@@ -60,16 +58,4 @@ public class MainScreen extends Application
 	{
 		return root;
 	}
-
-	/**
-	 * Accès à l'interface principale depuis les autres contrôleurs.
-	 * 
-	 * @return
-	 * 
-	 */
-	public static Stage getStage()
-	{
-		return stage;
-	}
-
 }

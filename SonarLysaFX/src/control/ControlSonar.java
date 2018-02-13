@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
+import model.enums.Environnement;
 import model.excel.Anomalie;
 import model.excel.LotSuiviPic;
 import model.xml.Application;
@@ -126,8 +127,9 @@ public class ControlSonar
 		// 1. Récupération des données depuis les fichiers Excel.
 		
 		// Fichier des anomalies en route
-		ControlExcel controlAno = new ControlExcel(new File("d:\\qualityGate anomalies.xlsx"));
+		ControlAno controlAno = new ControlAno(new File("d:\\qualityGate anomalies.xlsx"));
 		List<String> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
+		controlAno.close();
 		System.out.println("nombre ano créées : " + listeLotenAno.size());
 		
 		// Fichier des lots édition E30
@@ -528,20 +530,24 @@ public class ControlSonar
     	return vue;
     }
     
-	private String calculerEnvironnement(LotSuiviPic lot)
+    /**
+     * Permet de valoriser l'environnement par rapport aux dates de publication
+     * @param lot
+     * @return
+     */
+	private Environnement calculerEnvironnement(LotSuiviPic lot)
 	{
 		if (lot.getLivraison() != null)
-			return "LIVRE EDITION";
+			return Environnement.EDITION;
 		if (lot.getVmoa() != null)
-			return "VMOA";
+			return Environnement.VMOA;
 		if (lot.getVmoe() != null)
-			return "VMOE";
+			return Environnement.VMOE;
 		if (lot.getTfon() != null)
-			return "TFON";
+			return Environnement.TFON;
 		if (lot.getDevtu() != null)
-			return "DEVTU";
-		return "NOUVEAU";
-
+			return Environnement.DEVTU;
+		return Environnement.NOUVEAU;
 	}
 	
 	/*---------- ACCESSEURS ----------*/

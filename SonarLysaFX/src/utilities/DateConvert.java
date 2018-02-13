@@ -21,9 +21,9 @@ import java.util.Locale;
  * Toutes les méthodes sont null-safe.
  */
 public class DateConvert
-{
-    
+{    
     private DateConvert() {}
+    
     /**
      * Appel de {@link #convert(Class, Object, ZoneId)} avec la time-zone par default du système, 
      * et l'Offset de Greenwich.
