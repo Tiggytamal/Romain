@@ -8,6 +8,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @XmlRootElement
 public class Metrique
 {
@@ -39,6 +41,7 @@ public class Metrique
 
 	@XmlElementWrapper
 	@XmlElement(name = "periods")
+	@JsonIgnore
 	public List<Periode> getListePeriodes()
 	{
 		if (listePeriodes == null)

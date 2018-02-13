@@ -1,7 +1,9 @@
 package sonarapi.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -111,6 +113,26 @@ public class Composant implements ModeleSonar
 		if (metriques == null)
 			return new ArrayList<>();
 		return metriques;
+	}
+	
+	/**
+	 * Permet de retourner une map des métriques plutôt qu'une liste.<br>
+	 * clef = identifation du métrique<br>
+	 * valeur = valeur du métrique
+	 * @return
+	 */
+	public Map<String, String> getMapMetriques()
+	{
+		if (metriques == null)
+			return new HashMap<>();
+		
+		Map<String, String> retour = new HashMap<>();
+		
+		for (Metrique metrique : metriques)
+		{
+			retour.put(metrique.getMetric(), metrique.getValue());
+		}
+		return retour;
 	}
 
 	public void setListeMeriques(List<Metrique> metriques)

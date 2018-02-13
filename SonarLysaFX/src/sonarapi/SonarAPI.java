@@ -195,10 +195,7 @@ public class SonarAPI
 		{
 			return response.readEntity(Retour.class).getComponent();
 		}
-		else
-		{
-			return getMetriquesComposant(composantKey, metricKeys);
-		}
+		return new Composant();
 	}
 		
 	/**
@@ -241,7 +238,7 @@ public class SonarAPI
  	public boolean creerVue(Vue vue)
 	{
 		Response response = appelWebservicePOST("api/views/create", vue);
-		System.out.println("retour webservice creer vue : " + response.getStatus() + " " + response.getStatusInfo());
+		logger.info("Creation vue : " + vue.getKey() + " : HTTP "+ response.getStatus());
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
 	
@@ -277,12 +274,9 @@ public class SonarAPI
 	public boolean ajouterSousVues(List<Vue> listeViews, Vue parent)
 	{
 		boolean ok = true;
-		for (Vue view : listeViews)
+		for (Vue vue : listeViews)
 		{
-			AjouterVueLocale localView = new AjouterVueLocale(parent.getKey(), view.getKey());
-			Response response = appelWebservicePOST("api/views/add_local_view", localView);
-			logger.info("retour ajouterSousVues " + view.getName() + ": HTTP " + response.getStatus());
-			if (response.getStatus() == Status.OK.getStatusCode())
+			if (!ajouterSousVue(vue, parent))
 			{
 				ok = false;
 			}
@@ -291,7 +285,22 @@ public class SonarAPI
 	}
 	
 	/**
-	 * Ajoute des sous-vue déjà existantes à une vue donnée
+	 * Ajoute une sous-vue déjà existantes à une vue donnée
+	 * 
+	 * @param listeViews
+	 * @param parent
+	 * @return
+	 */
+	public boolean ajouterSousVue(Vue vue, Vue parent)
+	{
+		AjouterVueLocale localView = new AjouterVueLocale(parent.getKey(), vue.getKey());
+		Response response = appelWebservicePOST("api/views/add_local_view", localView);
+		logger.info("Vue " + vue.getKey() + " ajout sous-vue " + vue.getName() + " : HTTP " + response.getStatus());
+		return response.getStatus() == Status.OK.getStatusCode();
+	}
+	
+	/**
+	 * Ajoute des projets déjà existants à une vue donnée
 	 * 
 	 * @param listeViews
 	 * @param parent
@@ -302,10 +311,7 @@ public class SonarAPI
 		boolean ok = true;
 		for (Projet projet : listeProjets)
 		{
-			AjouterProjet addProjet = new AjouterProjet(parent.getKey(), projet.getKey());
-			Response response = appelWebservicePOST("api/views/add_project", addProjet);
-			System.out.println("retour webservice creer sousProjet " + projet.getNom() + ": " + response.getStatus() + " " + response.getStatusInfo());
-			if (response.getStatus() == Status.OK.getStatusCode())
+			if (ajouterProjet(projet, parent))
 			{
 				ok = false;
 			}
@@ -314,14 +320,17 @@ public class SonarAPI
 	}
 
 	/**
-	 * Crée un nouveau projet dans SonarQube
+	 * Ajoute un projet déjà existant à une vue donnée
 	 * 
 	 * @param parent
 	 * @param projet
 	 */
-	public void ajouterProjet(Vue parent, Projet projet)
+	public boolean ajouterProjet(Projet projet, Vue parent)
 	{
-		// Non implémenté
+		AjouterProjet addProjet = new AjouterProjet(parent.getKey(), projet.getKey());
+		Response response = appelWebservicePOST("api/views/add_project", addProjet);
+		logger.info("Vue" + parent.getKey() + " ajout sous-projet " + projet.getNom() + ": HTTP " + response.getStatus());
+		return response.getStatus() == Status.OK.getStatusCode();
 	}
 
 	/**

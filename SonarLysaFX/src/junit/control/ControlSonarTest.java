@@ -45,7 +45,7 @@ class ControlSonarTest
 	}
 
 	@Test
-	public void testCreerVutetroduction() throws InvalidFormatException, IOException
+	public void testCreerVueProduction() throws InvalidFormatException, IOException
 	{
 		handler.creerVueProduction(new File("d:\\Classeur1.xlsx"));
 	}
@@ -100,7 +100,7 @@ class ControlSonarTest
 	}
 	
 	@Test
-	public void testcreerVuesQGErreur()
+	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException
 	{
 		handler.creerVuesQGErreur();
 	}
