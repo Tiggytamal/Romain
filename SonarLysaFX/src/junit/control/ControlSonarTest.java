@@ -100,7 +100,7 @@ class ControlSonarTest
 	}
 	
 	@Test
-	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException
+	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException, ClassNotFoundException
 	{
 		handler.creerVuesQGErreur();
 	}

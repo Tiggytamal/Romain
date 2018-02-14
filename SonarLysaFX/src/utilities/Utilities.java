@@ -157,4 +157,19 @@ public class Utilities
 		final String osName = System.getProperty("os.name");
 		return osName == null ? "Unknown" : osName;
 	}
+	
+	public static String transcoEdition(String versionComposant)
+	{
+		if (versionComposant == null)
+			return null;
+		if ("14".equals(versionComposant))
+			return "E31";
+		if ("13".equals(versionComposant))
+			return "E30";
+		if ("12".equals(versionComposant))
+			return "E29";
+		if ("11".equals(versionComposant))
+			return "E28";
+		return null;
+	}
 }

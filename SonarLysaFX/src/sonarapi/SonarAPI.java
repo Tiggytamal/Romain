@@ -237,6 +237,9 @@ public class SonarAPI
 	 */
  	public boolean creerVue(Vue vue)
 	{
+ 		if (vue == null)
+ 			return false;
+ 		
 		Response response = appelWebservicePOST("api/views/create", vue);
 		logger.info("Creation vue : " + vue.getKey() + " : HTTP "+ response.getStatus());
 		return response.getStatus() == Status.OK.getStatusCode();
@@ -259,6 +262,9 @@ public class SonarAPI
 	 */
 	public boolean supprimerVue(Vue vue)
 	{
+		if (vue == null)
+			return false;
+		
 		Response response = appelWebservicePOST("api/views/delete", new Clef(vue.getKey()));
 		logger.info("retour supprimer vue : " + response.getStatus() + " " + response.getStatusInfo());
 		return response.getStatus() == Status.OK.getStatusCode();

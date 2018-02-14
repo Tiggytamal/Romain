@@ -13,9 +13,7 @@ import java.util.Map;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
@@ -29,7 +27,7 @@ public class ControlPic extends ControlExcel
 {
 	/*---------- ATTRIBUTS ----------*/
 
-	/** fichier Excel transmis à l'application */
+	// Liste des indices des colonnes
 	private int colLot;
 	private int colLibelle;
 	private int colClarity;
@@ -43,6 +41,8 @@ public class ControlPic extends ControlExcel
 	private int colVmoe;
 	private int colVmoa;
 	private int colLiv;
+	
+	// Liste des noms de colonnes
 	private static final String LOT = "Lot";
 	private static final String LIBELLE = "Libellé";
 	private static final String CLARITY = "Clarity";
@@ -106,7 +106,7 @@ public class ControlPic extends ControlExcel
 			Row row = sheet.getRow(i);
 			// Création de l'objet
 			LotSuiviPic lot = new LotSuiviPic();
-			lot.setLot(String.valueOf(row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()));
+			lot.setLot(String.valueOf((int) row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()));
 			lot.setLibelle(row.getCell(colLibelle, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
 			lot.setProjetClarity(row.getCell(colClarity, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
 			lot.setCpiProjet(row.getCell(colCpi, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
@@ -179,9 +179,9 @@ public class ControlPic extends ControlExcel
 						break;						
 					case LIV:
 					    colLiv = cell.getColumnIndex();
-						break;
-						
+						break;						
 					default:
+						// Colonne sans nom reconnu
 						break;
 				}
 			}
@@ -236,7 +236,7 @@ public class ControlPic extends ControlExcel
 	    
 	    String lot = String.valueOf((int)cellLot.getNumericCellValue());
 	    
-	    // ON teste si le numéro de lot est bien présent dans Sonar.
+	    // On teste si le numéro de lot est bien présent dans Sonar.
 	    if (mapQube.keySet().contains(lot))
 	    {
 	        // Récupération de la date depuis le fichier Excel en format JDK 1.8.
@@ -244,16 +244,7 @@ public class ControlPic extends ControlExcel
 	        // Création d'une nouvelle date au 1er du mois qui servira du clef à la map.
             LocalDate clef = LocalDate.of(date.getYear(), date.getMonth(), 1);
             
-            // Itération sur toutes les cellules de la ligne pour mettre à jour et changer la couleur de celles-ci.
-            for (int j = 0; j < row.getLastCellNum(); j++)
-			{               
-            	Cell cell = row.getCell(j, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-				CellStyle style = wb.createCellStyle();
-				style.cloneStyleFrom(cell.getCellStyle());					
-				style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
-				style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-				cell.setCellStyle(style);
-			}
+	        majCouleurLigne(row, IndexedColors.LIGHT_YELLOW);
             	                    
             if (retour.keySet().contains(clef))
             {

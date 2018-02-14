@@ -27,8 +27,44 @@ public class Anomalie
 	private String remarque;
 	
 	/*---------- CONSTRUCTEURS ----------*/
+	
+	public Anomalie() {}
+	
+	public Anomalie(LotSuiviPic lot)
+	{
+		this();
+		setCpiProjet(lot.getCpiProjet());
+		setEdition(lot.getEdition());
+		setLibelleProjet(lot.getLibelle());
+		setProjetClarity(lot.getProjetClarity());
+		setLot("Lot " + lot.getLot());
+		setEnvironnement(calculerEnvironnement(lot));		
+	}
 	/*---------- METHODES PUBLIQUES ----------*/
 	/*---------- METHODES PRIVEES ----------*/
+	
+	/**
+	 * Permet de valoriser l'environnement par rapport aux dates de publication
+	 * 
+	 * @param lot
+	 * @return
+	 */
+	private Environnement calculerEnvironnement(LotSuiviPic lot)
+	{
+		if (lot.getLivraison() != null)
+			return Environnement.EDITION;
+		if (lot.getVmoa() != null)
+			return Environnement.VMOA;
+		if (lot.getVmoe() != null)
+			return Environnement.VMOE;
+		if (lot.getTfon() != null)
+			return Environnement.TFON;
+		if (lot.getDevtu() != null)
+			return Environnement.DEVTU;
+		return Environnement.NOUVEAU;
+	}
+	
+	
 	/*---------- ACCESSEURS ----------*/
 	
 	public String getDirection()
@@ -134,6 +170,5 @@ public class Anomalie
 	public void setRemarque(String remarque)
 	{
 		this.remarque = remarque;
-	}
-	
+	}	
 }
