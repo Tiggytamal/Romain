@@ -2,7 +2,6 @@ package control;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -89,7 +88,7 @@ public class ControlPic extends ControlExcel
 		Map<LocalDate, List<Vue>> retour = creerMapVuesParMois(sheet, mapQube);
 		
 		// Ecriture du fichier Excel
-		wb.write(new FileOutputStream(file.getName()));
+		write();
 
 		return retour;
 	}

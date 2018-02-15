@@ -1,9 +1,7 @@
 package control;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +43,6 @@ public class ControlSonar
 	private static final Logger logSansApp = LogManager.getLogger("sansapp-log");
 	private static final Logger loginconnue = LogManager.getLogger("inconnue-log");
 	private static final Logger lognonlistee = LogManager.getLogger("nonlistee-log");
-	private static final String SANSVERSION = "-";
 	private static final String FICHIERANOMALIES = "d:\\Suivi_Quality_Gate.xlsx";
 	private static final String FICHIELOTSPIC = "d:\\lots Pic.xlsx";
 
@@ -85,8 +82,11 @@ public class ControlSonar
 
 	public void creerVueParApplication()
 	{
+		// Récupération des composants Sonar
+		Map<String, Projet> mapProjets = recupererComposantsSonar();
+
 		// Création de la liste des composants par application
-		Map<String, List<Projet>> mapApplication = controlerSonarQube();
+		Map<String, List<Projet>> mapApplication = creerMapApplication(mapProjets);
 
 		// Parcours de la liste pour créer chaque vue applicative avec ses composants
 		for (Map.Entry<String, List<Projet>> entry : mapApplication.entrySet())
@@ -100,15 +100,6 @@ public class ControlSonar
 			api.creerVue(vue);
 			api.ajouterSousProjets(entry.getValue(), vue);
 		}
-	}
-
-	public Map<String, List<Projet>> controlerSonarQube()
-	{
-		// Récupération des composants Sonar
-		Map<String, Projet> mapProjets = recupererComposantsSonar();
-
-		// Création de la liste des composants par application
-		return creerMapApplication(mapProjets);
 	}
 
 	public void creerVueProduction(File file) throws InvalidFormatException, IOException
@@ -126,7 +117,7 @@ public class ControlSonar
 		}
 	}
 
-	public void creerVuesQGErreur() throws InvalidFormatException, IOException, ClassNotFoundException
+	public void creerVuesQGErreur() throws InvalidFormatException, IOException
 	{
 		// 1. Récupération des données depuis les fichiers Excel.
 
@@ -136,34 +127,43 @@ public class ControlSonar
 		controlPic.close();
 
 		// 2. Récupération des lots Sonar en erreur.
-//		Map<String, Set<String>> mapLots = lotSonarQGError(new String[] { "13", "14" });
-		ObjectInputStream ois = new ObjectInputStream(new FileInputStream("d:\\mon_objet.ser"));
+		// Map<String, Set<String>> mapLots = lotSonarQGError(new String[] { "13", "14" });
 		@SuppressWarnings("unchecked")
-		Map<String, Set<String>> mapLots = (Map<String, Set<String>>) ois.readObject();
-		ois.close();
+		Map<String, Set<String>> mapLots = Utilities.deserialisation("d:\\mon_objet.ser", HashMap.class);
 
 		// 3. Supression des lots déjà créés et création des feuillle excel avec les nouvelles erreurs
 
 		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
 		// 4. Création des vues
-//		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
-//		{
-//			// Création de la vue et envoie vers SonarQube
-//			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(),
-//			        "Vue regroupant tous les lots avec des composants en erreur", true);
-//
-//			for (String lot : entry.getValue())
-//			{
-//				Vue vue = new Vue();
-//				vue.setKey("view_lot_" + lot);
-//				vue.setName("Lot " + lot);
-//				// Ajout des sous-vue
-//				api.ajouterSousVue(vue, vueParent);
-//			}
-//		}
+		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
+		{
+			// Création de la vue et envoie vers SonarQube
+			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(),
+			        "Vue regroupant tous les lots avec des composants en erreur", true);
+
+			for (String lot : entry.getValue())
+			{
+				Vue vue = new Vue();
+				vue.setKey("view_lot_" + lot);
+				vue.setName("Lot " + lot);
+				// Ajout des sous-vue
+				api.ajouterSousVue(vue, vueParent);
+			}
+		}
 	}
 
+	public void creerVuesDatastage()
+	{
+		// Appel du webservice pour remonter tous les composants
+		List<Projet> projets = api.getComposants();
+		Vue vue = creerVue("DSDataStageListeKey", "Liste Composants Datastage", "Vue regroupant tous les composants Datastage", true);
+		for (Projet projet : projets)
+		{
+			if (projet.getNom().startsWith("Composant DS_"))
+			api.ajouterProjet(projet, vue);
+		}
+	}
 	/**
 	 * Lance la mise à jour des vues dans SonarQube. Indispenssable après la création d'une nouvelle vue.
 	 */
@@ -203,17 +203,16 @@ public class ControlSonar
 		// Appel du webservice pour remonter tous les composants
 		List<Projet> projets = api.getComposants();
 
+		Utilities.serialisation("d:\\composants.ser", projets);
+
 		// Triage ascendant de la liste par nom de projet
 		projets.sort((o1, o2) -> o1.getNom().compareTo(o2.getNom()));
 
 		// Création de la regex pour retirer les numéros de version des composants
 		Pattern pattern = Pattern.compile("^\\D*");
 
-		// Création de la map de retour et parcours de la liste des projets pour remplir
-		// celle-ci. On utilise la chaine de caractères créées par la regex comme clef
-		// dans la map.
-		// Les compossant étant triès par ordre alphabétique, on va écraser tous les
-		// composants qui ont un numéro de version obsolète.
+		// Création de la map de retour et parcours de la liste des projets pour remplir celle-ci. On utilise la chaine de caractères créées par la regex comme clef dans la map.
+		// Les compossant étant triès par ordre alphabétique, on va écraser tous les composants qui ont un numéro de version obsolète.
 		Map<String, Projet> retour = new HashMap<>();
 
 		for (Projet projet : projets)
@@ -264,8 +263,8 @@ public class ControlSonar
 	 * 
 	 * @param versions
 	 * @return
-	 * @throws IOException 
-	 * @throws ClassNotFoundException 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
 	 */
 	private Map<String, Set<String>> lotSonarQGError(String[] versions) throws IOException
 	{
@@ -278,7 +277,6 @@ public class ControlSonar
 		// Itération sur les composants pour remplir la map de retour avec les lot en erreur par version
 		for (Map.Entry<String, List<Projet>> entry : mapProjets.entrySet())
 		{
-			System.out.println("récupération QualityGates pour : " + entry.getKey());
 			retour.put(entry.getKey(), new TreeSet<>());
 			// Iteration sur la liste des projets
 			for (Projet projet : entry.getValue())
@@ -297,11 +295,6 @@ public class ControlSonar
 				}
 			}
 		}
-//		FileOutputStream fichier = new FileOutputStream("d:\\mon_objet.ser");
-//		ObjectOutputStream oos = new ObjectOutputStream(fichier);
-//		oos.writeObject(retour);
-//		oos.flush();
-//		oos.close();
 		return retour;
 	}
 
@@ -504,14 +497,14 @@ public class ControlSonar
 
 		return vue;
 	}
-	
+
 	/**
 	 * Permet de mettre à jour le fichier des anomalies Sonar, en allant chercher les nouvelles dans Sonar et en vérifiant celle qui ne sont plus d'actualité.
 	 * 
 	 * @param lotsPIC
-	 * 				Fichier excel d'extraction de la PIC de tous les lots.
+	 *            Fichier excel d'extraction de la PIC de tous les lots.
 	 * @param mapLots
-	 * 				map des lots Sonar avec une quality Gate en erreur
+	 *            map des lots Sonar avec une quality Gate en erreur
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
@@ -519,16 +512,24 @@ public class ControlSonar
 	{
 		// Controleur
 		ControlAno controlAno = new ControlAno(file);
-		
-		// Lecture du fichier pour rmeonter les anomalies en cours.
+
+		// Lecture du fichier pour remonter les anomalies en cours.
 		List<String> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
-		
+
+		// Iteration sur les lots du fichier des anomalies en cours pour resortir celles qui n'ont plus une Quality Gate bloquante.
+		Set<String> tousLotsErreur = new TreeSet<>();
+		for (Set<String> value : mapLots.values())
+		{
+			tousLotsErreur.addAll(value);
+		}
+		controlAno.majAnoOK(tousLotsErreur);
+
 		// Itération sur les lots en erreurs venant de Sonar pour chaque version de composants (13, 14, ...)
 		for (Entry<String, Set<String>> entry : mapLots.entrySet())
 		{
-			List<Anomalie> anoACreer = new ArrayList<>();			
+			List<Anomalie> anoACreer = new ArrayList<>();
 			Iterator<String> iter = entry.getValue().iterator();
-			
+
 			while (iter.hasNext())
 			{
 				String numeroLot = iter.next();
@@ -539,7 +540,8 @@ public class ControlSonar
 				}
 				else
 				{
-					// Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce fichier
+					// Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce
+					// fichier
 					LotSuiviPic lot = lotsPIC.get(numeroLot);
 					if (lot == null)
 					{
@@ -549,20 +551,11 @@ public class ControlSonar
 					anoACreer.add(ano);
 				}
 			}
-			
+
 			// Mise à jour de la feuille des anomalies pour chaque version de composants
-			controlAno.createSheetError(Utilities.transcoEdition(entry.getKey()), anoACreer);			
+			controlAno.createSheetError(Utilities.transcoEdition(entry.getKey()), anoACreer);
 		}
-		
-		// Iteration sur les lots du fichier des anomalies en cours pour resortir celles qui n'ont plus une Quality Gate bloquante.
-		Set<String> tousLotsErreur = new TreeSet<>();
-		for (Set<String> value : mapLots.values())
-		{
-			tousLotsErreur.addAll(value);
-		}
-		controlAno.majAnoOK(tousLotsErreur);
-		
-		controlAno.close();		
+		controlAno.close();
 	}
 
 	/*---------- ACCESSEURS ----------*/

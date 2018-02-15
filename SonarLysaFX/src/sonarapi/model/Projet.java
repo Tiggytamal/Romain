@@ -1,17 +1,27 @@
 package sonarapi.model;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class Projet implements ModeleSonar
+public class Projet implements ModeleSonar, Serializable
 {
+	/*---------- ATTRIBUTS ----------*/
+
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String key;
 	private String nom;
 	private String sc;
 	private String qu;
 	private String lot;
+	
+	/*---------- CONSTRUCTEURS ----------*/
+	/*---------- METHODES PUBLIQUES ----------*/
+	/*---------- METHODES PRIVEES ----------*/
+	/*---------- ACCESSEURS ----------*/
 
 	@XmlAttribute (name = "k", required = true)
 	public String getKey()

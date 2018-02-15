@@ -1,6 +1,8 @@
 package control;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -39,6 +41,11 @@ public abstract class ControlExcel
 	protected void close() throws IOException
 	{
 		wb.close();
+	}
+	
+	protected void write() throws FileNotFoundException, IOException
+	{
+		wb.write(new FileOutputStream(file.getName()));
 	}
 	
 	/**

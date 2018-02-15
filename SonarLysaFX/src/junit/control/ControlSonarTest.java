@@ -3,7 +3,6 @@ package junit.control;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Base64;
 
 import javax.xml.bind.JAXBException;
@@ -14,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import control.ControlSonar;
+import junit.TestUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ControlSonarTest
@@ -23,25 +23,14 @@ class ControlSonarTest
 	@BeforeAll
 	public void init() throws InvalidFormatException, JAXBException, IOException
 	{
-//		handler = new ControlSonar();
+		// handler = new ControlSonar();
 		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
 	}
 
 	@Test
-	public void recupererLotsSonarQube() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
+	public void recupererLotsSonarQube() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
-		Method[] methods = ControlSonar.class.getDeclaredMethods();
-		Method call = null;
-		for (Method method : methods)
-		{
-			if (method.getName().equals("recupererLotsSonarQube"))
-			{
-				call = method;
-				call.setAccessible(true);
-				break;
-			}
-		}		
-		call.invoke(handler);
+		TestUtils.callPrivate("recupererLotsSonarQube", handler);
 	}
 
 	@Test
@@ -69,39 +58,30 @@ class ControlSonarTest
 		builder.append(":");
 		builder.append("admin");
 		codeUser = Base64.getEncoder().encodeToString(builder.toString().getBytes());
-		codeUser.length();		
+		codeUser.length();
 	}
 
 	@Test
-	public void testRecupererComposantsSonar() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException
+	public void testRecupererComposantsSonar() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
-		Method[] methods = ControlSonar.class.getDeclaredMethods();
-		for (Method method : methods)
-		{
-			if (method.getName().equals("recupererComposantsSonar"))
-			{
-				method.setAccessible(true);
-				method.invoke(handler);
-				break;
-			}
-		}
+		TestUtils.callPrivate("recupererComposantsSonar", handler);
 	}
-	
+
 	@Test
 	public void testCreerVueParApplication()
 	{
 		handler.creerVueParApplication();
 	}
-	
-	@Test
-	public void testControlerSonar()
-	{
-		handler.controlerSonarQube();
-	}
-	
+
 	@Test
 	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException, ClassNotFoundException
 	{
 		handler.creerVuesQGErreur();
+	}
+	
+	@Test
+	public void testCreerVuesDatastage()
+	{
+		handler.creerVuesDatastage();
 	}
 }

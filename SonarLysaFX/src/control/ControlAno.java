@@ -1,22 +1,22 @@
 package control;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 
 import model.enums.Environnement;
 import model.excel.Anomalie;
@@ -26,18 +26,31 @@ public class ControlAno extends ControlExcel
 	/*---------- ATTRIBUTS ----------*/
 	
 	// Liste des indices des colonnes
+	
+	@SuppressWarnings("unused")
 	private int colDir;
+	@SuppressWarnings("unused")
 	private int colDepart;
+	@SuppressWarnings("unused")
 	private int colService;
+	@SuppressWarnings("unused")
 	private int colresp;
+	@SuppressWarnings("unused")
 	private int colClarity;
+	@SuppressWarnings("unused")
 	private int colLib;
+	@SuppressWarnings("unused")
 	private int colCpi;
+	@SuppressWarnings("unused")
 	private int colEdition;
 	private int colLot;
+	@SuppressWarnings("unused")
 	private int colEnv;
+	@SuppressWarnings("unused")
 	private int colAno;
+	@SuppressWarnings("unused")
 	private int colEtat;
+	@SuppressWarnings("unused")
 	private int colRemarque;
 	
 	// Liste des noms de colonnes
@@ -87,39 +100,91 @@ public class ControlAno extends ControlExcel
 	}
 	
 	protected void createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
-	{
-		if (nomSheet == null)
-			return;
-		Sheet sheet = wb.createSheet(nomSheet);
+	{	
+		// Création de la feuille de calcul
+		Sheet sheet = wb.getSheet(nomSheet);
+		if (sheet != null)
+			wb.removeSheetAt(wb.getSheetIndex(sheet));		
+		sheet = wb.createSheet(nomSheet);
+		Cell cell;
+		
+		// Création des styles de cellules
 		CellStyle style = wb.createCellStyle();
-		style.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
-		style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        
+        CellStyle styleTitre = wb.createCellStyle();
+        styleTitre.cloneStyleFrom(style);
+        styleTitre.setAlignment(HorizontalAlignment.CENTER);
+        styleTitre.setFillForegroundColor(IndexedColors.AQUA.index);
+        styleTitre.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        styleTitre.setBorderBottom(BorderStyle.THIN);
+        
+        CellStyle styleJaune = wb.createCellStyle();
+        styleJaune.cloneStyleFrom(style);       
+		styleJaune.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
+		styleJaune.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		
+		CellStyle styleCentre = wb.createCellStyle();
+		styleCentre.cloneStyleFrom(style);
+		styleCentre.setAlignment(HorizontalAlignment.CENTER);
+		
+		// Création des noms des colonnes
+		Row titres = sheet.createRow(0);
+		for (Index index : Index.values())
+		{
+			cell = titres.createCell(index.ordinal());
+			cell.setCellStyle(styleTitre);	
+			switch (index)
+			{
+				case LOTE:
+					cell.setCellValue(LOT);
+					break;
+				case EDITIONE:
+					cell.setCellValue(EDITION);
+					break;
+				case ENVE:
+					cell.setCellValue(ENV);
+					break;
+			}
+		}
+		
 		for (Anomalie anomalie : anoAcreer)
 		{
 			Row row = sheet.createRow(sheet.getLastRowNum() +1 );
 			Environnement env = anomalie.getEnvironnement();
 			if (env == Environnement.VMOA || env == Environnement.EDITION)
 			{
-				Cell cell = row.createCell(0);
-				cell.setCellStyle(style);
+				cell = row.createCell(Index.LOTE.ordinal());
 				cell.setCellValue(anomalie.getLot());
-				cell = row.createCell(1);
-				cell.setCellStyle(style);
+				cell.setCellStyle(styleCentre);
+				cell = row.createCell(Index.EDITIONE.ordinal());
 				cell.setCellValue(anomalie.getEdition());
-				cell = row.createCell(2);
 				cell.setCellStyle(style);
-				cell.setCellValue(anomalie.getEnvironnement().toString());			
+				cell = row.createCell(Index.ENVE.ordinal());
+				cell.setCellValue(anomalie.getEnvironnement().toString());
+				cell.setCellStyle(styleCentre);
 			}
 			else
 			{
-				row.createCell(0).setCellValue(anomalie.getLot());
-				row.createCell(1).setCellValue(anomalie.getEdition());
-				row.createCell(2).setCellValue(anomalie.getEnvironnement().toString());
+				cell = row.createCell(Index.LOTE.ordinal());
+				cell.setCellStyle(styleCentre);
+				cell.setCellValue(anomalie.getLot());
+				cell = row.createCell(Index.EDITIONE.ordinal());
+				cell.setCellStyle(style);
+				cell.setCellValue(anomalie.getEdition());
+				cell = row.createCell(Index.ENVE.ordinal());
+				cell.setCellStyle(styleCentre);
+				cell.setCellValue(anomalie.getEnvironnement().toString());	
 			}			
 		}
 		
+		sheet.autoSizeColumn(Index.LOTE.ordinal());
+		sheet.autoSizeColumn(Index.EDITIONE.ordinal());
+		sheet.autoSizeColumn(Index.ENVE.ordinal());
 		// Ecriture du fichier Excel
-		wb.write(new FileOutputStream(file.getName()));
+		write();
 	}
 	
 	/**
@@ -139,14 +204,15 @@ public class ControlAno extends ControlExcel
 			Row row = sheet.getRow(i);
 			
 			// Si le numéro n'est pas présent dans la liste, c'est que le Quality gate est bon
-			if (lotAnos.contains(row.getCell(colLot).getStringCellValue()))
+			String string = row.getCell(colLot).getStringCellValue().substring(4);
+			if (!lotAnos.contains(string))
 			{
 	           majCouleurLigne(row, IndexedColors.LIGHT_GREEN);
 			}
 		}		
 		
 		//Ecriture fu fichier
-		wb.write(new FileOutputStream(file.getName()));
+		write();
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/
@@ -211,6 +277,16 @@ public class ControlAno extends ControlExcel
 				}
 			}
 		}	
+	}
+	
+	/**
+	 * Liste des numéros de colonnes des feuilles d'environnement
+	 * @author ETP8137 - Grégoire mathon
+	 *
+	 */
+	private enum Index
+	{
+		LOTE,EDITIONE,ENVE;
 	}
 	/*---------- ACCESSEURS ----------*/
 }

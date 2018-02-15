@@ -27,6 +27,7 @@ public class ControlXML
 
 	private ParametreXML param;
 	private Map<String, Application> mapApplis;
+	private static final String FICHIERPARAM = "d:\\param.xml";
 	
 	
 	/*---------- CONSTRUCTEURS ----------*/
@@ -40,7 +41,7 @@ public class ControlXML
 
 	public void recuprerParamXML() throws JAXBException, InvalidFormatException, IOException
 	{
-		File file = new File("d:\\param.xml");
+		File file = new File(FICHIERPARAM);
 		
 		if(file.exists())
 		{

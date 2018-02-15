@@ -2,6 +2,10 @@ package utilities;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -171,5 +175,38 @@ public class Utilities
 		if ("11".equals(versionComposant))
 			return "E28";
 		return null;
+	}
+	
+	/**
+	 * Permet d'enregistrer un objet pour le récupérer plus tard
+	 * @param adresseFichier
+	 * @param objet
+	 * @throws IOException 
+	 */
+	public static void serialisation(String adresseFichier, Object objet)
+	{
+		try (FileOutputStream fichier = new FileOutputStream(adresseFichier);)
+		{
+			ObjectOutputStream oos = new ObjectOutputStream(fichier);
+			oos.writeObject(objet);
+			oos.flush();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public static <T> T deserialisation(String adresseFichier, Class<T> classeObjet)
+	{
+		Object objet = null;
+		try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(adresseFichier));)
+		{
+			objet = ois.readObject();
+		} catch (IOException | ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+
+		return classeObjet.cast(objet);
 	}
 }
