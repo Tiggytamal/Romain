@@ -75,12 +75,7 @@ public class ControlSonar
         for (Map.Entry<String, List<Projet>> entry : mapApplication.entrySet())
         {
             // Création de la vue principale
-            Vue vue = new Vue();
-            vue.setName("APPLI MASTER " + entry.getKey());
-            vue.setKey("APPMASTERAPP" + entry.getKey());
-            vue.setDescription("Liste des composants de l'application " + entry.getKey());
-            api.supprimerVue(vue);
-            api.creerVue(vue);
+            Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(), true);
             api.ajouterSousProjets(entry.getValue(), vue);
         }
     }
@@ -122,30 +117,29 @@ public class ControlSonar
         controlPic.close();
 
         // 2. Récupération des lots Sonar en erreur.
-        // Map<String, Set<String>> mapLots = lotSonarQGError(new String[] { "13", "14" });
-        @SuppressWarnings ("unchecked")
-        Map<String, Set<String>> mapLots = Utilities.deserialisation("d:\\mon_objet.ser", HashMap.class);
+        Map<String, Set<String>> mapLots = lotSonarQGError(new String[] { "13", "14" });
+//      @SuppressWarnings ("unchecked")
+//      Map<String, Set<String>> mapLots = Utilities.deserialisation("d:\\mon_objet.ser", HashMap.class);
 
         // 3. Supression des lots déjà créés et création des feuillle excel avec les nouvelles erreurs
 
         majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
         // 4. Création des vues
-        for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
-        {
-            // Création de la vue et envoie vers SonarQube
-            Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur",
-                    true);
-
-            for (String lot : entry.getValue())
-            {
-                Vue vue = new Vue();
-                vue.setKey("view_lot_" + lot);
-                vue.setName("Lot " + lot);
-                // Ajout des sous-vue
-                api.ajouterSousVue(vue, vueParent);
-            }
-        }
+//        for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
+//        {
+//            // Création de la vue et envoie vers SonarQube
+//            Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
+//
+//            for (String lot : entry.getValue())
+//            {
+//                Vue vue = new Vue();
+//                vue.setKey("view_lot_" + lot);
+//                vue.setName("Lot " + lot);
+//                // Ajout des sous-vue
+//                api.ajouterSousVue(vue, vueParent);
+//            }
+//        }
     }
 
     public void creerVuesDatastage()

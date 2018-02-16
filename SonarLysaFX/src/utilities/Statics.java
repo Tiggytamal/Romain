@@ -10,6 +10,9 @@ import java.time.LocalDate;
 public abstract class Statics
 {
 	private Statics() {}
+	
+	//* Nom de l'application */
+	public static final String NOMAPPLI = "SonarLyza";
 	/** Adresse du serveur SonarQube */
 	public static final String URI = "http://ttp10-snar.ca-technologies.fr";
 	/** adresse du serveur SonarQube de test */

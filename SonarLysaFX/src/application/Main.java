@@ -57,6 +57,7 @@ public class Main extends Application
                 createAlert(Severity.SEVERITY_ERROR, e, e.getMessage());
             }
         });
+		
 		MainScreen main = new MainScreen();
 		main.start(stage);
 	}
@@ -126,4 +127,9 @@ public class Main extends Application
 
         alert.showAndWait();
     }
+
+	public void addAppToTray()
+	{
+		
+	}
 }
