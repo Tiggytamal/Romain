@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -28,26 +29,32 @@ public class ControlXML
 	private ParametreXML param;
 	private Map<String, Application> mapApplis;
 	private static final String FICHIERPARAM = "d:\\param.xml";
-	
+	private static final String FICHIERLISTEAPPLI = "d:\\liste applis.xlsx";	
 	
 	/*---------- CONSTRUCTEURS ----------*/
 
 	public ControlXML()
 	{
-		param = new ParametreXML();		
+		param = new ParametreXML();	
 	}
 	
 	/*---------- METHODES PUBLIQUES ----------*/
 
+	/**
+	 * 
+	 * @throws JAXBException
+	 * @throws InvalidFormatException
+	 * @throws IOException
+	 */
 	public void recuprerParamXML() throws JAXBException, InvalidFormatException, IOException
-	{
-		File file = new File(FICHIERPARAM);
-		
+	{	
+	    File file = new File(FICHIERPARAM);
+	    
 		if(file.exists())
 		{
 			JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
 			param = (ParametreXML) context.createUnmarshaller().unmarshal(file);
-			mapApplis = new HashMap<String, Application>();
+			mapApplis = new HashMap<>();
 			for (Application app : param.getListeApplications())
 			{
 				mapApplis.put(app.getNom(), app);
@@ -56,13 +63,31 @@ public class ControlXML
 		else
 		{
 			mapApplis = calculerMapApplisDepuisExcel();
-			param.setListeApplications(new ArrayList<Application>(mapApplis.values()));
+			param.setListeApplications(new ArrayList<>(mapApplis.values()));
 		}
 	}
 	
+	/**
+	 * 
+	 * @throws JAXBException
+	 */
+	public void saveParam() throws JAXBException
+	{
+       JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
+       Marshaller jaxbMarshaller = context.createMarshaller();
+       jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+       jaxbMarshaller.marshal(param, new File(FICHIERPARAM));
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws InvalidFormatException
+	 * @throws IOException
+	 */
 	public Map<String, Application> calculerMapApplisDepuisExcel() throws InvalidFormatException, IOException
 	{
-		File file = new File("d:\\liste applis.xlsx");
+		File file = new File(FICHIERLISTEAPPLI);
 		Map<String, Application> retour = new HashMap<>();
 		Workbook wb = WorkbookFactory.create(file);
 		Sheet sheet = wb.getSheetAt(0);
