@@ -14,6 +14,12 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+/**
+ * Classe mère des contrôleurs pour les fichiers Excel
+ * 
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
 public abstract class ControlExcel
 {
 	/*---------- ATTRIBUTS ----------*/
@@ -27,6 +33,7 @@ public abstract class ControlExcel
 	{
 		this.file = file;
 		createWb();
+		calculIndiceColonnes();
 	}
 	
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -64,6 +71,11 @@ public abstract class ControlExcel
 			cell.setCellStyle(style);
 		}
 	}
+	
+	/**
+	 * Initialise les numéro des colonnes du fichier Excel venant de la PIC.
+	 */
+	protected abstract void calculIndiceColonnes();
 
 	/*---------- METHODES PRIVEES ----------*/
 	/*---------- ACCESSEURS ----------*/

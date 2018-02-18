@@ -1,5 +1,6 @@
 package junit.control;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
@@ -25,6 +26,12 @@ public class ControlXMLTest
 	@Test
 	public void testCalculerListeApplisDepuisExcel() throws InvalidFormatException, IOException, JAXBException
 	{
-		handler.calculerMapApplisDepuisExcel();
+		handler.calculerListeAppsDepuisExcel(new File("d:\\param.xml"));
+	}
+	
+	@Test
+	public void testRecuprerParamXML() throws InvalidFormatException, JAXBException, IOException
+	{
+	    handler.recuprerParamXML();
 	}
 }

@@ -11,7 +11,9 @@ public abstract class Statics
 {
 	private Statics() {}
 	
-	//* Nom de l'application */
+	/** Adresse fichier de la liste des applis */
+	public static final String FICHIERLISTEAPPLI = "d:\\liste applis.xlsx"; 
+	/** Nom de l'application */
 	public static final String NOMAPPLI = "SonarLyza";
 	/** Adresse du serveur SonarQube */
 	public static final String URI = "http://ttp10-snar.ca-technologies.fr";

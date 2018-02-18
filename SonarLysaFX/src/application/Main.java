@@ -131,7 +131,6 @@ public class Main extends Application
             // Set expandable Exception into the dialog pane.
             alert.getDialogPane().setExpandableContent(expContent);
         }
-
         alert.showAndWait();
     }
 }

@@ -21,12 +21,17 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import model.enums.Environnement;
 import model.excel.Anomalie;
 
+/**
+ * Classe de getion du fichier Excel des anomalies SonarQube
+ * 
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
 public class ControlAno extends ControlExcel
 {
 	/*---------- ATTRIBUTS ----------*/
 	
-	// Liste des indices des colonnes
-	
+	// Liste des indices des colonnes	
 	@SuppressWarnings("unused")
 	private int colDir;
 	@SuppressWarnings("unused")
@@ -76,7 +81,6 @@ public class ControlAno extends ControlExcel
 	protected ControlAno(File file) throws InvalidFormatException, IOException
 	{
 		super(file);
-		calculIndiceColonnes();
 	}
 	
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -215,12 +219,8 @@ public class ControlAno extends ControlExcel
 		write();
 	}
 	
-	/*---------- METHODES PRIVEES ----------*/
-	
-	/**
-	 * initialise les numéro des colonnes du fichier Excelvenant de la PIC.
-	 */
-	private void calculIndiceColonnes()
+	@Override
+	protected void calculIndiceColonnes()
 	{
 		// Récupération de la première feuille
 		Sheet sheet = wb.getSheetAt(0);
@@ -278,6 +278,8 @@ public class ControlAno extends ControlExcel
 			}
 		}	
 	}
+	
+	   /*---------- METHODES PRIVEES ----------*/
 	
 	/**
 	 * Liste des numéros de colonnes des feuilles d'environnement

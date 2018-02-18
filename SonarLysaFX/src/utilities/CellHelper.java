@@ -15,6 +15,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import utilities.enums.Bordure;
 import utilities.enums.Couleur;
 
+/**
+ * Classe de getion des styles de cellule Excel.
+ * 
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
 public class CellHelper
 {
     /* ---------- ATTIBUTES ---------- */
@@ -39,11 +45,12 @@ public class CellHelper
      * @param side
      *          {@link utilities.utilities.enums.Side}
      * @return
+     * @throws IllegalAccessException 
      */
     public CellStyle getStyle(Couleur couleur, Bordure bordure)
     {
-        if (couleur == null)
-            return map.get(Couleur.BLANC).get(Bordure.VIDE);
+        if (couleur == null || bordure == null)
+            throw new IllegalArgumentException("La couleur ou la bordure ne peuvent être nulles");
 
         return map.get(couleur).get(bordure);
     }
@@ -78,10 +85,8 @@ public class CellHelper
         CellStyle style = wb.createCellStyle();
 
         // Renvoie un style vide sans statut d'incident
-        if (couleur == null)
-            return style;
-        if (bord == null)
-            bord = Bordure.VIDE;
+        if (couleur == null || bord == null)
+            throw new IllegalArgumentException("La couleur ou la bordure ne peuvent être nulles");
 
         // Alignement centré plus ligne fine en bordure
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -92,7 +97,7 @@ public class CellHelper
         style.setBorderTop(BorderStyle.THIN);
         style.setWrapText(true);
 
-        // Switch sur le statut de l'incident pour choisir la couleur du fond
+        // Switch pour sélectionner la couleur de fond
         switch (couleur)
         {
             case GRIS :
@@ -112,8 +117,7 @@ public class CellHelper
         }
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // Switch sur le placement de la cellule, rajout d'un bordure plus épaisse au bord du tableau
-
+        // Switch sur le placement de la cellule, rajout d'une bordure plus épaisse au bord du tableau
         switch (bord)
         {
             case BAS :

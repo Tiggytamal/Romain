@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -18,56 +20,69 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import application.Main;
+import model.excel.InfoClarity;
 import model.xml.Application;
 import model.xml.ParametreXML;
+import utilities.Utilities;
 
-
+/**
+ * Classe de gestion des paramètres de XML de l'application
+ * 
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
 public class ControlXML
 {
 	/*---------- ATTRIBUTS ----------*/
 
 	private ParametreXML param;
-	private Map<String, Application> mapApplis;
-	private static final String FICHIERPARAM = "d:\\param.xml";
-	private static final String FICHIERLISTEAPPLI = "d:\\liste applis.xlsx";	
+	private File fichierParam;
+	private Map<String, Boolean> mapApplis;
+	private String jarPath;
 	
 	/*---------- CONSTRUCTEURS ----------*/
 
 	public ControlXML()
 	{
 		param = new ParametreXML();	
+        jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
+        mapApplis = new HashMap<>();
+        fichierParam = new File(jarPath + "\\param.xml");
 	}
 	
 	/*---------- METHODES PUBLIQUES ----------*/
 
 	/**
+	 * Récupère le paramètre depuis le fichier externe ou celui interne par default s'il n'existe pas.
 	 * 
 	 * @throws JAXBException
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	public void recuprerParamXML() throws JAXBException, InvalidFormatException, IOException
+	public void recuprerParamXML() throws JAXBException
 	{	
-	    File file = new File(FICHIERPARAM);
+	    JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
 	    
-		if(file.exists())
+	    // Récupération du paramétrage depuis le fichier externe
+		if(fichierParam.exists())
 		{
-			JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
-			param = (ParametreXML) context.createUnmarshaller().unmarshal(file);
-			mapApplis = new HashMap<>();
-			for (Application app : param.getListeApplications())
-			{
-				mapApplis.put(app.getNom(), app);
-			}
+	        param = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);			
 		}
+		// Récupération du paramétrage depuis le fichier interne
 		else
 		{
-			mapApplis = calculerMapApplisDepuisExcel();
-			param.setListeApplications(new ArrayList<>(mapApplis.values()));
+	        param = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
 		}
+		
+        for (Application app : param.getListeApplications())
+        {
+            mapApplis.put(app.getNom(), app.isActif());
+        }
 	}
 	
 	/**
+	 * Sauvegarde le fichier de paramètres
 	 * 
 	 * @throws JAXBException
 	 */
@@ -75,8 +90,8 @@ public class ControlXML
 	{
        JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
        Marshaller jaxbMarshaller = context.createMarshaller();
-       jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-       jaxbMarshaller.marshal(param, new File(FICHIERPARAM));
+       jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);      
+       jaxbMarshaller.marshal(param, fichierParam);
 	}
 	
 	/**
@@ -85,10 +100,9 @@ public class ControlXML
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	public Map<String, Application> calculerMapApplisDepuisExcel() throws InvalidFormatException, IOException
+	public void calculerListeAppsDepuisExcel(File file) throws InvalidFormatException, IOException
 	{
-		File file = new File(FICHIERLISTEAPPLI);
-		Map<String, Application> retour = new HashMap<>();
+		List<Application> retour = new ArrayList<>();
 		Workbook wb = WorkbookFactory.create(file);
 		Sheet sheet = wb.getSheetAt(0);
 
@@ -108,14 +122,19 @@ public class ControlXML
 			else
 				app.setActif(false);
 			
-			retour.put(app.getNom(), app);
+			retour.add(app);
 		}
 		wb.close();	
-		return retour;
+		param.setListeApplications(retour);
+	}
+	
+	public List<InfoClarity> recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException
+	{
+	       Workbook wb = WorkbookFactory.create(file);
+	       return null;	       
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/
-	
 	
 	/*---------- ACCESSEURS ----------*/
 	
@@ -124,7 +143,7 @@ public class ControlXML
 		return param;
 	}
 		
-	public Map<String, Application> getMapApplis()
+	public Map<String, Boolean> getMapApplis()
 	{
 		return mapApplis;
 	}

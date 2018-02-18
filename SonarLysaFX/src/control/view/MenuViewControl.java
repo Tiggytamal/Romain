@@ -18,23 +18,43 @@ public class MenuViewControl
     private MenuItem mensuel;
     @FXML
     private MenuItem applications;
+    @FXML
+    private MenuItem options;
+    @FXML
+    private MenuItem planificateur;
     
     /* ---------- METHODES PUBLIQUES ---------- */
     
     @FXML
     public void switchToMensuel(ActionEvent event) throws IOException 
     {
-        GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Mensuel.fxml"));        
+        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Mensuel.fxml"));        
         BorderPane border = MainScreen.getRoot();
-        border.setCenter(mensuelPane);
+        border.setCenter(pane);
     }
     
     @FXML
     public void switchToApplications(ActionEvent event) throws IOException 
     {
-        GridPane mensuelPane = FXMLLoader.load( getClass().getResource("/view/Applications.fxml"));        
+        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Applications.fxml"));        
         BorderPane border = MainScreen.getRoot();
-        border.setCenter(mensuelPane);
+        border.setCenter(pane);
+    }
+    
+    @FXML
+    public void switchToOptions(ActionEvent event) throws IOException 
+    {
+        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Options.fxml"));        
+        BorderPane border = MainScreen.getRoot();
+        border.setCenter(pane);
+    }
+    
+    @FXML
+    public void switchToPlanificateur(ActionEvent event) throws IOException 
+    {
+        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Planificateur.fxml"));        
+        BorderPane border = MainScreen.getRoot();
+        border.setCenter(pane);
     }
 
     /* ---------- METHODES PRIVEES ---------- */

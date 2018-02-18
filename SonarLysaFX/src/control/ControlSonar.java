@@ -23,7 +23,6 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import model.excel.Anomalie;
 import model.excel.LotSuiviPic;
-import model.xml.Application;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Projet;
@@ -95,7 +94,7 @@ public class ControlSonar
     public void creerVueProduction(File file) throws InvalidFormatException, IOException
     {
         ControlPic excel = new ControlPic(file);
-        Map<LocalDate, List<Vue>> mapLot = excel.recupLotExcel(recupererLotsSonarQube());
+        Map<LocalDate, List<Vue>> mapLot = excel.recupLotsExcel(recupererLotsSonarQube());
         excel.close();
         if (mapLot.size() == 1)
         {
@@ -357,11 +356,11 @@ public class ControlSonar
             return false;
         }
 
-        Map<String, Application> vraiesApplis = controlXML.getMapApplis();
+        Map<String, Boolean> vraiesApplis = controlXML.getMapApplis();
 
         if (vraiesApplis.keySet().contains(application))
         {
-            if (vraiesApplis.get(application).isActif())
+            if (vraiesApplis.get(application))
             {
                 return true;
             }

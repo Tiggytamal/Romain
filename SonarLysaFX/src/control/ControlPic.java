@@ -61,7 +61,6 @@ public class ControlPic extends ControlExcel
 	public ControlPic(File file) throws InvalidFormatException, IOException
 	{
 		super(file);
-		calculIndiceColonnes();
 	}
 
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -79,7 +78,7 @@ public class ControlPic extends ControlExcel
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	protected Map<LocalDate, List<Vue>> recupLotExcel(Map<String, Vue> mapQube) throws IOException
+	protected Map<LocalDate, List<Vue>> recupLotsExcel(Map<String, Vue> mapQube) throws IOException
 	{
 		// Récupération de la première feuille
 		Sheet sheet = wb.getSheetAt(0);
@@ -128,7 +127,8 @@ public class ControlPic extends ControlExcel
 	/**
 	 * initialise les numéro des colonnes du fichier Excelvenant de la PIC.
 	 */
-	private void calculIndiceColonnes()
+	@Override
+	protected void calculIndiceColonnes()
 	{
 		// Récupération de la première feuille
 		Sheet sheet = wb.getSheetAt(0);
