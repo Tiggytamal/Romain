@@ -12,20 +12,31 @@ import org.quartz.SchedulerException;
 
 import control.quartz.ControlJob;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+/**
+ * JUnit pour control.quartz.ControlJob
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
+@TestInstance (TestInstance.Lifecycle.PER_CLASS)
 public class ControlJobTest
 {
-	private ControlJob handler;
+    private ControlJob handler;
 
-	@BeforeAll
-	public void init() throws InvalidFormatException, JAXBException, IOException, SchedulerException
-	{
-		handler = new ControlJob();
-	}
+    @BeforeAll
+    public void init() throws InvalidFormatException, JAXBException, IOException, SchedulerException
+    {
+        handler = new ControlJob();
+    }
 
-	@Test
-	public void testPremierTest() throws SchedulerException, InterruptedException
-	{
-		handler.creationJobAnomaliesSonar();
-	}
+    @Test
+    public void testCreationJobAnomaliesSonar() throws SchedulerException, InterruptedException
+    {
+        handler.creationJobAnomaliesSonar();
+    }
+
+    @Test
+    public void testFermeturePlanificateur() throws SchedulerException, InterruptedException
+    {
+        handler.fermeturePlanificateur();
+    }
 }

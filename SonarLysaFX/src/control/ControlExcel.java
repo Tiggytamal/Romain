@@ -1,7 +1,6 @@
 package control;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -11,9 +10,9 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
 public abstract class ControlExcel
 {
@@ -43,7 +42,7 @@ public abstract class ControlExcel
 		wb.close();
 	}
 	
-	protected void write() throws FileNotFoundException, IOException
+	protected void write() throws IOException
 	{
 		wb.write(new FileOutputStream(file.getName()));
 	}

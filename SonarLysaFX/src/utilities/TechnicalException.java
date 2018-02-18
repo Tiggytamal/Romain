@@ -8,19 +8,18 @@ import utilities.enums.Severity;
  * @author ETP8137 - Grégoire Mathon
  *
  */
-public class FunctionalException extends RuntimeException
+public class TechnicalException extends RuntimeException
 {
     private static final long serialVersionUID = 1L;    
-    private final Severity severity;  
+    private static final Severity severity = Severity.SEVERITY_ERROR;  
 
     /**
      * Constructeur des erreurs fonctionnelles.<br>
      * Choix de la sévérité (INFO ou ERROR), du message afficher, ainsi que de l'affichage ou non de la fenêtre du stacktrace
      */
-    public FunctionalException(Severity severity, String message)
+    public TechnicalException(String message, Throwable cause)
     {
-        super(message);
-        this.severity = severity;
+        super(message, cause);
     }
     
     /**

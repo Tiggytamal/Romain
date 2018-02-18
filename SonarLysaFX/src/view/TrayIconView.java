@@ -33,7 +33,7 @@ public class TrayIconView
 		tray = SystemTray.getSystemTray();
 
 		// Image utilisée pour l'icône
-		Image image = Toolkit.getDefaultToolkit().createImage("d:\\SONAR16.jpg");
+		Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/sonar.jpg"));
 
 		// Initialisation de l'icone
 		trayIcon = new TrayIcon(image, Statics.NOMAPPLI);
@@ -43,12 +43,12 @@ public class TrayIconView
 		
 		// Création du menu
 		PopupMenu menu = new PopupMenu(Statics.NOMAPPLI);
-		MenuItem item  = new MenuItem("fermer");
-		item.addActionListener(e -> System.exit(0));
-		MenuItem item2  = new MenuItem("ouvrir");
-		item2.addActionListener(e -> removeFromTray());
-		menu.add(item);
-		menu.add(item2);
+		MenuItem fermer  = new MenuItem("fermer");
+		fermer.addActionListener(e -> System.exit(0));
+		MenuItem ouvrir  = new MenuItem("ouvrir");
+		ouvrir.addActionListener(e -> removeFromTray());
+	    menu.add(ouvrir);
+		menu.add(fermer);
 		trayIcon.setPopupMenu(menu);
 	}
 	
@@ -65,13 +65,17 @@ public class TrayIconView
 	}
 	
 	/**
-	 * Retire l'icoen de la barre de notifications et affiche la fenêtre de l'application
+	 * Retire l'icone de la barre de notifications et affiche la fenêtre de l'application
 	 */
 	public void removeFromTray()
 	{
 		tray.remove(trayIcon);
-		Platform.runLater(stage::show);
-		Platform.runLater(stage::toFront);
+		Platform.runLater(() -> { 
+		    stage.setIconified(false);
+		    stage.show();
+		    stage.toFront();		    
+		});
+	    Platform.setImplicitExit(true);
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/

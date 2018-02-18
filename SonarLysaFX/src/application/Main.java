@@ -14,7 +14,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import utilities.FunctionalException;
-import utilities.Severity;
+import utilities.TechnicalException;
+import utilities.enums.Severity;
 
 /**
  * Entrée du programme avec la gestion des erreurs
@@ -43,7 +44,13 @@ public class Main extends Application
 		        {
 		            // Affichage informations de l'erreur fonctionnelle
                     FunctionalException ex1 = (FunctionalException) ex0.getTargetException();
-                    createAlert(ex1.getSeverity(), ex1, ex1.getMessage());
+                    createAlert(ex1.getSeverity(), null, ex1.getMessage());
+		        }
+		        else if (ex0.getTargetException() instanceof TechnicalException)
+		        {
+		         // Affichage informations de l'erreur fonctionnelle
+		            TechnicalException ex1 = (TechnicalException) ex0.getTargetException();
+                    createAlert(ex1.getSeverity(), ex1.getCause(), ex1.getMessage());
 		        }
 		        else
 		        {
@@ -98,7 +105,7 @@ public class Main extends Application
         }
 
         // Création du message d'exception si celle-ci est fournie.
-        if (ex != null && ex instanceof FunctionalException ? ((FunctionalException) ex).isShowException() : true)
+        if (ex != null)
         {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
@@ -127,9 +134,4 @@ public class Main extends Application
 
         alert.showAndWait();
     }
-
-	public void addAppToTray()
-	{
-		
-	}
 }

@@ -1,19 +1,18 @@
 package control.view;
 
 import java.awt.AWTException;
+import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
+import utilities.TechnicalException;
 import view.TrayIconView;
 
 public class MainScreen extends Application
@@ -23,6 +22,7 @@ public class MainScreen extends Application
 	/* Attibuts généraux */
 
 	private static BorderPane root = new BorderPane();
+	private TrayIconView trayIcon;
 
 	/* Attributs FXML */
 
@@ -31,39 +31,25 @@ public class MainScreen extends Application
 	/*---------- METHODES PUBLIQUES ----------*/
 
 	@Override
-	public void start(final Stage stage) throws Exception
+	public void start(final Stage stage) throws IOException
 	{
 		Platform.setImplicitExit(false);
+		
 		// Menu de l'application
 		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
+		
 		// Ajout au panneau principal
 		root.setTop(menu);
 
 		// Affichage de l'interface
 		final Scene scene = new Scene(root, 640, 480);
-		TrayIconView trayIcon = new TrayIconView(stage);
+		trayIcon = new TrayIconView(stage);
 		stage.setTitle("Sonar Lysa");
 		stage.setResizable(true);
 		stage.setScene(scene);
+	    stage.iconifiedProperty().addListener(new IconifiedListener());
 		stage.show();
-		stage.iconifiedProperty().addListener(new ChangeListener<Boolean>() {
 
-			@Override
-			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
-			{
-				if (newValue)
-				{
-					try
-					{
-						trayIcon.addToTray();
-					} catch (AWTException e)
-					{
-						e.printStackTrace();
-					}
-				}
-
-			}
-		});
 	}
 
 	/*---------- METHODES PRIVEES ----------*/
@@ -79,5 +65,24 @@ public class MainScreen extends Application
 	public static BorderPane getRoot()
 	{
 		return root;
+	}
+	
+	private class IconifiedListener implements ChangeListener<Boolean>
+	{
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+        {
+            if (newValue)
+            {
+                Platform.setImplicitExit(false);
+                try
+                {
+                   trayIcon.addToTray();
+                } catch (AWTException e)
+                {
+                    throw new TechnicalException("IconTray inaccessible", e.getCause());
+                }
+            }           
+        }
 	}
 }

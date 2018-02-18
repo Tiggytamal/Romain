@@ -1,19 +1,22 @@
 package control.quartz;
 
+import static org.quartz.CronScheduleBuilder.atHourAndMinuteOnGivenDaysOfWeek;
 import static org.quartz.JobBuilder.newJob;
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
-import java.time.LocalDateTime;
-
+import org.quartz.DateBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
-import utilities.DateConvert;
-
+/**
+ * Permet de gérer le planificateur des tâches.
+ * 
+ * @author ETP137 - Grégoire Mathon
+ *
+ */
 public class ControlJob
 {
 	Scheduler scheduler;
@@ -29,12 +32,15 @@ public class ControlJob
 		// Définition du job
 		JobDetail job = newJob(JobAnomaliesSonar.class).withIdentity("jobAnomaliesSonar", "group").build();
 
-		// Création d'un trigger qui démarre le soir à 23h et se répete tous les jours.
-		LocalDateTime date = LocalDateTime.now();
-		LocalDateTime soir = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 23, 00);
-		Trigger trigger = newTrigger().withIdentity("trigger", "group").startAt(DateConvert.convertToOldDate(soir)).withSchedule(simpleSchedule().withIntervalInHours(24).repeatForever()).build();
+		// Création d'un trigger qui démarre le soir à 23h et se répete tous les jours sauf le week-end.
+		Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow() .withSchedule(atHourAndMinuteOnGivenDaysOfWeek(23, 00, DateBuilder.MONDAY, DateBuilder.TUESDAY, DateBuilder.WEDNESDAY, DateBuilder.THURSDAY, DateBuilder.FRIDAY)).build();
 
 		// Mise en place du job.
 		scheduler.scheduleJob(job, trigger);
+	}
+	
+	public void fermeturePlanificateur() throws SchedulerException
+	{
+	    scheduler.shutdown();
 	}
 }

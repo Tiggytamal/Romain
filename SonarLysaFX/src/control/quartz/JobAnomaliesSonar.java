@@ -1,7 +1,6 @@
 package control.quartz;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
 import javax.xml.bind.JAXBException;
 
@@ -21,7 +20,6 @@ public class JobAnomaliesSonar implements Job
 		try
 		{
 			ControlSonar handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-			System.out.println("Lancement job" + LocalDate.now().toString());
 			handler.creerVuesQGErreur();
 		} catch (InvalidFormatException | JAXBException | IOException e)
 		{
