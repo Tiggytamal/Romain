@@ -26,7 +26,7 @@ public class ControlSonarTest
 	{
 		// handler = new ControlSonar();
 		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-		deser = false;
+		deser = true;
 	}
 
 	@Test

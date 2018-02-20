@@ -203,7 +203,7 @@ public class SonarAPI
 			return false;
 
 		Response response = appelWebservicePOST("api/views/create", vue);
-		logger.info("Creation vue : " + vue.getKey() + " : HTTP " + response.getStatus());
+		logger.info("Creation vue : " + vue.getKey() + "nom : " + vue.getName() +  ": HTTP " + response.getStatus());
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
 
@@ -265,7 +265,7 @@ public class SonarAPI
 	{
 		AjouterVueLocale localView = new AjouterVueLocale(parent.getKey(), vue.getKey());
 		Response response = appelWebservicePOST("api/views/add_local_view", localView);
-		logger.info("Vue " + vue.getKey() + " ajout sous-vue " + vue.getName() + " : HTTP " + response.getStatus());
+		logger.info("Vue " + parent.getName() + " ajout sous-vue " + vue.getName() + " : HTTP " + response.getStatus());
 		return response.getStatus() == Status.OK.getStatusCode();
 	}
 

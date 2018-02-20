@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import application.Main;
 import model.excel.InfoClarity;
+import model.excel.LotSuiviPic;
 import model.xml.Application;
 import model.xml.ParametreXML;
 import utilities.Utilities;
@@ -131,8 +132,18 @@ public class ControlXML
 	{
 	      ControlClarity control = new ControlClarity(file);
 	      Map<String, InfoClarity> retour = control.recupInfosClarityExcel();
+	      control.close();
 	      param.setMapClarity(retour);
 	      return retour;	              
+	}
+	
+	public Map<String, LotSuiviPic> recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException
+	{
+		ControlPic controlPic = new ControlPic(file);
+		Map<String, LotSuiviPic> retour = controlPic.recupLotsDepuisPic();
+		controlPic.close();
+		param.setLotsPic(retour);
+		return retour;
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/

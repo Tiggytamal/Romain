@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import model.excel.InfoClarity;
+import model.excel.LotSuiviPic;
 
 @XmlRootElement
 public class ParametreXML
@@ -17,6 +18,7 @@ public class ParametreXML
 	private List<Application> listeApplications;
 	private Map<String, String> mapParams;
 	private Map<String, InfoClarity> mapClarity; 
+	private Map<String, LotSuiviPic> lotsPic;
 
 	/*---------- ACCESSEURS ----------*/
 
@@ -54,5 +56,17 @@ public class ParametreXML
 	public void setMapClarity(Map<String, InfoClarity> mapClarity)
 	{
 		this.mapClarity = mapClarity;
+	}
+	
+    @XmlElementWrapper
+    @XmlElement(name = "maplotsPic", required = false)
+	public Map<String, LotSuiviPic> getLotsPic()
+	{
+		return lotsPic;
+	}
+
+	public void setLotsPic(Map<String, LotSuiviPic> lotsPic)
+	{
+		this.lotsPic = lotsPic;
 	}
 }

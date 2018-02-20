@@ -114,7 +114,7 @@ public class ControlSonar
 	{
 		// 1. Récupération des données depuis les fichiers Excel.
 
-		// Fichier des lots édition E30
+		// Fichier des lots édition
 		ControlPic controlPic = new ControlPic(new File(FICHIELOTSPIC));
 		Map<String, LotSuiviPic> lotsPIC = controlPic.recupLotsDepuisPic();
 		controlPic.close();
@@ -124,24 +124,22 @@ public class ControlSonar
 		
 		if (ControlSonarTest.deser)
 		{
-			mapLots = Utilities.deserialisation("d:\\lotsPic.ser", HashMap.class);
+			mapLots = Utilities.deserialisation("d:\\lotsSonar.ser", HashMap.class);
 		}
 		else
 		{
 			mapLots = lotSonarQGError(new String[] { "13", "14" });
-			Utilities.serialisation("d:\\lotsPic", mapLots);
+			Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
 		}
 
 		// 3. Supression des lots déjà créés et création des feuille excel avec les nouvelles erreurs
-
 		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
 		// 4. Création des vues
 		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
 		{
 			// Création de la vue et envoie vers SonarQube
-			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(),
-			        "Vue regroupant tous les lots avec des composants en erreur", true);
+			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
 
 			for (String lot : entry.getValue())
 			{
@@ -279,15 +277,10 @@ public class ControlSonar
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
-	private Map<String, Set<String>> lotSonarQGError(String[] versions) throws IOException
+	private Map<String, Set<String>> lotSonarQGError(String[] versions)
 	{
-//		Alert alertBox = new Alert(AlertType.INFORMATION);
-//		alertBox.setContentText("Récupération des composants");
-//		alertBox.initStyle(StageStyle.UTILITY);
-//		alertBox.show();
 		// Récupération des composants Sonar selon les version demandées
 		Map<String, List<Projet>> mapProjets = recupererComposantsSonarVersion(versions);
-//		alertBox.setContentText("Composants récupéreés");
 
 		// Création de la map de retour
 		HashMap<String, Set<String>> retour = new HashMap<>();
@@ -517,7 +510,7 @@ public class ControlSonar
 	}
 
 	/**
-	 * Permet de mettre à jour le fichier des anomalies Sonar, en allant chercher les nouvelles dans Sonar et en vérifiant celle qui ne sont plus d'actualité.
+	 * Permet de mettre à jour le fichier des anomalies Sonar, en allant chercher les nouvelles dans Sonar et en vérifiant celles qui ne sont plus d'actualité.
 	 * 
 	 * @param lotsPIC
 	 *            Fichier excel d'extraction de la PIC de tous les lots.
@@ -532,8 +525,9 @@ public class ControlSonar
 		ControlAno controlAno = new ControlAno(file);
 
 		// Lecture du fichier pour remonter les anomalies en cours.
-		List<String> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
+		Map<String, Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
 		
+		// Liste des anomalies à ajouter après traitement
 		List<Anomalie> anoAajouter = new ArrayList<>();
 		
 		// Iteration sur les lots du fichier des anomalies en cours pour resortir celles qui n'ont plus une Quality Gate bloquante.
@@ -542,6 +536,7 @@ public class ControlSonar
 		{
 			lotsEnErreur.addAll(value);
 		}
+		
 		controlAno.majAnoOK(lotsEnErreur);
 
 		// Itération sur les lots en erreurs venant de Sonar pour chaque version de composants (13, 14, ...)
@@ -554,7 +549,7 @@ public class ControlSonar
 			{
 				String numeroLot = iter.next();
 				// Si le lot est déjà dans la liste des anomalies, on le retire de la liste.
-				if (listeLotenAno.contains(numeroLot))
+				if (listeLotenAno.keySet().contains(numeroLot))
 				{
 					iter.remove();
 				}
