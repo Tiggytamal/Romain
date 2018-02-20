@@ -16,15 +16,17 @@ import control.ControlSonar;
 import junit.TestUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ControlSonarTest
+public class ControlSonarTest
 {
 	private ControlSonar handler;
+	public static boolean deser;
 
 	@BeforeAll
-	public void init() throws InvalidFormatException, JAXBException, IOException
+	public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
 	{
 		// handler = new ControlSonar();
 		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
+		deser = false;
 	}
 
 	@Test
@@ -73,8 +75,9 @@ class ControlSonarTest
 		handler.creerVueParApplication();
 	}
 
+
 	@Test
-	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException, ClassNotFoundException
+	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException, JAXBException
 	{
 		handler.creerVuesQGErreur();
 	}

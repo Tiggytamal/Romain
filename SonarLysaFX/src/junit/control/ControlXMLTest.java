@@ -26,7 +26,9 @@ public class ControlXMLTest
 	@Test
 	public void testCalculerListeApplisDepuisExcel() throws InvalidFormatException, IOException, JAXBException
 	{
-		handler.calculerListeAppsDepuisExcel(new File("d:\\param.xml"));
+		handler.calculerListeAppsDepuisExcel(new File("d:\\liste applis.xlsx"));
+		handler.recupInfosClarityDepuisExcel(new File("d:\\Referentiel_Projets.xlsm"));
+		handler.saveParam();
 	}
 	
 	@Test

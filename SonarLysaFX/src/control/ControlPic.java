@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -78,7 +79,7 @@ public class ControlPic extends ControlExcel
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	protected Map<LocalDate, List<Vue>> recupLotsExcel(Map<String, Vue> mapQube) throws IOException
+	protected Map<LocalDate, List<Vue>> recupLotsExcelPourMEP(Map<String, Vue> mapQube) throws IOException
 	{
 		// Récupération de la première feuille
 		Sheet sheet = wb.getSheetAt(0);
@@ -92,33 +93,45 @@ public class ControlPic extends ControlExcel
 		return retour;
 	}
 	
-	protected Map<String, LotSuiviPic> recupLotAnomalieExcel()
+	/**
+	 * Permet de remonter tous les lots depuis l'extraction de l'outils de suivi Pic
+	 * 
+	 * @return
+	 */
+	protected Map<String, LotSuiviPic> recupLotsDepuisPic()
 	{
+		// Map de retour
 		Map<String, LotSuiviPic> retour = new HashMap<>();
-		// Récupération de la première feuille
-		Sheet sheet = wb.getSheetAt(0);
-		
-		// Itération sur chaque ligne pour récupérer les données
-		for (int i = 1; i < sheet.getLastRowNum(); i++)
+
+		// Itération sur toutes les feuilles du fichier Excel
+		Iterator<Sheet> iter = wb.sheetIterator();
+		while (iter.hasNext())
 		{
-			Row row = sheet.getRow(i);
-			// Création de l'objet
-			LotSuiviPic lot = new LotSuiviPic();
-			lot.setLot(String.valueOf((int) row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()));
-			lot.setLibelle(row.getCell(colLibelle, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-			lot.setProjetClarity(row.getCell(colClarity, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-			lot.setCpiProjet(row.getCell(colCpi, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-			lot.setEdition(row.getCell(colEdition, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-			lot.setNbreComposants((int) row.getCell(colNbCompos, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()); 
-			lot.setNbrePaquets((int) row.getCell(colNbpaquets, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
-			lot.setBuild(DateConvert.localDate(row.getCell(colBuild, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-			lot.setDevtu(DateConvert.localDate(row.getCell(colDevtu, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-			lot.setTfon(DateConvert.localDate(row.getCell(colTfon, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-			lot.setVmoe(DateConvert.localDate(row.getCell(colVmoe, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-			lot.setVmoa(DateConvert.localDate(row.getCell(colVmoa, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-			lot.setLivraison(DateConvert.localDate(row.getCell(colLiv, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));			
-			retour.put(lot.getLot(), lot);
-		}		
+			Sheet sheet = iter.next();	
+			
+			// Itération sur chaque ligne pour récupérer les données
+			for (int i = 1; i < sheet.getLastRowNum(); i++)
+			{
+				Row row = sheet.getRow(i);
+				
+				// Création de l'objet
+				LotSuiviPic lot = new LotSuiviPic();
+				lot.setLot(String.valueOf((int) row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()));
+				lot.setLibelle(row.getCell(colLibelle, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+				lot.setProjetClarity(row.getCell(colClarity, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+				lot.setCpiProjet(row.getCell(colCpi, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+				lot.setEdition(row.getCell(colEdition, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+				lot.setNbreComposants((int) row.getCell(colNbCompos, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()); 
+				lot.setNbrePaquets((int) row.getCell(colNbpaquets, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
+				lot.setBuild(DateConvert.localDate(row.getCell(colBuild, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+				lot.setDevtu(DateConvert.localDate(row.getCell(colDevtu, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+				lot.setTfon(DateConvert.localDate(row.getCell(colTfon, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+				lot.setVmoe(DateConvert.localDate(row.getCell(colVmoe, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+				lot.setVmoa(DateConvert.localDate(row.getCell(colVmoa, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+				lot.setLivraison(DateConvert.localDate(row.getCell(colLiv, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));			
+				retour.put(lot.getLot(), lot);
+			}	
+		}
 		return retour;
 	}
 	

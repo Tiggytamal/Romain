@@ -1,5 +1,9 @@
 package model.excel;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class InfoClarity
 {
     /*---------- ATTRIBUTS ----------*/
@@ -21,6 +25,7 @@ public class InfoClarity
     /**
      * @return the actif
      */
+    @XmlAttribute (name = "actif")
     public boolean isActif()
     {
         return actif;
@@ -35,6 +40,7 @@ public class InfoClarity
     /**
      * @return the codeProjet
      */
+    @XmlAttribute (name = "codeClarity")
     public String getCodeClarity()
     {
         return codeClarity;
@@ -49,6 +55,7 @@ public class InfoClarity
     /**
      * @return the libelleProjet
      */
+    @XmlAttribute (name = "libelleProjet")
     public String getLibelleProjet()
     {
         return libelleProjet;
@@ -63,6 +70,7 @@ public class InfoClarity
     /**
      * @return the chefProjet
      */
+    @XmlAttribute (name = "chefProjet")
     public String getChefProjet()
     {
         return chefProjet;
@@ -77,6 +85,7 @@ public class InfoClarity
     /**
      * @return the edition
      */
+    @XmlAttribute (name = "edition")
     public String getEdition()
     {
         return edition;
@@ -91,6 +100,7 @@ public class InfoClarity
     /**
      * @return the direction
      */
+    @XmlAttribute (name = "direction")
     public String getDirection()
     {
         return direction;
@@ -105,6 +115,7 @@ public class InfoClarity
     /**
      * @return the departement
      */
+    @XmlAttribute (name = "departement")
     public String getDepartement()
     {
         return departement;
@@ -119,6 +130,7 @@ public class InfoClarity
     /**
      * @return the service
      */
+    @XmlAttribute (name = "service")
     public String getService()
     {
         return service;

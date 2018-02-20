@@ -3,7 +3,9 @@ package control;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -46,19 +48,21 @@ public class ControlClarity extends ControlExcel
     
     /*---------- METHODES PUBLIQUES ----------*/
 
-    public List<InfoClarity> recupInfosClarityExcel()
+    public Map<String, InfoClarity> recupInfosClarityExcel()
     {
         // Récupération de la première feuille
         Sheet sheet = wb.getSheetAt(0);
         
-        List<InfoClarity> retour = new ArrayList<>();
+        Map<String, InfoClarity> retour = new HashMap<>();
         for (int i = 1; i < sheet.getLastRowNum(); i++) 
         {
             Row row = sheet.getRow(i);
             if (row.getCell(colClarity) != null)
-                retour.add(traitementLigne(row));
-        }
-        
+            {
+            	InfoClarity info = traitementLigne(row);
+                retour.put(info.getCodeClarity(), info);
+            }
+        }        
         return retour;
     }
 

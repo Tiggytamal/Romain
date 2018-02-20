@@ -49,7 +49,6 @@ public class MainScreen extends Application
 		stage.setScene(scene);
 	    stage.iconifiedProperty().addListener(new IconifiedListener());
 		stage.show();
-
 	}
 
 	/*---------- METHODES PRIVEES ----------*/

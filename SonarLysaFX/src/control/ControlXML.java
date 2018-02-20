@@ -11,7 +11,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -128,10 +127,12 @@ public class ControlXML
 		param.setListeApplications(retour);
 	}
 	
-	public List<InfoClarity> recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException
+	public Map<String, InfoClarity> recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException
 	{
-	       Workbook wb = WorkbookFactory.create(file);
-	       return null;	       
+	      ControlClarity control = new ControlClarity(file);
+	      Map<String, InfoClarity> retour = control.recupInfosClarityExcel();
+	      param.setMapClarity(retour);
+	      return retour;	              
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/

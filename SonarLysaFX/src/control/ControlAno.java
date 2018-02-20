@@ -3,23 +3,22 @@ package control;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
 
-import model.enums.Environnement;
 import model.excel.Anomalie;
+import utilities.CellHelper;
+import utilities.enums.Bordure;
 
 /**
  * Classe de getion du fichier Excel des anomalies SonarQube
@@ -32,30 +31,18 @@ public class ControlAno extends ControlExcel
 	/*---------- ATTRIBUTS ----------*/
 	
 	// Liste des indices des colonnes	
-	@SuppressWarnings("unused")
 	private int colDir;
-	@SuppressWarnings("unused")
 	private int colDepart;
-	@SuppressWarnings("unused")
 	private int colService;
-	@SuppressWarnings("unused")
-	private int colresp;
-	@SuppressWarnings("unused")
+	private int colResp;
 	private int colClarity;
-	@SuppressWarnings("unused")
 	private int colLib;
-	@SuppressWarnings("unused")
 	private int colCpi;
-	@SuppressWarnings("unused")
 	private int colEdition;
 	private int colLot;
-	@SuppressWarnings("unused")
 	private int colEnv;
-	@SuppressWarnings("unused")
 	private int colAno;
-	@SuppressWarnings("unused")
 	private int colEtat;
-	@SuppressWarnings("unused")
 	private int colRemarque;
 	
 	// Liste des noms de colonnes
@@ -72,6 +59,7 @@ public class ControlAno extends ControlExcel
 	private static final String ANOMALIE = "Anomalie";
 	private static final String ETAT = "Etat";
 	private static final String REMARQUE = "Remarque";
+	private static final String TRAITE = "Traité"; 
 	
 	// Nom de la feuillle avec les naomalies en cours
 	private static final String FP = "SUIVI Qualité";
@@ -103,37 +91,39 @@ public class ControlAno extends ControlExcel
 		return retour;
 	}
 	
-	protected void createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
+	protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
 	{	
 		// Création de la feuille de calcul
 		Sheet sheet = wb.getSheet(nomSheet);
+		
+		// Création de l'utilitaire de gestion des styles
+		CellHelper helper = new CellHelper(wb);
+		
+		List<Anomalie> retour = new ArrayList<>();
+		
+		//Liste des lots existants. On itère si la feuille existe déjà, pour récupérer tous les numéros de lot déjà enregistrés.
+		List<String> lotsExistants = new ArrayList<>();
 		if (sheet != null)
+		{
+			Iterator<Row> iter = sheet.rowIterator();
+			while (iter.hasNext())
+			{
+				Row row = iter.next();
+				Cell cellLot = row.getCell(Index.LOTI.ordinal());
+				Cell cellT = row.getCell(Index.TRAITEI.ordinal());
+				if (cellLot.getCellTypeEnum() == CellType.STRING && cellT.getCellTypeEnum() == CellType.STRING && cellT.getStringCellValue().equals("O"))
+					lotsExistants.add(iter.next().getCell(Index.LOTI.ordinal()).getStringCellValue());
+			}
 			wb.removeSheetAt(wb.getSheetIndex(sheet));		
+		}
+		
+		// Recréation de la feuille
 		sheet = wb.createSheet(nomSheet);
 		Cell cell;
 		
-		// Création des styles de cellules
-		CellStyle style = wb.createCellStyle();
-        style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setBorderLeft(BorderStyle.THIN);
-        style.setBorderRight(BorderStyle.THIN);
-        
-        CellStyle styleTitre = wb.createCellStyle();
-        styleTitre.cloneStyleFrom(style);
-        styleTitre.setAlignment(HorizontalAlignment.CENTER);
-        styleTitre.setFillForegroundColor(IndexedColors.AQUA.index);
-        styleTitre.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        styleTitre.setBorderBottom(BorderStyle.THIN);
-        
-        CellStyle styleJaune = wb.createCellStyle();
-        styleJaune.cloneStyleFrom(style);       
-		styleJaune.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
-		styleJaune.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-		
-		CellStyle styleCentre = wb.createCellStyle();
-		styleCentre.cloneStyleFrom(style);
-		styleCentre.setAlignment(HorizontalAlignment.CENTER);
-		
+		// Création du style des titres      
+        CellStyle styleTitre = helper.getStyle(IndexedColors.AQUA, Bordure.BAS, HorizontalAlignment.CENTER);
+        		
 		// Création des noms des colonnes
 		Row titres = sheet.createRow(0);
 		for (Index index : Index.values())
@@ -142,64 +132,74 @@ public class ControlAno extends ControlExcel
 			cell.setCellStyle(styleTitre);	
 			switch (index)
 			{
-				case LOTE:
+				case LOTI:
 					cell.setCellValue(LOT);
 					break;
-				case EDITIONE:
+				case EDITIONI:
 					cell.setCellValue(EDITION);
 					break;
-				case ENVE:
+				case ENVI:
 					cell.setCellValue(ENV);
+					break;
+				case TRAITEI :
+					cell.setCellValue(TRAITE);
 					break;
 			}
 		}
 		
 		for (Anomalie anomalie : anoAcreer)
 		{
-			Row row = sheet.createRow(sheet.getLastRowNum() +1 );
-			Environnement env = anomalie.getEnvironnement();
-			if (env == Environnement.VMOA || env == Environnement.EDITION)
+			Row row = sheet.createRow(sheet.getLastRowNum() +1);
+			if (lotsExistants.contains(anomalie.getLot()))
 			{
-				cell = row.createCell(Index.LOTE.ordinal());
+				cell = row.createCell(Index.LOTI.ordinal());
 				cell.setCellValue(anomalie.getLot());
-				cell.setCellStyle(styleCentre);
-				cell = row.createCell(Index.EDITIONE.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.WHITE, Bordure.GAUCHE, HorizontalAlignment.CENTER));
+				cell = row.createCell(Index.EDITIONI.ordinal());
 				cell.setCellValue(anomalie.getEdition());
-				cell.setCellStyle(style);
-				cell = row.createCell(Index.ENVE.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.WHITE, Bordure.VIDE));
+				cell = row.createCell(Index.ENVI.ordinal());
 				cell.setCellValue(anomalie.getEnvironnement().toString());
-				cell.setCellStyle(styleCentre);
+				cell.setCellStyle(helper.getStyle(IndexedColors.WHITE, Bordure.VIDE, HorizontalAlignment.CENTER));
+				cell = row.createCell(Index.TRAITEI.ordinal());
+				cell.setCellValue("O");
+				cell.setCellStyle(helper.getStyle(IndexedColors.WHITE, Bordure.DROITE, HorizontalAlignment.CENTER));
 			}
 			else
 			{
-				cell = row.createCell(Index.LOTE.ordinal());
-				cell.setCellStyle(styleCentre);
+				cell = row.createCell(Index.LOTI.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.LIGHT_YELLOW, Bordure.GAUCHE, HorizontalAlignment.CENTER));
 				cell.setCellValue(anomalie.getLot());
-				cell = row.createCell(Index.EDITIONE.ordinal());
-				cell.setCellStyle(style);
+				cell = row.createCell(Index.EDITIONI.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.LIGHT_YELLOW, Bordure.VIDE));
 				cell.setCellValue(anomalie.getEdition());
-				cell = row.createCell(Index.ENVE.ordinal());
-				cell.setCellStyle(styleCentre);
-				cell.setCellValue(anomalie.getEnvironnement().toString());	
+				cell = row.createCell(Index.ENVI.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.LIGHT_YELLOW, Bordure.VIDE, HorizontalAlignment.CENTER));
+				cell.setCellValue(anomalie.getEnvironnement().toString());
+				cell = row.createCell(Index.TRAITEI.ordinal());
+				cell.setCellStyle(helper.getStyle(IndexedColors.LIGHT_YELLOW, Bordure.DROITE, HorizontalAlignment.CENTER));
+				cell.setCellValue("N");
+				retour.add(anomalie);
 			}			
 		}
 		
-		sheet.autoSizeColumn(Index.LOTE.ordinal());
-		sheet.autoSizeColumn(Index.EDITIONE.ordinal());
-		sheet.autoSizeColumn(Index.ENVE.ordinal());
+		sheet.autoSizeColumn(Index.LOTI.ordinal());
+		sheet.autoSizeColumn(Index.EDITIONI.ordinal());
+		sheet.autoSizeColumn(Index.ENVI.ordinal());
 		// Ecriture du fichier Excel
 		write();
+		return retour;
 	}
 	
 	/**
 	 * Permet de mettre à jour les anomalies avec une quality Gate bonne
-	 * @param lotAnos
+	 * @param lotsEnErreur
 	 * 				Liste de tous les lots avec un Quality Gate à "ERROR".
 	 * @throws IOException 
 	 */
-	protected void majAnoOK(Set<String> lotAnos) throws IOException
+	protected void majAnoOK(Set<String> lotsEnErreur) throws IOException
 	{
-		// Récupération de la fuille avec les anomalies
+		// Récupération de la feuille avec les anomalies
 		Sheet sheet = wb.getSheet(FP);
 		
 		// Itération sur chaque ligne
@@ -207,16 +207,74 @@ public class ControlAno extends ControlExcel
 		{
 			Row row = sheet.getRow(i);
 			
-			// Si le numéro n'est pas présent dans la liste, c'est que le Quality gate est bon
+			// Si le numéro n'est pas présent dans la liste, c'est que le Quality Gate est bon
 			String string = row.getCell(colLot).getStringCellValue().substring(4);
-			if (!lotAnos.contains(string))
+			if (!lotsEnErreur.contains(string))
 			{
-	           majCouleurLigne(row, IndexedColors.LIGHT_GREEN);
+				majCouleurLigne(row, IndexedColors.LIGHT_GREEN);
+			}
+			else
+			{
+				majCouleurLigne(row, IndexedColors.WHITE);
 			}
 		}		
 		
-		//Ecriture fu fichier
+		//Ecriture du fichier
 		write();
+	}
+	
+	/**
+	 * Rajoute les nouvelles anomalies à la première page du fichier Excel
+	 * @param anoAajouter
+	 */
+	protected void majNouvellesAno(List<Anomalie> anoAajouter)
+	{
+		// Récupération de la feuille avec les anomalies
+		Sheet sheet = wb.getSheet(FP);
+		CellHelper helper = new CellHelper(wb);
+		CellStyle vide = helper.getStyle(IndexedColors.RED, Bordure.VIDE);
+		CellStyle videCentre = helper.getStyle(IndexedColors.RED, Bordure.VIDE, HorizontalAlignment.CENTER);
+		
+		for (Anomalie ano : anoAajouter)
+		{
+			Row row = sheet.createRow(sheet.getLastRowNum() +1);
+			Cell cell = row.createCell(colDir);
+			cell.setCellStyle(helper.getStyle(IndexedColors.RED, Bordure.GAUCHE));
+			cell.setCellValue(ano.getDirection());
+			cell = row.createCell(colDepart);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getDepartement());
+			cell = row.createCell(colService);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getService());
+			cell = row.createCell(colResp);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getResponsableService());
+			cell = row.createCell(colClarity);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getProjetClarity());
+			cell = row.createCell(colLib);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getLibelleProjet());
+			cell = row.createCell(colCpi);
+			cell.setCellStyle(vide);
+			cell.setCellValue(ano.getCpiProjet());
+			cell = row.createCell(colEdition);
+			cell.setCellStyle(videCentre);
+			cell.setCellValue(ano.getEdition());
+			cell = row.createCell(colLot);
+			cell.setCellStyle(videCentre);
+			cell.setCellValue(ano.getLot());
+			cell = row.createCell(colEnv);
+			cell.setCellStyle(videCentre);
+			cell.setCellValue(ano.getEnvironnement().toString());
+			cell = row.createCell(colAno);
+			cell.setCellStyle(videCentre);
+			cell = row.createCell(colEtat);
+			cell.setCellStyle(vide);
+			cell = row.createCell(colRemarque);
+			cell.setCellStyle(helper.getStyle(IndexedColors.RED, Bordure.DROITE));
+		}
 	}
 	
 	@Override
@@ -242,7 +300,7 @@ public class ControlAno extends ControlExcel
 					    colService = cell.getColumnIndex();
 						break;
 					case RESPSERVICE:
-					    colresp = cell.getColumnIndex();
+					    colResp = cell.getColumnIndex();
 						break;
 					case CLARITY:
 					    colClarity = cell.getColumnIndex();
@@ -288,7 +346,7 @@ public class ControlAno extends ControlExcel
 	 */
 	private enum Index
 	{
-		LOTE,EDITIONE,ENVE;
+		LOTI, EDITIONI, ENVI, TRAITEI;
 	}
 	/*---------- ACCESSEURS ----------*/
 }
