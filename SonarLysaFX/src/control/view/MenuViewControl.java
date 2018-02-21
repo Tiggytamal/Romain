@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
@@ -44,7 +45,7 @@ public class MenuViewControl
     @FXML
     public void switchToOptions(ActionEvent event) throws IOException 
     {
-        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Options.fxml"));        
+        SplitPane pane = FXMLLoader.load( getClass().getResource("/view/Options.fxml"));        
         BorderPane border = MainScreen.getRoot();
         border.setCenter(pane);
     }

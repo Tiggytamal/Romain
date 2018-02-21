@@ -22,14 +22,13 @@ import javafx.stage.FileChooser;
 public class MensuelViewControl
 {
     /* ---------- ATTIBUTS ---------- */
-    
-    
+       
     private ControlSonar handler;
     private LocalDate dateDebut;
     private LocalDate dateFin;
     
     @FXML
-    public void initialize() throws InvalidFormatException, JAXBException, IOException
+    public void initialize() throws JAXBException
     {
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
         selectPane.getChildren().clear();
@@ -64,9 +63,6 @@ public class MensuelViewControl
     private ToggleGroup toggleGroup;
     @FXML
     private VBox selectPane;
-
-
-    
     
     /* ---------- METHODES PUBLIQUES ---------- */
     
