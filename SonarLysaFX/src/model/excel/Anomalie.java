@@ -21,8 +21,10 @@ public class Anomalie
 	private String cpiProjet;
 	private String edition;
 	private String lot;
+	private String liensLot;
 	private Environnement environnement;
 	private int numeroAnomalie;
+	private String liensAno;
 	private String etat;
 	private String remarque;
 	
@@ -71,104 +73,149 @@ public class Anomalie
 	{
 		return direction;
 	}
+	
 	public void setDirection(String direction)
 	{
 		this.direction = direction;
 	}
+	
 	public String getDepartement()
 	{
 		return departement;
 	}
+	
 	public void setDepartement(String departement)
 	{
 		this.departement = departement;
 	}
+	
 	public String getService()
 	{
 		return service;
 	}
+	
 	public void setService(String service)
 	{
 		this.service = service;
 	}
+	
 	public String getResponsableService()
 	{
 		return responsableService;
 	}
+	
 	public void setResponsableService(String responsableService)
 	{
 		this.responsableService = responsableService;
 	}
+	
 	public String getProjetClarity()
 	{
 		return projetClarity;
 	}
+	
 	public void setProjetClarity(String projetClarity)
 	{
 		this.projetClarity = projetClarity;
 	}
+	
 	public String getLibelleProjet()
 	{
 		return libelleProjet;
 	}
+	
 	public void setLibelleProjet(String libelleProjet)
 	{
 		this.libelleProjet = libelleProjet;
 	}
+	
 	public String getCpiProjet()
 	{
 		return cpiProjet;
 	}
+	
 	public void setCpiProjet(String cpiProjet)
 	{
 		this.cpiProjet = cpiProjet;
 	}
+	
 	public String getEdition()
 	{
 		return edition;
 	}
+	
 	public void setEdition(String edition)
 	{
 		this.edition = edition;
 	}
+	
 	public String getLot()
 	{
 		return lot;
 	}
+	
 	public void setLot(String lot)
 	{
 		this.lot = lot;
 	}
+	
 	public Environnement getEnvironnement()
 	{
 		return environnement;
 	}
+	
 	public void setEnvironnement(Environnement environnement)
 	{
 		this.environnement = environnement;
 	}
+	
 	public int getnumeroAnomalie()
 	{
 		return numeroAnomalie;
 	}
+	
 	public void setnumeroAnomalie(int numeroAnomalie)
 	{
 		this.numeroAnomalie = numeroAnomalie;
 	}
+	
 	public String getEtat()
 	{
 		return etat;
 	}
+	
 	public void setEtat(String etat)
 	{
 		this.etat = etat;
 	}
+	
 	public String getRemarque()
 	{
 		return remarque;
 	}
+	
 	public void setRemarque(String remarque)
 	{
 		this.remarque = remarque;
 	}	
+	
+	public String getLiensLot()
+	{
+		return liensLot;
+	}
+
+	public void setLiensLot(String liensLot)
+	{
+		this.liensLot = liensLot;
+	}
+
+	public String getLiensAno()
+	{
+		return liensAno;
+	}
+
+	public void setLiensAno(String liensAno)
+	{
+		this.liensAno = liensAno;
+	}
 }

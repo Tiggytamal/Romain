@@ -13,7 +13,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 
 public class Test
 {
@@ -26,7 +25,7 @@ public class Test
 		CreationHelper createHelper = wb.getCreationHelper();
 		CellStyle hlinkstyle = wb.createCellStyle();
 		Font hlinkfont = wb.createFont();
-		hlinkfont.setUnderline(XSSFFont.U_SINGLE);
+		hlinkfont.setUnderline(Font.U_SINGLE);
 		hlinkfont.setColor(IndexedColors.BLUE.index);
 		hlinkstyle.setFont(hlinkfont);
 

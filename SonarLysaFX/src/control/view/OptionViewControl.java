@@ -1,6 +1,7 @@
 package control.view;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,7 +21,7 @@ public class OptionViewControl
     public void initialize()
     {
         SimpleStringProperty string = new SimpleStringProperty("testappel");
-        string.addListener((ov, oldVal, newVal) -> System.out.println(ov));
+        options.getSelectionModel().selectedItemProperty().addListener((ov, old, newval) -> test(ov));
         ObservableList<SimpleStringProperty> liste = FXCollections.observableArrayList();
         liste.add(string);    
         //https://stackoverflow.com/questions/26730034/java-8-observable-list-invalidation-listener-nor-change-listener-is-called-in/26734379#26734379
@@ -33,9 +34,12 @@ public class OptionViewControl
     /*---------- CONSTRUCTEURS ----------*/
     /*---------- METHODES PUBLIQUES ----------*/
     
-    public void test()
+    public void test(ObservableValue<? extends String> ov)
     {
-        System.out.println("test");
+        if (ov.getValue().equals("Chargement fichiers"))
+        	System.out.println("Chargement fichiers");
+        if (ov.getValue().equals("Paramètres"))
+        	System.out.println("Paramètres");
     }
     /*---------- METHODES PRIVEES ----------*/
     /*---------- ACCESSEURS ----------*/

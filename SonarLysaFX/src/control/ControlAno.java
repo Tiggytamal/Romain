@@ -7,11 +7,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -69,6 +72,7 @@ public class ControlAno extends ControlExcel
 	private static final String AC = "Anomalies closes";
 	private static final String CLOSE = "Close";
 	private static final String ABANDONNEE = "Abandonnée";
+	private static final String LIENSLOTS = "http://ttp10-snar.ca-technologies.fr/governance?id=";
 
 	/*---------- CONSTRUCTEURS ----------*/
 
@@ -102,10 +106,16 @@ public class ControlAno extends ControlExcel
 			ano.setLibelleProjet(row.getCell(colLib).getStringCellValue());
 			ano.setCpiProjet(row.getCell(colCpi).getStringCellValue());
 			ano.setEdition(row.getCell(colEdition).getStringCellValue());
-			String string = row.getCell(colLot).getStringCellValue();
-			ano.setLot(string);
+			ano.setLot(row.getCell(colLot).getStringCellValue());
 			ano.setEnvironnement(Environnement.getEnvironnement(row.getCell(colEnv).getStringCellValue()));
-			ano.setnumeroAnomalie((int) row.getCell(colAno).getNumericCellValue());
+			
+			// Numéro anomalie
+			Cell cellAno = row.getCell(colAno);
+			ano.setnumeroAnomalie((int) cellAno.getNumericCellValue());
+			// Si le liens n'est pas nul on le sauvegarde
+			if (cellAno.getHyperlink() != null)
+				ano.setLiensAno(cellAno.getHyperlink().getAddress());
+			
 			ano.setEtat(row.getCell(colEtat).getStringCellValue());
 			ano.setRemarque(row.getCell(colRemarque).getStringCellValue());
 			retour.add(ano);
@@ -420,13 +430,19 @@ public class ControlAno extends ControlExcel
 		cell = row.createCell(colLot);
 		cell.setCellStyle(centre);
 		cell.setCellValue(ano.getLot());
+		ajouterLiens(cell, LIENSLOTS, ano.getLot().substring(4));
 		cell = row.createCell(colEnv);
 		cell.setCellStyle(centre);
 		if (ano.getEnvironnement() != null)
 			cell.setCellValue(ano.getEnvironnement().toString());
 		cell = row.createCell(colAno);
 		cell.setCellStyle(centre);
-		cell.setCellValue(ano.getnumeroAnomalie());
+		int numeroAno = ano.getnumeroAnomalie();
+		if (numeroAno != 0 && ano.getLiensAno() != null)
+		{
+			cell.setCellValue(ano.getnumeroAnomalie());
+			ajouterLiens(cell, ano.getLiensAno());
+		}
 		cell = row.createCell(colEtat);
 		cell.setCellStyle(normal);
 		cell.setCellValue(ano.getEtat());
@@ -502,6 +518,25 @@ public class ControlAno extends ControlExcel
 	        }
 		}
 	}
+		
+	private void ajouterLiens(Cell cell, String baseAdresse, String variable)
+	{
+		if (cell == null || baseAdresse == null || baseAdresse.isEmpty())
+			throw new IllegalArgumentException("La cellule ou l'adresse ne peuvent être nulles");
+		Hyperlink link = createHelper.createHyperlink(HyperlinkType.URL);
+		Font font = wb.createFont();
+		font.setUnderline(Font.U_SINGLE);
+		font.setColor(IndexedColors.BLUE.index);
+		cell.getCellStyle().setFont(font);
+		link.setAddress(baseAdresse + variable);
+		cell.setHyperlink(link);
+	}
+	
+	private void ajouterLiens(Cell cell, String baseAdresse)
+	{
+		ajouterLiens(cell, baseAdresse, null);
+	}
+	
 	/*---------- ACCESSEURS ----------*/
 
 	/**
