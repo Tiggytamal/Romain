@@ -22,7 +22,7 @@ public class Anomalie
 	private String edition;
 	private String lot;
 	private Environnement environnement;
-	private String numeroAnomalie;
+	private int numeroAnomalie;
 	private String etat;
 	private String remarque;
 	
@@ -147,11 +147,11 @@ public class Anomalie
 	{
 		this.environnement = environnement;
 	}
-	public String getnumeroAnomalie()
+	public int getnumeroAnomalie()
 	{
 		return numeroAnomalie;
 	}
-	public void setnumeroAnomalie(String numeroAnomalie)
+	public void setnumeroAnomalie(int numeroAnomalie)
 	{
 		this.numeroAnomalie = numeroAnomalie;
 	}

@@ -3,10 +3,8 @@ package control;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -21,7 +19,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import model.enums.Environnement;
 import model.excel.Anomalie;
 import utilities.CellHelper;
+import utilities.FunctionalException;
 import utilities.enums.Bordure;
+import utilities.enums.Severity;
 
 /**
  * Classe de getion du fichier Excel des anomalies SonarQube
@@ -32,8 +32,8 @@ import utilities.enums.Bordure;
 public class ControlAno extends ControlExcel
 {
 	/*---------- ATTRIBUTS ----------*/
-	
-	// Liste des indices des colonnes	
+
+	// Liste des indices des colonnes
 	private int colDir;
 	private int colDepart;
 	private int colService;
@@ -47,7 +47,7 @@ public class ControlAno extends ControlExcel
 	private int colAno;
 	private int colEtat;
 	private int colRemarque;
-	
+
 	// Liste des noms de colonnes
 	private static final String DIRECTION = "Direction";
 	private static final String DEPARTEMENT = "Département";
@@ -62,32 +62,36 @@ public class ControlAno extends ControlExcel
 	private static final String ANOMALIE = "Anomalie";
 	private static final String ETAT = "Etat";
 	private static final String REMARQUE = "Remarque";
-	private static final String TRAITE = "Traité"; 
-	
+	private static final String TRAITE = "Traité";
+
 	// Nom de la feuillle avec les naomalies en cours
-	private static final String FP = "SUIVI Qualité";
+	private static final String SQ = "SUIVI Qualité";
+	private static final String AC = "Anomalies closes";
 	private static final String CLOSE = "Close";
-	
+	private static final String ABANDONNEE = "Abandonnée";
+
 	/*---------- CONSTRUCTEURS ----------*/
-	
+
 	protected ControlAno(File file) throws InvalidFormatException, IOException
 	{
 		super(file);
 	}
-	
+
 	/*---------- METHODES PUBLIQUES ----------*/
-		
-	protected Map<String, Anomalie> listAnomaliesSurLotsCrees()
+
+	protected List<Anomalie> listAnomaliesSurLotsCrees()
 	{
 		// Récupération de la première feuille
-		Sheet sheet = wb.getSheet(FP);
-		
-		Map<String, Anomalie> retour = new HashMap<>();
-		
-		for (int i = 1; i <= sheet.getLastRowNum(); i++) 
-		{			
+		Sheet sheet = wb.getSheet(SQ);
+
+		// Liste de retour
+		List<Anomalie> retour = new ArrayList<>();
+
+		// Itération sur chaque ligne pour créer les anomalies
+		for (int i = 1; i <= sheet.getLastRowNum(); i++)
+		{
 			Row row = sheet.getRow(i);
-			
+
 			// Création de l'anomalie
 			Anomalie ano = new Anomalie();
 			ano.setDirection(row.getCell(colDir).getStringCellValue());
@@ -101,30 +105,23 @@ public class ControlAno extends ControlExcel
 			String string = row.getCell(colLot).getStringCellValue();
 			ano.setLot(string);
 			ano.setEnvironnement(Environnement.getEnvironnement(row.getCell(colEnv).getStringCellValue()));
-			ano.setnumeroAnomalie(row.getCell(colAno).getStringCellValue());
+			ano.setnumeroAnomalie((int) row.getCell(colAno).getNumericCellValue());
 			ano.setEtat(row.getCell(colEtat).getStringCellValue());
 			ano.setRemarque(row.getCell(colRemarque).getStringCellValue());
-
-			// Création de la clef
-			if (string.startsWith("Lot "))
-				string = string.substring(4);
-		    retour.put(string, ano);
+			retour.add(ano);
 		}
 		return retour;
 	}
-	
+
 	protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
-	{	
+	{
 		// Création de la feuille de calcul
 		Sheet sheet = wb.getSheet(nomSheet);
-		
-		// Création de l'utilitaire de gestion des styles
-		CellHelper helper = new CellHelper(wb);
-		
+
 		List<Anomalie> retour = new ArrayList<>();
-		
-		//Liste des lots existants. On itère si la feuille existe déjà, pour récupérer tous les numéros de lot déjà enregistrés.
-		List<String> lotsExistants = new ArrayList<>();
+
+		// Liste des lots existants. On itère si la feuille existe déjà, pour récupérer tous les numéros de lot déjà enregistrés.
+		List<String> lotsTraites = new ArrayList<>();
 		if (sheet != null)
 		{
 			Iterator<Row> iter = sheet.rowIterator();
@@ -134,26 +131,24 @@ public class ControlAno extends ControlExcel
 				Cell cellLot = row.getCell(Index.LOTI.ordinal());
 				Cell cellT = row.getCell(Index.TRAITEI.ordinal());
 				if (cellLot.getCellTypeEnum() == CellType.STRING && cellT.getCellTypeEnum() == CellType.STRING && cellT.getStringCellValue().equals("O"))
-					lotsExistants.add(row.getCell(Index.LOTI.ordinal()).getStringCellValue());
+					lotsTraites.add(row.getCell(Index.LOTI.ordinal()).getStringCellValue());
 			}
-			wb.removeSheetAt(wb.getSheetIndex(sheet));		
+			wb.removeSheetAt(wb.getSheetIndex(sheet));
 		}
-		
+
 		// Recréation de la feuille
 		sheet = wb.createSheet(nomSheet);
 		Cell cell;
+
+		// Création du style des titres
+		CellStyle styleTitre = helper.getStyle(IndexedColors.AQUA, Bordure.VIDE, HorizontalAlignment.CENTER);
 		
-		// Création du style des titres      
-        CellStyle styleTitre = helper.getStyle(IndexedColors.AQUA, Bordure.VIDE, HorizontalAlignment.CENTER);
-        CellStyle blancCentre = helper.getStyle(IndexedColors.WHITE, Bordure.VIDE, HorizontalAlignment.CENTER);
-        CellStyle jauneCentre = helper.getStyle(IndexedColors.WHITE, Bordure.VIDE, HorizontalAlignment.CENTER);
-        		
 		// Création des noms des colonnes
 		Row titres = sheet.createRow(0);
 		for (Index index : Index.values())
 		{
 			cell = titres.createCell(index.ordinal());
-			cell.setCellStyle(styleTitre);	
+			cell.setCellStyle(styleTitre);
 			switch (index)
 			{
 				case LOTI:
@@ -165,48 +160,27 @@ public class ControlAno extends ControlExcel
 				case ENVI:
 					cell.setCellValue(ENV);
 					break;
-				case TRAITEI :
+				case TRAITEI:
 					cell.setCellValue(TRAITE);
 					break;
 			}
 		}
-		
+
+		// Itération sur les anomalies à créer. Si elles sont déjà dans les anomalies traitées, on créée une ligne à l'état traitée sinon on crée une ligne à l'état non traité et on ajoute celle-ci aux anomalies à créer.
 		for (Anomalie anomalie : anoAcreer)
 		{
-			Row row = sheet.createRow(sheet.getLastRowNum() +1);
-			if (lotsExistants.contains(anomalie.getLot()))
+			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+			if (lotsTraites.contains(anomalie.getLot()))
 			{
-				cell = row.createCell(Index.LOTI.ordinal());
-				cell.setCellValue(anomalie.getLot());
-				cell.setCellStyle(blancCentre);
-				cell = row.createCell(Index.EDITIONI.ordinal());
-				cell.setCellValue(anomalie.getEdition());
-				cell.setCellStyle(helper.getStyle(IndexedColors.WHITE, Bordure.VIDE));
-				cell = row.createCell(Index.ENVI.ordinal());
-				cell.setCellValue(anomalie.getEnvironnement().toString());
-				cell.setCellStyle(blancCentre);
-				cell = row.createCell(Index.TRAITEI.ordinal());
-				cell.setCellValue("O");
-				cell.setCellStyle(blancCentre);
+				creerLigneVersion(row, anomalie, IndexedColors.WHITE, "O");
 			}
 			else
 			{
-				cell = row.createCell(Index.LOTI.ordinal());
-				cell.setCellStyle(jauneCentre);
-				cell.setCellValue(anomalie.getLot());
-				cell = row.createCell(Index.EDITIONI.ordinal());
-				cell.setCellStyle(helper.getStyle(IndexedColors.LIGHT_YELLOW, Bordure.VIDE));
-				cell.setCellValue(anomalie.getEdition());
-				cell = row.createCell(Index.ENVI.ordinal());
-				cell.setCellStyle(jauneCentre);
-				cell.setCellValue(anomalie.getEnvironnement().toString());
-				cell = row.createCell(Index.TRAITEI.ordinal());
-				cell.setCellStyle(jauneCentre);
-				cell.setCellValue("N");
+				creerLigneVersion(row, anomalie, IndexedColors.LIGHT_YELLOW, "N");
 				retour.add(anomalie);
-			}			
+			}
 		}
-		
+
 		sheet.autoSizeColumn(Index.LOTI.ordinal());
 		sheet.autoSizeColumn(Index.EDITIONI.ordinal());
 		sheet.autoSizeColumn(Index.ENVI.ordinal());
@@ -214,23 +188,24 @@ public class ControlAno extends ControlExcel
 		write();
 		return retour;
 	}
-	
+
 	/**
 	 * Permet de mettre à jour les anomalies avec une quality Gate bonne
+	 * 
 	 * @param lotsEnErreur
-	 * 				Liste de tous les lots avec un Quality Gate à "ERROR".
-	 * @throws IOException 
+	 *            Liste de tous les lots avec un Quality Gate à "ERROR".
+	 * @throws IOException
 	 */
 	protected void majAnoOK(Set<String> lotsEnErreur) throws IOException
 	{
 		// Récupération de la feuille avec les anomalies
-		Sheet sheet = wb.getSheet(FP);
-		
+		Sheet sheet = wb.getSheet(SQ);
+
 		// Itération sur chaque ligne
-		for (int i = 1; i <= sheet.getLastRowNum(); i++) 
+		for (int i = 1; i <= sheet.getLastRowNum(); i++)
 		{
 			Row row = sheet.getRow(i);
-			
+
 			// Si le numéro n'est pas présent dans la liste, c'est que le Quality Gate est bon
 			String string = row.getCell(colLot).getStringCellValue().substring(4);
 			if (!lotsEnErreur.contains(string))
@@ -241,138 +216,305 @@ public class ControlAno extends ControlExcel
 			{
 				majCouleurLigne(row, IndexedColors.WHITE);
 			}
-		}		
-		
-		//Ecriture du fichier
+		}
+
+		// Ecriture du fichier
 		write();
 	}
-	
+
 	/**
 	 * Rajoute les nouvelles anomalies à la première page du fichier Excel
+	 * 
 	 * @param anoAajouter
-	 * @throws IOException 
+	 * @param anoAajouter2
+	 * @param lotsEnErreur
+	 * @throws IOException
 	 */
-	protected void majNouvellesAno(List<Anomalie> anoAajouter) throws IOException
+	protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar) throws IOException
 	{
-		// Récupération de la feuille avec les anomalies
-		Sheet sheet = wb.getSheet(FP);
-		CellHelper helper = new CellHelper(wb);
-		CellStyle vide = helper.getStyle(IndexedColors.RED, Bordure.VIDE);
-		CellStyle videCentre = helper.getStyle(IndexedColors.RED, Bordure.VIDE, HorizontalAlignment.CENTER);
-		
+		// Création d'une nouvelle feuille d'anomalies
+		Sheet sheet = wb.getSheet(SQ);
+		if (sheet != null)
+			wb.removeSheetAt(wb.getSheetIndex(sheet));
+		sheet = wb.createSheet(SQ);
+		creerLigneTitres(sheet);
+
+		// Récupération feuille des anomalies closes
+		Sheet sheetClose = wb.getSheet(AC);
+		if (sheetClose == null)
+		{
+			sheetClose = wb.createSheet(AC);
+			creerLigneTitres(sheetClose);
+		}
+				
+		for (Anomalie ano : lotsEnAno)
+		{
+			Row row;
+
+			// Si une anomalie est close dans RTC, on la transfert sur l'autre feuille.
+			if (CLOSE.equals(ano.getEtat()) || ABANDONNEE.equals(ano.getEtat()))
+			{
+				row = sheetClose.createRow(sheetClose.getLastRowNum() + 1);
+				creerLigneSQ(row, ano, CouleurLigne.BLANC);
+				continue;
+			}
+
+			// Mise en vert des anomalies avec un Quality Gate bon
+			row = sheet.createRow(sheet.getLastRowNum() + 1);
+			if (!lotsEnErreurSonar.contains(ano.getLot().substring(4)))
+			{
+				creerLigneSQ(row, ano, CouleurLigne.VERT);
+			}
+			else
+			{
+				creerLigneSQ(row, ano, CouleurLigne.BLANC);
+			}
+
+		}
+
+		// Ajout des nouvelles anomalies
 		for (Anomalie ano : anoAajouter)
 		{
-			Row row = sheet.createRow(sheet.getLastRowNum() +1);
-			Cell cell = row.createCell(colDir);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getDirection());
-			cell = row.createCell(colDepart);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getDepartement());
-			cell = row.createCell(colService);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getService());
-			cell = row.createCell(colResp);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getResponsableService());
-			cell = row.createCell(colClarity);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getProjetClarity());
-			cell = row.createCell(colLib);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getLibelleProjet());
-			cell = row.createCell(colCpi);
-			cell.setCellStyle(vide);
-			cell.setCellValue(ano.getCpiProjet());
-			cell = row.createCell(colEdition);
-			cell.setCellStyle(videCentre);
-			cell.setCellValue(ano.getEdition());
-			cell = row.createCell(colLot);
-			cell.setCellStyle(videCentre);
-			cell.setCellValue(ano.getLot());
-			cell = row.createCell(colEnv);
-			cell.setCellStyle(videCentre);
-			cell.setCellValue(ano.getEnvironnement().toString());
-			cell = row.createCell(colAno);
-			cell.setCellStyle(videCentre);
-			cell = row.createCell(colEtat);
-			cell.setCellStyle(vide);
-			cell = row.createCell(colRemarque);
-			cell.setCellStyle(vide);
+			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+			creerLigneSQ(row, ano, CouleurLigne.ROUGE);
 		}
+		autosizeColumns(sheet);
+		autosizeColumns(sheetClose);
 		write();
 	}
-	
+
 	@Override
 	protected void calculIndiceColonnes()
 	{
 		// Récupération de la première feuille
-		Sheet sheet = wb.getSheetAt(0);
+		Sheet sheet = wb.getSheet(SQ);
+		if (sheet == null)
+			throw new FunctionalException(Severity.SEVERITY_ERROR, "Le fichier n'a pas de page Suivi Qualité");
+				
+		titres = sheet.getRow(0);
 		
-		//Récupération des indices de colonnes
-		for (Cell cell : sheet.getRow(0)) 
+		// Récupération des indices de colonnes
+		for (Cell cell : titres)
 		{
 			if (cell.getCellTypeEnum() == CellType.STRING)
 			{
 				switch (cell.getStringCellValue())
 				{
 					case DIRECTION:
-					    colDir = cell.getColumnIndex();
+						colDir = cell.getColumnIndex();
+						testMax(colDir);
 						break;
 					case DEPARTEMENT:
-					    colDepart = cell.getColumnIndex();
+						colDepart = cell.getColumnIndex();
+						testMax(colDepart);
 						break;
 					case SERVICE:
-					    colService = cell.getColumnIndex();
+						colService = cell.getColumnIndex();
+						testMax(colDir);
 						break;
 					case RESPSERVICE:
-					    colResp = cell.getColumnIndex();
+						colResp = cell.getColumnIndex();
+						testMax(colService);
 						break;
 					case CLARITY:
-					    colClarity = cell.getColumnIndex();
+						colClarity = cell.getColumnIndex();
+						testMax(colClarity);
 						break;
 					case LIBELLE:
-					    colLib = cell.getColumnIndex();
+						colLib = cell.getColumnIndex();
+						testMax(colLib);
 						break;
 					case CPI:
-					    colCpi = cell.getColumnIndex();
+						colCpi = cell.getColumnIndex();
+						testMax(colCpi);
 						break;
 					case EDITION:
-					    colEdition = cell.getColumnIndex();
+						colEdition = cell.getColumnIndex();
+						testMax(colEdition);
 						break;
 					case LOT:
-					    colLot = cell.getColumnIndex();
+						colLot = cell.getColumnIndex();
+						testMax(colLot);
 						break;
 					case ENV:
-					    colEnv = cell.getColumnIndex();
+						colEnv = cell.getColumnIndex();
+						testMax(colEnv);
 						break;
 					case ANOMALIE:
-					    colAno = cell.getColumnIndex();
+						colAno = cell.getColumnIndex();
+						testMax(colAno);
 						break;
 					case ETAT:
-					    colEtat = cell.getColumnIndex();
-						break;						
+						colEtat = cell.getColumnIndex();
+						testMax(colEtat);
+						break;
 					case REMARQUE:
-					    colRemarque = cell.getColumnIndex();
-						break;						
+						colRemarque = cell.getColumnIndex();
+						testMax(colRemarque);
+						break;
 					default:
 						// Colonne sans nom reconnu
 						break;
 				}
 			}
-		}	
+		}
+	}
+
+	/*---------- METHODES PRIVEES ----------*/
+
+	/*---------- METHODES PRIVEES ----------*/
+
+	private void creerLigneSQ(Row row, Anomalie ano, CouleurLigne couleur)
+	{
+		// Contrôles
+		if (couleur == null || row == null || ano == null)
+			throw new IllegalArgumentException("Les arguments ne peuvent aps être nuls");
+
+		// Variables
+		CellHelper helper = new CellHelper(wb);
+		CellStyle normal = null;
+		CellStyle centre = null;
+
+		// Switch sur la couleur pour créer les styles
+		switch (couleur)
+		{
+			case BLANC:
+				normal = helper.getStyle(IndexedColors.WHITE);
+				centre = helper.getStyle(IndexedColors.WHITE, Bordure.VIDE, HorizontalAlignment.CENTER);
+				break;
+			case ROUGE:
+				normal = helper.getStyle(IndexedColors.LIGHT_ORANGE);
+				centre = helper.getStyle(IndexedColors.LIGHT_ORANGE, Bordure.VIDE, HorizontalAlignment.CENTER);
+				break;
+			case VERT:
+				normal = helper.getStyle(IndexedColors.LIGHT_GREEN);
+				centre = helper.getStyle(IndexedColors.LIGHT_GREEN, Bordure.VIDE, HorizontalAlignment.CENTER);
+				break;
+		}
+
+		// Alimentation avec les données de l'anomalie
+		Cell cell = row.createCell(colDir);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getDirection());
+		cell = row.createCell(colDepart);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getDepartement());
+		cell = row.createCell(colService);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getService());
+		cell = row.createCell(colResp);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getResponsableService());
+		cell = row.createCell(colClarity);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getProjetClarity());
+		cell = row.createCell(colLib);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getLibelleProjet());
+		cell = row.createCell(colCpi);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getCpiProjet());
+		cell = row.createCell(colEdition);
+		cell.setCellStyle(centre);
+		cell.setCellValue(ano.getEdition());
+		cell = row.createCell(colLot);
+		cell.setCellStyle(centre);
+		cell.setCellValue(ano.getLot());
+		cell = row.createCell(colEnv);
+		cell.setCellStyle(centre);
+		if (ano.getEnvironnement() != null)
+			cell.setCellValue(ano.getEnvironnement().toString());
+		cell = row.createCell(colAno);
+		cell.setCellStyle(centre);
+		cell.setCellValue(ano.getnumeroAnomalie());
+		cell = row.createCell(colEtat);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getEtat());
+		cell = row.createCell(colRemarque);
+		cell.setCellStyle(normal);
+		cell.setCellValue(ano.getRemarque());
+	}
+
+	private void creerLigneVersion(Row row, Anomalie ano, IndexedColors couleur, String traite)
+	{
+		CellStyle centre = helper.getStyle(couleur, Bordure.VIDE, HorizontalAlignment.CENTER);
+
+		Cell cell = row.createCell(Index.LOTI.ordinal());
+		cell.setCellValue(ano.getLot());
+		cell.setCellStyle(centre);
+		cell = row.createCell(Index.EDITIONI.ordinal());
+		cell.setCellValue(ano.getEdition());
+		cell.setCellStyle(helper.getStyle(couleur));
+		cell = row.createCell(Index.ENVI.ordinal());
+		cell.setCellValue(ano.getEnvironnement().toString());
+		cell.setCellStyle(centre);
+		cell = row.createCell(Index.TRAITEI.ordinal());
+		cell.setCellValue(traite);
+		cell.setCellStyle(centre);
 	}
 	
-	   /*---------- METHODES PRIVEES ----------*/
-	
+	private void creerLigneTitres(Sheet sheet)
+	{
+		// Création de la ligne de titres
+		Row titresNew = sheet.createRow(0);
+		
+		// On itère sur la ligne de titres
+		for (int i = 0; i < titres.getLastCellNum(); i++)
+		{
+			Cell newCell = titresNew.createCell(i);		
+			Cell oldCell = titres.getCell(i);
+			
+	        // On continue si la cellule du titre est nulle
+	        if (oldCell == null) 
+	        {
+	            continue;
+	        }
+
+	        // Copie du style des cellules
+	        CellStyle newCellStyle = wb.createCellStyle();
+	        newCellStyle.cloneStyleFrom(oldCell.getCellStyle());
+	        newCell.setCellStyle(newCellStyle);
+
+	        // Copie des titres
+	        newCell.setCellValue(oldCell.getStringCellValue());
+	        switch (oldCell.getCellTypeEnum()) 
+	        {
+	            case BLANK:
+	                newCell.setCellValue(oldCell.getStringCellValue());
+	                break;
+	            case BOOLEAN:
+	                newCell.setCellValue(oldCell.getBooleanCellValue());
+	                break;
+	            case ERROR:
+	                newCell.setCellErrorValue(oldCell.getErrorCellValue());
+	                break;
+	            case FORMULA:
+	                newCell.setCellFormula(oldCell.getCellFormula());
+	                break;
+	            case NUMERIC:
+	                newCell.setCellValue(oldCell.getNumericCellValue());
+	                break;
+	            case STRING:
+	                newCell.setCellValue(oldCell.getRichStringCellValue());
+	                break;
+				case _NONE:
+					break;
+	        }
+		}
+	}
+	/*---------- ACCESSEURS ----------*/
+
 	/**
 	 * Liste des numéros de colonnes des feuilles d'environnement
+	 * 
 	 * @author ETP8137 - Grégoire mathon
 	 *
 	 */
-	private enum Index
-	{
+	private enum Index {
 		LOTI, EDITIONI, ENVI, TRAITEI;
 	}
-	/*---------- ACCESSEURS ----------*/
+
+	private enum CouleurLigne {
+		BLANC, VERT, ROUGE;
+	}
 }

@@ -11,6 +11,10 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.ss.usermodel.Sheet;
+
+import utilities.CellHelper;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
@@ -26,6 +30,9 @@ public abstract class ControlExcel
 
 	protected File file;
 	protected Workbook wb;
+	protected CellHelper helper;
+	protected int maxIndice;
+	protected Row titres;
 	
 	/*---------- CONSTRUCTEURS ----------*/
 	
@@ -42,6 +49,7 @@ public abstract class ControlExcel
 	{
 	    // Création du workbook depuis le fichier excel
 		wb = WorkbookFactory.create(file);
+		helper = new CellHelper(wb);
 	}
 	
 	protected void close() throws IOException
@@ -72,10 +80,24 @@ public abstract class ControlExcel
 		}
 	}
 	
+	protected void autosizeColumns(Sheet sheet)
+	{
+		for (int i = 0; i <= maxIndice; i++)
+		{
+			sheet.autoSizeColumn(i);
+		}
+	}
+	
 	/**
-	 * Initialise les numéro des colonnes du fichier Excel venant de la PIC.
+	 * Initialise les numéro des colonnes du fichier Excel venant de la PIC. Calcul l'indice de la dernière colonne. et Copie la lignde  titre pour de futures feuilles
 	 */
 	protected abstract void calculIndiceColonnes();
+	
+	protected void testMax(int i)
+	{
+		if (maxIndice < i)
+			maxIndice = i;
+	}
 
 	/*---------- METHODES PRIVEES ----------*/
 	/*---------- ACCESSEURS ----------*/

@@ -128,7 +128,7 @@ public class ControlSonar
 		}
 		else
 		{
-			mapLots = lotSonarQGError(new String[] { "13", "14" });
+			mapLots = lotSonarQGError(new String[] {"13", "14"});
 			Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
 		}
 
@@ -136,20 +136,20 @@ public class ControlSonar
 		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
 		// 4. Création des vues
-		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
-		{
-			// Création de la vue et envoie vers SonarQube
-			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
-
-			for (String lot : entry.getValue())
-			{
-				Vue vue = new Vue();
-				vue.setKey("view_lot_" + lot);
-				vue.setName("Lot " + lot);
-				// Ajout des sous-vue
-				api.ajouterSousVue(vue, vueParent);
-			}
-		}
+//		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
+//		{
+//			// Création de la vue et envoie vers SonarQube
+//			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
+//
+//			for (String lot : entry.getValue())
+//			{
+//				Vue vue = new Vue();
+//				vue.setKey("view_lot_" + lot);
+//				vue.setName("Lot " + lot);
+//				// Ajout des sous-vue
+//				api.ajouterSousVue(vue, vueParent);
+//			}
+//		}
 	}
 
 	public void creerVuesDatastage()
@@ -293,7 +293,7 @@ public class ControlSonar
 			for (Projet projet : entry.getValue())
 			{
 				// Récupération du composant
-				Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] { "lot", "alert_status" });
+				Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"lot", "alert_status"});
 
 				// Récupération depuis la map des métriques su numéro de lot et su status de la Quality Gate
 				Map<String, String> metriques = composant.getMapMetriques();
@@ -525,7 +525,17 @@ public class ControlSonar
 		ControlAno controlAno = new ControlAno(file);
 
 		// Lecture du fichier pour remonter les anomalies en cours.
-		Map<String, Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
+		List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
+		
+		// Création de la liste des lots
+		List<String> numeroslots = new ArrayList<>();
+		for (Anomalie ano : listeLotenAno)
+		{
+			String string = ano.getLot();
+			if (string.startsWith("Lot "))
+				string = string.substring(4);
+			numeroslots.add(string);
+		}
 		
 		// Liste des anomalies à ajouter après traitement
 		List<Anomalie> anoAajouter = new ArrayList<>();
@@ -537,7 +547,7 @@ public class ControlSonar
 			lotsEnErreur.addAll(value);
 		}
 		
-		controlAno.majAnoOK(lotsEnErreur);
+//		controlAno.majAnoOK(lotsEnErreur);
 
 		// Itération sur les lots en erreurs venant de Sonar pour chaque version de composants (13, 14, ...)
 		for (Entry<String, Set<String>> entry : mapLots.entrySet())
@@ -549,7 +559,7 @@ public class ControlSonar
 			{
 				String numeroLot = iter.next();
 				// Si le lot est déjà dans la liste des anomalies, on le retire de la liste.
-				if (listeLotenAno.keySet().contains(numeroLot))
+				if (numeroslots.contains(numeroLot))
 				{
 					iter.remove();
 				}
@@ -559,6 +569,8 @@ public class ControlSonar
 					LotSuiviPic lot = lotsPIC.get(numeroLot);
 					if (lot == null)
 					{
+						System.out.println(numeroLot);
+						lognonlistee.warn("Mettre à jour le fihcier Pic - Lots : " + numeroLot + " non listé");
 						continue;
 					}
 					Anomalie ano = new Anomalie(lot);
@@ -569,7 +581,10 @@ public class ControlSonar
 			// Mise à jour de la feuille des anomalies pour chaque version de composants
 			anoAajouter.addAll(controlAno.createSheetError(Utilities.transcoEdition(entry.getKey()), anoACreer));
 		}
-		controlAno.majNouvellesAno(anoAajouter);
+		
+		// Mis à jour de la feuille principale
+		controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur);
+		
 		controlAno.close();
 	}
 

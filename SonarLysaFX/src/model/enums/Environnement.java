@@ -7,7 +7,9 @@ public enum Environnement
     TFON(Valeur.TFON),
     VMOE(Valeur.VMOE),
     VMOA(Valeur.VMOA),
-    EDITION(Valeur.EDITION);
+    EDITION(Valeur.EDITION),
+    ABANDONNE(Valeur.ABANDONNE),
+    TERMINE(Valeur.TERMINE);
     
     private final String string;
     
@@ -38,9 +40,16 @@ public enum Environnement
                 return VMOA;
             case Valeur.EDITION :
                 return EDITION;
+            case Valeur.ABANDONNE :
+            	return ABANDONNE;
+            case Valeur.TERMINE :
+            	return TERMINE;
             default :
+            	if (envString.contains(Valeur.EDITION))
+            		return EDITION;
                 return null;                
         }
+        
     }
     
     private static class Valeur
@@ -53,5 +62,7 @@ public enum Environnement
         private static final String VMOE = "VMOE";
         private static final String VMOA = "VMOA";
         private static final String EDITION = "EDITION";
+        private static final String ABANDONNE = "ABANDONNE";
+        private static final String TERMINE = "TERMINE";
     }
 }
