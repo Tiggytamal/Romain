@@ -12,8 +12,11 @@
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
 
-<SplitPane fx:id="splitPane" fx:controller="control.view.OptionViewControl" dividerPositions="0.20" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141">
+<SplitPane fx:id="splitPane" fx:controller="control.view.OptionViewControl" dividerPositions="0.20" prefHeight="400.0" prefWidth="600.0"
+	xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141">
 	<items>
 		<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
 			<children>
@@ -27,6 +30,19 @@
 				</ListView>
 			</children>
 		</AnchorPane>
-		<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+		<GridPane fx:id="rightSide" prefWidth="300.0" prefHeight="400.0">
+			<children>
+				<VBox fx:id="chargement" alignment="center">
+					<!-- Bouton pour créer la nouvelle vue dans Sonar -->
+					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
+					<Button text="Charger Lots Pic" fx:id="lotsPic" onAction="#chargerLotsPic" alignment="CENTER" />
+					<Region  prefHeight="20"/>
+					<Button text="Charger Applications" fx:id="applis" onAction="#chargerApplis" alignment="CENTER" />
+					<Region  prefHeight="20" />
+					<Button text="Charger Referentiel Clarity" fx:id="clarity" onAction="#chargerClarity" alignment="CENTER" />
+					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
+				</VBox>
+			</children>
+		</GridPane>
 	</items>
 </SplitPane>

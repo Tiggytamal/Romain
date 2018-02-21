@@ -18,6 +18,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import utilities.Statics;
 
 public class MensuelViewControl
 {
@@ -83,7 +84,7 @@ public class MensuelViewControl
     {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("FichierExcel");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Fichiers Excel (*.xls)", "*.xls", "*.xlsx"));
+        fileChooser.getExtensionFilters().add(Statics.FILTEREXCEL);
         File file = fileChooser.showOpenDialog(backgroundPane.getScene().getWindow());
         if (file != null)
         {

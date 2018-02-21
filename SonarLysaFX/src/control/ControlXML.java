@@ -2,8 +2,8 @@ package control;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import application.Main;
+import control.view.MainScreen;
 import model.excel.InfoClarity;
 import model.excel.LotSuiviPic;
 import model.xml.Application;
@@ -36,18 +37,14 @@ public class ControlXML
 {
 	/*---------- ATTRIBUTS ----------*/
 
-	private ParametreXML param;
 	private File fichierParam;
-	private Map<String, Boolean> mapApplis;
 	private String jarPath;
 	
 	/*---------- CONSTRUCTEURS ----------*/
 
 	public ControlXML()
 	{
-		param = new ParametreXML();	
         jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
-        mapApplis = new HashMap<>();
         fichierParam = new File(jarPath + "\\param.xml");
 	}
 	
@@ -60,25 +57,22 @@ public class ControlXML
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	public void recuprerParamXML() throws JAXBException
+	public ParametreXML recuprerParamXML() throws JAXBException
 	{	
 	    JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
+	    ParametreXML retour;
 	    
 	    // Récupération du paramétrage depuis le fichier externe
 		if(fichierParam.exists())
 		{
-	        param = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);			
+		    retour = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);			
 		}
 		// Récupération du paramétrage depuis le fichier interne
 		else
 		{
-	        param = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+		    retour = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
 		}
-		
-        for (Application app : param.getListeApplications())
-        {
-            mapApplis.put(app.getNom(), app.isActif());
-        }
+        return retour;
 	}
 	
 	/**
@@ -91,7 +85,7 @@ public class ControlXML
        JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
        Marshaller jaxbMarshaller = context.createMarshaller();
        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);      
-       jaxbMarshaller.marshal(param, fichierParam);
+       jaxbMarshaller.marshal(MainScreen.getParam(), fichierParam);
 	}
 	
 	/**
@@ -99,10 +93,11 @@ public class ControlXML
 	 * @return
 	 * @throws InvalidFormatException
 	 * @throws IOException
+	 * @throws JAXBException 
 	 */
-	public void calculerListeAppsDepuisExcel(File file) throws InvalidFormatException, IOException
+	public void recupListeAppsDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
 	{
-		List<Application> retour = new ArrayList<>();
+		List<Application> apps = new ArrayList<>();
 		Workbook wb = WorkbookFactory.create(file);
 		Sheet sheet = wb.getSheetAt(0);
 
@@ -122,41 +117,35 @@ public class ControlXML
 			else
 				app.setActif(false);
 			
-			retour.add(app);
+			apps.add(app);
 		}
 		wb.close();	
-		param.setListeApplications(retour);
+		MainScreen.getParam().setListeApplications(apps);
+		MainScreen.getParam().getDateMaj().put("Apps", LocalDate.now());
+        saveParam();		
 	}
 	
-	public Map<String, InfoClarity> recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException
+	public void recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
 	{
 	      ControlClarity control = new ControlClarity(file);
-	      Map<String, InfoClarity> retour = control.recupInfosClarityExcel();
+	      Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
 	      control.close();
-	      param.setMapClarity(retour);
-	      return retour;	              
+	      MainScreen.getParam().setMapClarity(clarity);
+	      MainScreen.getParam().getDateMaj().put("Clarity", LocalDate.now());
+	      saveParam();              
 	}
 	
-	public Map<String, LotSuiviPic> recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException
+	public void recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException, JAXBException
 	{
 		ControlPic controlPic = new ControlPic(file);
-		Map<String, LotSuiviPic> retour = controlPic.recupLotsDepuisPic();
+		Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
 		controlPic.close();
-		param.setLotsPic(retour);
-		return retour;
+		MainScreen.getParam().setLotsPic(lotsPic);
+	      MainScreen.getParam().getDateMaj().put("LotsPics", LocalDate.now());
+		saveParam();
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/
 	
 	/*---------- ACCESSEURS ----------*/
-	
-	public ParametreXML getParam()
-	{
-		return param;
-	}
-		
-	public Map<String, Boolean> getMapApplis()
-	{
-		return mapApplis;
-	}
 }

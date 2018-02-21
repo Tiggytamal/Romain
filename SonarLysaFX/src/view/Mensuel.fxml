@@ -33,7 +33,7 @@
 		</VBox>
 
 
-		<!-- GridPane -->
+		<!-- VBox -->
 		<VBox fx:id="selectPane" GridPane.columnIndex="1" alignment="CENTER" minWidth="250" minHeight="200">
 			<children>
 

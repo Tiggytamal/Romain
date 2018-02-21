@@ -3,6 +3,9 @@ package control.view;
 import java.awt.AWTException;
 import java.io.IOException;
 
+import javax.xml.bind.JAXBException;
+
+import control.ControlXML;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -12,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import model.xml.ParametreXML;
 import utilities.TechnicalException;
 import view.TrayIconView;
 
@@ -22,6 +26,7 @@ public class MainScreen extends Application
 	/* Attibuts généraux */
 
 	private static BorderPane root = new BorderPane();
+	private static ParametreXML param = new ParametreXML();
 	private TrayIconView trayIcon;
 
 	/* Attributs FXML */
@@ -31,10 +36,13 @@ public class MainScreen extends Application
 	/*---------- METHODES PUBLIQUES ----------*/
 
 	@Override
-	public void start(final Stage stage) throws IOException
+	public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
 	{
 		Platform.setImplicitExit(false);
 		
+		// Initialisation des paramètres de l'application
+	    new ControlXML().recuprerParamXML();
+	    
 		// Menu de l'application
 		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
 		
@@ -64,6 +72,16 @@ public class MainScreen extends Application
 	public static BorderPane getRoot()
 	{
 		return root;
+	}
+	
+	/**
+	 * Accèes au fichier de paramètre de l'application
+	 * 
+	 * @return
+	 */
+	public static ParametreXML getParam()
+	{
+	    return param;
 	}
 	
 	private class IconifiedListener implements ChangeListener<Boolean>
