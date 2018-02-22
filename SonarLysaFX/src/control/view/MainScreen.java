@@ -26,7 +26,7 @@ public class MainScreen extends Application
 	/* Attibuts généraux */
 
 	private static BorderPane root = new BorderPane();
-	private static ParametreXML param = new ParametreXML();
+	public static final ParametreXML param = new ParametreXML();
 	private TrayIconView trayIcon;
 
 	/* Attributs FXML */

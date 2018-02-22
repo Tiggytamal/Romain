@@ -2,9 +2,12 @@ package model.xml;
 
 import java.beans.Transient;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -24,8 +27,10 @@ public class ParametreXML
 	private Map<String, InfoClarity> mapClarity; 
 	private Map<String, LotSuiviPic> lotsPic;
 	private Map<String, Boolean> mapApplis;
-	private Map<String, LocalDate> dateMaj;
+	private Map<TypeFichier, String> dateMaj;
 
+	/*---------- CONSTRUCTEURS ----------*/
+	
     public ParametreXML()
 	{
 	    listeApplications = new ArrayList<>();
@@ -33,7 +38,7 @@ public class ParametreXML
 	    mapClarity = new HashMap<>();
 	    lotsPic = new HashMap<>();
 	    mapApplis = new HashMap<>();
-	    dateMaj = new HashMap<>();
+	    dateMaj = new EnumMap<>(TypeFichier.class);
 	}
 	
 	/*---------- ACCESSEURS ----------*/
@@ -88,12 +93,12 @@ public class ParametreXML
 	
     @XmlElementWrapper
     @XmlElement(name = "dateMaj", required = false)
-    public Map<String, LocalDate> getDateMaj()
+    public Map<TypeFichier, String> getDateMaj()
     {
         return dateMaj;
     }
 
-    public void setDateMaj(Map<String, LocalDate> dateMaj)
+    public void setDateMaj(Map<TypeFichier, String> dateMaj)
     {
         this.dateMaj = dateMaj;
     }
@@ -113,5 +118,19 @@ public class ParametreXML
             }
 	    }	    
         return mapApplis;
+	}
+	
+	/**
+	 * Change la date de mise à jour d'un type de fichier.
+	 * @param clef
+	 */
+	public void setDateMaj(TypeFichier fichier)
+	{
+		dateMaj.put(fichier, LocalDate.now().format(DateTimeFormatter.ofPattern("jj/MM/yyyy",Locale.FRANCE)));
+	}
+	
+	public enum TypeFichier
+	{
+		APPS, CLARITY, LOTSPICS;
 	}
 }

@@ -3,8 +3,11 @@ package control;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -25,6 +28,7 @@ import model.excel.InfoClarity;
 import model.excel.LotSuiviPic;
 import model.xml.Application;
 import model.xml.ParametreXML;
+import model.xml.ParametreXML.TypeFichier;
 import utilities.Utilities;
 
 /**
@@ -121,7 +125,7 @@ public class ControlXML
 		}
 		wb.close();	
 		MainScreen.getParam().setListeApplications(apps);
-		MainScreen.getParam().getDateMaj().put("Apps", LocalDate.now());
+	    MainScreen.getParam().setDateMaj(TypeFichier.APPS);
         saveParam();		
 	}
 	
@@ -131,7 +135,7 @@ public class ControlXML
 	      Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
 	      control.close();
 	      MainScreen.getParam().setMapClarity(clarity);
-	      MainScreen.getParam().getDateMaj().put("Clarity", LocalDate.now());
+	      MainScreen.getParam().setDateMaj(TypeFichier.CLARITY);
 	      saveParam();              
 	}
 	
@@ -141,7 +145,7 @@ public class ControlXML
 		Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
 		controlPic.close();
 		MainScreen.getParam().setLotsPic(lotsPic);
-	      MainScreen.getParam().getDateMaj().put("LotsPics", LocalDate.now());
+	    MainScreen.getParam().setDateMaj(TypeFichier.LOTSPICS);
 		saveParam();
 	}
 	

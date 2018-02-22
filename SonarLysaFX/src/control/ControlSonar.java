@@ -129,20 +129,20 @@ public class ControlSonar
 		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
 		// 4. Création des vues
-//		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
-//		{
-//			// Création de la vue et envoie vers SonarQube
-//			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
-//
-//			for (String lot : entry.getValue())
-//			{
-//				Vue vue = new Vue();
-//				vue.setKey("view_lot_" + lot);
-//				vue.setName("Lot " + lot);
-//				// Ajout des sous-vue
-//				api.ajouterSousVue(vue, vueParent);
-//			}
-//		}
+		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
+		{
+			// Création de la vue et envoie vers SonarQube
+			Vue vueParent = creerVue("LotsErreurKey" + entry.getKey(), "Lots en erreur - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
+
+			for (String lot : entry.getValue())
+			{
+				Vue vue = new Vue();
+				vue.setKey("view_lot_" + lot);
+				vue.setName("Lot " + lot);
+				// Ajout des sous-vue
+				api.ajouterSousVue(vue, vueParent);
+			}
+		}
 	}
 
 	public void creerVuesDatastage()
