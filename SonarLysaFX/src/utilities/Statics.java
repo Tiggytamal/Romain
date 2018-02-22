@@ -18,6 +18,8 @@ public abstract class Statics
     {
     }
 
+    /** logger général */
+	public static final Logger logger = LogManager.getLogger("complet.log");
     /** logger composants sans applications */
     public static final Logger logSansApp = LogManager.getLogger("sansapp-log");
     /** logger composants avec application INCONNUE*/

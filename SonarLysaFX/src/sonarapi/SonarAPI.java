@@ -1,5 +1,7 @@
 package sonarapi;
 
+import static utilities.Statics.logger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -15,20 +17,20 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import sonarapi.model.AjouterProjet;
 import sonarapi.model.AjouterVueLocale;
 import sonarapi.model.Clef;
 import sonarapi.model.Composant;
+import sonarapi.model.Message;
 import sonarapi.model.ModeleSonar;
 import sonarapi.model.Parametre;
 import sonarapi.model.Projet;
 import sonarapi.model.Retour;
 import sonarapi.model.Validation;
 import sonarapi.model.Vue;
+import utilities.FunctionalException;
 import utilities.Statics;
+import utilities.enums.Severity;
 
 public class SonarAPI
 {
@@ -37,7 +39,6 @@ public class SonarAPI
 
 	private final WebTarget webTarget;
 	private final String codeUser;
-	private static final Logger logger = LogManager.getLogger("complet.log");
 	private static final String AUTHORIZATION = "Authorization";
 
 	/*---------- CONSTRUCTEURS ----------*/
@@ -99,7 +100,7 @@ public class SonarAPI
 
 		if (response.getStatus() == Status.OK.getStatusCode())
 		{
-			logger.info("Vues retournées");
+			logger.info("Liste des Vues retournées depuis Sonar");
 			return response.readEntity(Retour.class).getListeVues();
 		}
 		else
@@ -167,7 +168,11 @@ public class SonarAPI
 		{
 			return response.readEntity(Retour.class).getComponent();
 		}
-		return new Composant();
+		else
+		{
+			logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
+			return new Composant();
+		}
 	}
 
 	/**
@@ -183,10 +188,13 @@ public class SonarAPI
 		if (response.getStatus() == Status.OK.getStatusCode())
 		{
 			logger.info("Récupération de la liste des composants OK");
-			return response.readEntity(new GenericType<List<Projet>>() {
-			});
+			return response.readEntity(new GenericType<List<Projet>>() {});
 		}
-		return new ArrayList<>();
+		else
+		{
+			logger.error("Impossible de remonter tous les composants de Sonar - API : api/projects/index/search=composant ");
+			throw new FunctionalException(Severity.SEVERITY_ERROR, "Impossible de remonter tous les composants de Sonar - API : api/projects/index/search=composant ");
+		}
 	}
 
 	/*---------- METHODES PUBLIQUES POST ----------*/
@@ -197,14 +205,14 @@ public class SonarAPI
 	 * @param vue
 	 * @return
 	 */
-	public boolean creerVue(Vue vue)
+	public void creerVue(Vue vue)
 	{
 		if (vue == null)
-			return false;
+			return;
 
 		Response response = appelWebservicePOST("api/views/create", vue);
 		logger.info("Creation vue : " + vue.getKey() + "nom : " + vue.getName() +  ": HTTP " + response.getStatus());
-		return response.getStatus() == Status.OK.getStatusCode();
+		gestionErreur(response);
 	}
 
 	/**
@@ -224,14 +232,14 @@ public class SonarAPI
 	 * @param vue
 	 * @return
 	 */
-	public boolean supprimerVue(Vue vue)
+	public void supprimerVue(Vue vue)
 	{
 		if (vue == null)
-			return false;
+			return;
 
 		Response response = appelWebservicePOST("api/views/delete", new Clef(vue.getKey()));
 		logger.info("retour supprimer vue : " + response.getStatus() + " " + response.getStatusInfo());
-		return response.getStatus() == Status.OK.getStatusCode();
+		gestionErreur(response);
 	}
 
 	/**
@@ -241,17 +249,12 @@ public class SonarAPI
 	 * @param parent
 	 * @return
 	 */
-	public boolean ajouterSousVues(List<Vue> listeViews, Vue parent)
+	public void ajouterSousVues(List<Vue> listeViews, Vue parent)
 	{
-		boolean ok = true;
 		for (Vue vue : listeViews)
 		{
-			if (!ajouterSousVue(vue, parent))
-			{
-				ok = false;
-			}
+			ajouterSousVue(vue, parent);
 		}
-		return ok;
 	}
 
 	/**
@@ -261,12 +264,12 @@ public class SonarAPI
 	 * @param parent
 	 * @return
 	 */
-	public boolean ajouterSousVue(Vue vue, Vue parent)
+	public void ajouterSousVue(Vue vue, Vue parent)
 	{
 		AjouterVueLocale localView = new AjouterVueLocale(parent.getKey(), vue.getKey());
 		Response response = appelWebservicePOST("api/views/add_local_view", localView);
 		logger.info("Vue " + parent.getName() + " ajout sous-vue " + vue.getName() + " : HTTP " + response.getStatus());
-		return response.getStatus() == Status.OK.getStatusCode();
+		gestionErreur(response);
 	}
 
 	/**
@@ -276,17 +279,12 @@ public class SonarAPI
 	 * @param parent
 	 * @return
 	 */
-	public boolean ajouterSousProjets(List<Projet> listeProjets, Vue parent)
+	public void ajouterSousProjets(List<Projet> listeProjets, Vue parent)
 	{
-		boolean ok = true;
 		for (Projet projet : listeProjets)
 		{
-			if (ajouterProjet(projet, parent))
-			{
-				ok = false;
-			}
+			ajouterProjet(projet, parent);
 		}
-		return ok;
 	}
 
 	/**
@@ -295,12 +293,12 @@ public class SonarAPI
 	 * @param parent
 	 * @param projet
 	 */
-	public boolean ajouterProjet(Projet projet, Vue parent)
+	public void ajouterProjet(Projet projet, Vue parent)
 	{
 		AjouterProjet addProjet = new AjouterProjet(parent.getKey(), projet.getKey());
 		Response response = appelWebservicePOST("api/views/add_project", addProjet);
 		logger.info("Vue" + parent.getKey() + " ajout sous-projet " + projet.getNom() + ": HTTP " + response.getStatus());
-		return response.getStatus() == Status.OK.getStatusCode();
+		gestionErreur(response);
 	}
 
 	/**
@@ -309,7 +307,7 @@ public class SonarAPI
 	public void majVues()
 	{
 		Response response = appelWebservicePOST("api/views/run", null);
-		response.getStatus();
+		gestionErreur(response);
 	}
 
 	/*---------- METHODES PRIVEES ----------*/
@@ -373,7 +371,7 @@ public class SonarAPI
 	 *            a pas beaoin de paramètres.
 	 * @return
 	 */
-	public Future<Response> appelWebserviceAsyncPOST(final String url, ModeleSonar entite)
+	private Future<Response> appelWebserviceAsyncPOST(final String url, ModeleSonar entite)
 	{
 		// Création de la requête
 		WebTarget requete = webTarget.path(url);
@@ -385,5 +383,24 @@ public class SonarAPI
 		}
 		return builder.async().post(Entity.entity(entite, MediaType.APPLICATION_JSON));
 	}
-
+	
+	/**
+	 * Gère les retours d'erreurs des Webservices.
+	 * 
+	 * @param response
+	 */
+	private void gestionErreur(Response response)
+	{
+		if (response.getStatus() != Status.OK.getStatusCode() && response.getStatus() != Status.NO_CONTENT.getStatusCode())
+		{
+			List<Message> erreurs = response.readEntity(Retour.class).getErrors();
+			if (erreurs != null)
+			{
+				for (Message message : erreurs)
+				{
+					logger.error(message.getMsg());
+				}
+			}
+		}
+	}
 }

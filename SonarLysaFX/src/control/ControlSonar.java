@@ -1,5 +1,7 @@
 package control;
 
+import static control.view.MainScreen.param;
+
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -19,10 +21,9 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
-import control.view.MainScreen;
 import junit.control.ControlSonarTest;
-import model.excel.Anomalie;
-import model.excel.LotSuiviPic;
+import model.Anomalie;
+import model.LotSuiviPic;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Projet;
@@ -38,7 +39,6 @@ public class ControlSonar
 	/*---------- ATTRIBUTS ----------*/
 
 	private final SonarAPI api;
-	private final ControlXML controlXML;
 	private static final String FICHIERANOMALIES = "d:\\Suivi_Quality_Gate.xlsx";
 
 	/*---------- CONSTRUCTEURS ----------*/
@@ -52,11 +52,9 @@ public class ControlSonar
 	 * @throws JAXBException
 	 * @throws InvalidFormatException
 	 */
-	public ControlSonar(String name, String password) throws JAXBException
+	public ControlSonar(String name, String password)
 	{
 		api = new SonarAPI(Statics.URI, name, password);
-		controlXML = new ControlXML();
-		controlXML.recuprerParamXML();
 	}
 
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -71,7 +69,7 @@ public class ControlSonar
 		{
 			// Création de la vue principale
 			Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(),
-			        true);
+			        false);
 			api.ajouterSousProjets(entry.getValue(), vue);
 		}
 	}
@@ -110,7 +108,7 @@ public class ControlSonar
 		// 1. Récupération des données depuis les fichiers Excel.
 
 		// Fichier des lots édition
-		Map<String, LotSuiviPic> lotsPIC = MainScreen.getParam().getLotsPic();
+		Map<String, LotSuiviPic> lotsPIC = param.getLotsPic();
 
 		// 2. Récupération des lots Sonar en erreur.
 		Map<String, Set<String>> mapLots;
@@ -326,7 +324,7 @@ public class ControlSonar
 				String application = composant.getMetriques().get(0).getValue().trim().toUpperCase();
 
 				// Si l'application n'est pas dans la PIC, on continue au projet suivant.
-				if (!testAppli(application, composant.getNom()))
+				if (!testAppli(application, projet.getNom()))
 				{
 					continue;
 				}
@@ -346,7 +344,7 @@ public class ControlSonar
 			}
 			else
 			{
-				Statics.logSansApp.warn(composant.getNom() + " - " + composant.getKey());
+				Statics.logSansApp.warn("Application non renseignée - Composant : " + projet.getNom());
 			}
 		}
 		return mapApplications;
@@ -364,11 +362,11 @@ public class ControlSonar
 	{
 		if (application.equals(Statics.INCONNUE))
 		{
-		    Statics.loginconnue.warn(nom);
+		    Statics.loginconnue.warn("Application : INCONNUE - Composant : " + nom);
 			return false;
 		}
 
-		Map<String, Boolean> vraiesApplis = MainScreen.getParam().getMapApplis();
+		Map<String, Boolean> vraiesApplis = param.getMapApplis();
 
 		if (vraiesApplis.keySet().contains(application))
 		{
@@ -560,7 +558,7 @@ public class ControlSonar
 					LotSuiviPic lot = lotsPIC.get(numeroLot);
 					if (lot == null)
 					{
-						Statics.lognonlistee.warn("Mettre à jour le fihcier Pic - Lots : " + numeroLot + " non listé");
+						Statics.lognonlistee.warn("Mettre à jour le fichier Pic - Lots : " + numeroLot + " non listé");
 						continue;
 					}
 					Anomalie ano = new Anomalie(lot);

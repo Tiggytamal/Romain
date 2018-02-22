@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
 import control.ControlSonar;
+import control.ControlXML;
 import junit.TestUtils;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -26,7 +27,8 @@ public class ControlSonarTest
 	{
 		// handler = new ControlSonar();
 		handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-		deser = true;
+		deser = false;
+		new ControlXML().recuprerParamXML();
 	}
 
 	@Test

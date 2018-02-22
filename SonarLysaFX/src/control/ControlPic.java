@@ -17,9 +17,11 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+
+import model.LotSuiviPic;
+
 import org.apache.poi.ss.usermodel.Sheet;
 
-import model.excel.LotSuiviPic;
 import sonarapi.model.Vue;
 import utilities.DateConvert;
 

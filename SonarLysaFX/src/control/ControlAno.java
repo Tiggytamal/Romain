@@ -19,8 +19,8 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import model.Anomalie;
 import model.enums.Environnement;
-import model.excel.Anomalie;
 import utilities.CellHelper;
 import utilities.FunctionalException;
 import utilities.enums.Bordure;

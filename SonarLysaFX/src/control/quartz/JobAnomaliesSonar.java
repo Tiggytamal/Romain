@@ -2,8 +2,6 @@ package control.quartz;
 
 import java.io.IOException;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -21,7 +19,7 @@ public class JobAnomaliesSonar implements Job
 		{
 			ControlSonar handler = new ControlSonar("ETP8137", "28H02m89,;:!");
 			handler.creerVuesQGErreur();
-		} catch (InvalidFormatException | JAXBException | IOException e)
+		} catch (InvalidFormatException | IOException e)
 		{
 			throw new JobExecutionException(e);
 		}

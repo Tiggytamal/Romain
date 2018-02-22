@@ -13,7 +13,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import model.excel.InfoClarity;
+import model.InfoClarity;
 
 public class ControlClarity extends ControlExcel
 {

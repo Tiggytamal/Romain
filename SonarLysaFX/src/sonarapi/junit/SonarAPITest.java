@@ -56,8 +56,8 @@ public class SonarAPITest
 	{
 		SonarAPI api = SonarAPI.getInstanceTest();
 		Vue vue = new Vue();
-		vue.setKey("bueKey");
-		vue.setName("Vue Name sdfs df");
+		vue.setKey("APPLI_Master_5MPR");
+		vue.setName("APPLI_Master_5MPR");
 		vue.setDescription("vue description");
 		api.creerVue(vue);
 	}

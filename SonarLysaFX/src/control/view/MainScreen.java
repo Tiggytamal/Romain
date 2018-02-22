@@ -15,7 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import model.xml.ParametreXML;
+import model.ParametreXML;
 import utilities.TechnicalException;
 import view.TrayIconView;
 
@@ -39,9 +39,6 @@ public class MainScreen extends Application
 	public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
 	{
 		Platform.setImplicitExit(false);
-		
-		// Initialisation des paramètres de l'application
-	    new ControlXML().recuprerParamXML();
 	    
 		// Menu de l'application
 		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
@@ -57,6 +54,9 @@ public class MainScreen extends Application
 		stage.setScene(scene);
 	    stage.iconifiedProperty().addListener(new IconifiedListener());
 		stage.show();
+		
+		// Initialisation des paramètres de l'application
+	    new ControlXML().recuprerParamXML();
 	}
 
 	/*---------- METHODES PRIVEES ----------*/

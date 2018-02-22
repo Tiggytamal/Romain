@@ -1,13 +1,11 @@
 package control;
 
+import static control.view.MainScreen.param;
+
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -23,12 +21,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import application.Main;
-import control.view.MainScreen;
-import model.excel.InfoClarity;
-import model.excel.LotSuiviPic;
-import model.xml.Application;
-import model.xml.ParametreXML;
-import model.xml.ParametreXML.TypeFichier;
+import model.Application;
+import model.InfoClarity;
+import model.LotSuiviPic;
+import model.ParametreXML;
+import model.ParametreXML.TypeFichier;
+import utilities.Statics;
 import utilities.Utilities;
 
 /**
@@ -43,15 +41,15 @@ public class ControlXML
 
 	private File fichierParam;
 	private String jarPath;
-	
+
 	/*---------- CONSTRUCTEURS ----------*/
 
 	public ControlXML()
 	{
-        jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
-        fichierParam = new File(jarPath + "\\param.xml");
+		jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
+		fichierParam = new File(jarPath + "\\param.xml");
 	}
-	
+
 	/*---------- METHODES PUBLIQUES ----------*/
 
 	/**
@@ -61,24 +59,27 @@ public class ControlXML
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	public ParametreXML recuprerParamXML() throws JAXBException
-	{	
-	    JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
-	    ParametreXML retour;
-	    
-	    // Récupération du paramétrage depuis le fichier externe
-		if(fichierParam.exists())
+	public void recuprerParamXML() throws JAXBException
+	{
+		JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
+		ParametreXML temp;
+
+		// Récupération du paramétrage depuis le fichier externe
+		if (fichierParam.exists())
 		{
-		    retour = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);			
+			temp = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
 		}
 		// Récupération du paramétrage depuis le fichier interne
 		else
 		{
-		    retour = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+			temp = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
 		}
-        return retour;
+
+		// Contrôle des données
+		controleDonneParam(temp);
+
 	}
-	
+
 	/**
 	 * Sauvegarde le fichier de paramètres
 	 * 
@@ -86,18 +87,18 @@ public class ControlXML
 	 */
 	public void saveParam() throws JAXBException
 	{
-       JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
-       Marshaller jaxbMarshaller = context.createMarshaller();
-       jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);      
-       jaxbMarshaller.marshal(MainScreen.getParam(), fichierParam);
+		JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
+		Marshaller jaxbMarshaller = context.createMarshaller();
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		jaxbMarshaller.marshal(param, fichierParam);
 	}
-	
+
 	/**
 	 * 
 	 * @return
 	 * @throws InvalidFormatException
 	 * @throws IOException
-	 * @throws JAXBException 
+	 * @throws JAXBException
 	 */
 	public void recupListeAppsDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
 	{
@@ -109,47 +110,103 @@ public class ControlXML
 		{
 			Application app = new Application();
 			Cell cell = row.getCell(0);
-			
+
 			if (cell.getCellTypeEnum() == CellType.STRING)
 				app.setNom(row.getCell(0).getStringCellValue());
 			else
-				app.setNom(String.valueOf((int)row.getCell(0).getNumericCellValue()));
-			
+				app.setNom(String.valueOf((int) row.getCell(0).getNumericCellValue()));
+
 			String actif = row.getCell(1).getStringCellValue();
 			if ("Actif".equals(actif))
 				app.setActif(true);
 			else
 				app.setActif(false);
-			
+
 			apps.add(app);
 		}
-		wb.close();	
-		MainScreen.getParam().setListeApplications(apps);
-	    MainScreen.getParam().setDateMaj(TypeFichier.APPS);
-        saveParam();		
+		wb.close();
+		param.setListeApplications(apps);
+		param.setDateMaj(TypeFichier.APPS);
+		saveParam();
 	}
-	
+
 	public void recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
 	{
-	      ControlClarity control = new ControlClarity(file);
-	      Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
-	      control.close();
-	      MainScreen.getParam().setMapClarity(clarity);
-	      MainScreen.getParam().setDateMaj(TypeFichier.CLARITY);
-	      saveParam();              
+		ControlClarity control = new ControlClarity(file);
+		Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
+		control.close();
+		param.setMapClarity(clarity);
+		param.setDateMaj(TypeFichier.CLARITY);
+		saveParam();
 	}
-	
+
 	public void recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException, JAXBException
 	{
 		ControlPic controlPic = new ControlPic(file);
 		Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
 		controlPic.close();
-		MainScreen.getParam().setLotsPic(lotsPic);
-	    MainScreen.getParam().setDateMaj(TypeFichier.LOTSPICS);
+		param.setLotsPic(lotsPic);
+		param.setDateMaj(TypeFichier.LOTSPICS);
 		saveParam();
 	}
-	
+
 	/*---------- METHODES PRIVEES ----------*/
-	
+
+	private void controleDonneParam(ParametreXML temp)
+	{
+		// Variables
+		Map<String, LotSuiviPic> lotsPic = temp.getLotsPic();
+		List<Application> applis = temp.getListeApplications();
+		Map<String, InfoClarity> clarity = temp.getMapClarity();
+		StringBuilder builder = new StringBuilder();
+		boolean manquant = false;
+
+		// Contrôle lots Pic
+		if (lotsPic == null || lotsPic.isEmpty())
+		{
+			builder.append("Données des lots Pic manquantes.").append(Statics.NL);
+			manquant = true;
+		}
+		else
+		{
+			builder.append("Lots Pics chargés. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.LOTSPICS)).append(Statics.NL);
+			param.setLotsPic(lotsPic);
+		}
+
+		// Contrôle liste application
+		if (applis == null || applis.isEmpty())
+		{
+			builder.append("Liste des apllications manquante.").append(Statics.NL);
+			manquant = true;
+		}
+		else
+		{
+			builder.append("Liste des apllications chargée. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.APPS)).append(Statics.NL);
+			param.setListeApplications(applis);
+		}
+
+		// Contrôle Referentiel Clarity
+		if (clarity == null || clarity.isEmpty())
+		{
+			builder.append("Informations referentiel Clarity manquantes.").append(Statics.NL);
+			manquant = true;
+		}
+		else
+		{
+			builder.append("Referentiel Clarity chargé. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.CLARITY)).append(Statics.NL);
+			param.setMapClarity(clarity);
+		}
+
+		if (manquant)
+			builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
+
+		// Création alerte
+//		Alert alert = new Alert(AlertType.INFORMATION);
+//		alert.initStyle(StageStyle.UTILITY);
+//		alert.setContentText(builder.toString());
+//		alert.setHeaderText(null);
+//		alert.show();
+	}
+
 	/*---------- ACCESSEURS ----------*/
 }

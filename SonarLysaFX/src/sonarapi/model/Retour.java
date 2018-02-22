@@ -21,6 +21,7 @@ public class Retour implements ModeleSonar
 	private StatusProjet statusProjet;
 	private List<Vue> results;
 	private boolean more;
+	private List<Message> errors;
 	
 	/*---------- ACCESSEURS ----------*/
 
@@ -54,9 +55,10 @@ public class Retour implements ModeleSonar
 		return more;
 	}
 
-	public void setMore(boolean more)
+	@XmlAttribute (name = "errors", required = false)
+	public List<Message> getErrors()
 	{
-		this.more = more;
+		return errors;
 	}
 	
 	
