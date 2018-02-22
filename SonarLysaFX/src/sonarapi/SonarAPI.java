@@ -63,12 +63,6 @@ public class SonarAPI
 		builder.append(password);
 		codeUser = Base64.getEncoder().encodeToString(builder.toString().getBytes());
 	}
-	
-	public SonarAPI() 
-	{
-	    webTarget = null;
-	    codeUser = null;
-	}
 
 	/**
 	 *
