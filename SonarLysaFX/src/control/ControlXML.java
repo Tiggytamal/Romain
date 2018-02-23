@@ -21,6 +21,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import application.Main;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
@@ -76,8 +80,7 @@ public class ControlXML
 		}
 
 		// Contrôle des données
-		controleDonneParam(temp);
-
+		createAlert(controleDonneesParam(temp));
 	}
 
 	/**
@@ -152,7 +155,7 @@ public class ControlXML
 
 	/*---------- METHODES PRIVEES ----------*/
 
-	private void controleDonneParam(ParametreXML temp)
+	private String controleDonneesParam(ParametreXML temp)
 	{
 		// Variables
 		Map<String, LotSuiviPic> lotsPic = temp.getLotsPic();
@@ -199,13 +202,20 @@ public class ControlXML
 
 		if (manquant)
 			builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
+		
+		return builder.toString();
 
-		// Création alerte
-//		Alert alert = new Alert(AlertType.INFORMATION);
-//		alert.initStyle(StageStyle.UTILITY);
-//		alert.setContentText(builder.toString());
-//		alert.setHeaderText(null);
-//		alert.show();
+	}
+	
+	private void createAlert(String texte)
+	{
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.initStyle(StageStyle.UTILITY);
+		alert.initModality(Modality.NONE);
+		alert.setContentText(texte);
+		alert.setHeaderText(null);
+		alert.show();
+		alert.setHeaderText(null);
 	}
 
 	/*---------- ACCESSEURS ----------*/

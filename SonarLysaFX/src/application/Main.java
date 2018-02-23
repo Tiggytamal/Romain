@@ -34,7 +34,8 @@ public class Main extends Application
     {
         // Permet de controler toutes les erreurs remontées par l'application
         Thread.currentThread().setUncaughtExceptionHandler((t, e) -> gestionException(e));
-        // Création fenêtre principale
+        
+        // Création fenêtre principale		
         MainScreen main = new MainScreen();
         main.start(stage);
     }

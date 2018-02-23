@@ -3,6 +3,7 @@ package sonarapi;
 import static utilities.Statics.logger;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -17,6 +18,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import sonarapi.model.AjouterProjet;
 import sonarapi.model.AjouterVueLocale;
 import sonarapi.model.Clef;
@@ -28,6 +31,7 @@ import sonarapi.model.Projet;
 import sonarapi.model.Retour;
 import sonarapi.model.Validation;
 import sonarapi.model.Vue;
+import utilities.AnnotationGenerator;
 import utilities.FunctionalException;
 import utilities.Statics;
 import utilities.enums.Severity;
@@ -136,7 +140,7 @@ public class SonarAPI
 	 *            clé des métriques désirées (issues, bugs, vulnerabilitie, etc..)
 	 * @return un objet de type {@link Composant} avec toutes les informations sur celui-ci
 	 */
-	public Composant getMetriquesComposant(final String composantKey, String[] metricKeys)
+	public Composant getMetriquesComposant(String composantKey, String[] metricKeys)
 	{
 		// 1. Création des paramètres
 		Parametre paramComposant = new Parametre("componentKey", composantKey);
@@ -160,13 +164,35 @@ public class SonarAPI
 		// 3. Test du retour et renvoie du composant si ok.
 		if (response.getStatus() == Status.OK.getStatusCode())
 		{
-			return response.readEntity(Retour.class).getComponent();
+			Annotation annotation = AnnotationGenerator.class.getAnnotation(JsonIgnoreProperties.class);
+			return response.readEntity(Retour.class, new Annotation[] {annotation}).getComponent();
 		}
 		else
 		{
 			logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
 			return new Composant();
 		}
+	}
+	
+	public List<String> getSecuriteComposant(String componentKey)
+	{
+		List<String> retour = new ArrayList<>();
+
+		Parametre paramComposant = new Parametre("componentKeys", componentKey);
+		// 2. appel du webservices
+		final Response response = appelWebserviceGET("api/measures/component", paramComposant);
+		
+		// 3. Test du retour et renvoie du composant si ok.
+		if (response.getStatus() == Status.OK.getStatusCode())
+		{
+			List<Composant> liste =  response.readEntity(Retour.class).getComposants();
+		}
+		else
+		{
+			logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
+			return retour;
+		}
+		return retour;
 	}
 
 	/**

@@ -34,7 +34,7 @@ public class ControlSonarTest
 	@Test
 	public void recupererLotsSonarQube() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
-		TestUtils.callPrivate("recupererLotsSonarQube", handler);
+		TestUtils.callPrivate("recupererLotsSonarQube", handler, null);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class ControlSonarTest
 	@Test
 	public void testRecupererComposantsSonar() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
-		TestUtils.callPrivate("recupererComposantsSonar", handler);
+		TestUtils.callPrivate("recupererComposantsSonar", handler, null);
 	}
 
 	@Test

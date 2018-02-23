@@ -95,11 +95,6 @@ public class ParametreXML
     {
         return dateMaj;
     }
-
-    public void setDateMaj(Map<TypeFichier, String> dateMaj)
-    {
-        this.dateMaj = dateMaj;
-    }
 	
 	/**
 	 * Permet de remonter la liste des applications sous forme d'une map (clef = nom application / valeur = etat)

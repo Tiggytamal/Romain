@@ -17,8 +17,6 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import junit.control.ControlSonarTest;
@@ -48,9 +46,6 @@ public class ControlSonar
 	 * 
 	 * @param name
 	 * @param password
-	 * @throws IOException
-	 * @throws JAXBException
-	 * @throws InvalidFormatException
 	 */
 	public ControlSonar(String name, String password)
 	{
@@ -68,8 +63,7 @@ public class ControlSonar
 		for (Map.Entry<String, List<Projet>> entry : mapApplication.entrySet())
 		{
 			// Création de la vue principale
-			Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(),
-			        false);
+			Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(), false);
 			api.ajouterSousProjets(entry.getValue(), vue);
 		}
 	}
@@ -123,10 +117,13 @@ public class ControlSonar
 			Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
 		}
 
-		// 3. Supression des lots déjà créés et création des feuille excel avec les nouvelles erreurs
+		// 3. Récupération des lots avec problèmes de sécurité
+		List<String> lotsSecurite =  calculSecuriteLots(mapLots);
+		
+		// 4. Supression des lots déjà créés et création des feuille excel avec les nouvelles erreurs
 		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
 
-		// 4. Création des vues
+		// 5. Création des vues
 		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
 		{
 			// Création de la vue et envoie vers SonarQube
@@ -141,6 +138,11 @@ public class ControlSonar
 				api.ajouterSousVue(vue, vueParent);
 			}
 		}
+	}
+
+	private List<String> calculSecuriteLots(Map<String, Set<String>> mapLots)
+	{
+		return null;
 	}
 
 	public void creerVuesDatastage()
@@ -213,8 +215,7 @@ public class ControlSonar
 
 		// Création de la map de retour et parcours de la liste des projets pour remplir celle-ci. On utilise la chaine
 		// de caractères créées par la regex comme clef dans la map.
-		// Les compossant étant triès par ordre alphabétique, on va écraser tous les composants qui ont un numéro de
-		// version obsolète.
+		// Les compossant étant triès par ordre alphabétique, on va écraser tous les composants qui ont un numéro de version obsolète.
 		Map<String, Projet> retour = new HashMap<>();
 
 		for (Projet projet : projets)
@@ -265,8 +266,6 @@ public class ControlSonar
 	 * 
 	 * @param versions
 	 * @return
-	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
 	private Map<String, Set<String>> lotSonarQGError(String[] versions)
 	{
@@ -280,6 +279,7 @@ public class ControlSonar
 		for (Map.Entry<String, List<Projet>> entry : mapProjets.entrySet())
 		{
 			retour.put(entry.getKey(), new TreeSet<>());
+			
 			// Iteration sur la liste des projets
 			for (Projet projet : entry.getValue())
 			{
@@ -317,8 +317,7 @@ public class ControlSonar
 			// Récupération du code application
 			Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] { "application" });
 
-			// Test si la liste est vide, cela veut dire que le projet n'a pas de code
-			// application.
+			// Test si la liste est vide, cela veut dire que le projet n'a pas de code application.
 			if (!composant.getMetriques().isEmpty())
 			{
 				String application = composant.getMetriques().get(0).getValue().trim().toUpperCase();
@@ -329,8 +328,7 @@ public class ControlSonar
 					continue;
 				}
 
-				// Mise à jour de la map de retour avec en clef, le code application et en
-				// valeur : la liste des projets liés.
+				// Mise à jour de la map de retour avec en clef, le code application et en valeur : la liste des projets liés.
 				if (mapApplications.keySet().contains(application))
 				{
 					mapApplications.get(application).add(projet);
@@ -388,8 +386,7 @@ public class ControlSonar
 	 */
 	private void creerVueTrimestrielle(Map<LocalDate, List<Vue>> mapLot)
 	{
-		// Création des variables. Transfert de la HashMap dans une TreeMap pour trier
-		// les dates.
+		// Création des variables. Transfert de la HashMap dans une TreeMap pour trier les dates.
 		List<Vue> lotsTotal = new ArrayList<>();
 		Map<LocalDate, List<Vue>> treeLot = new TreeMap<>(mapLot);
 		Iterator<Entry<LocalDate, List<Vue>>> iter = treeLot.entrySet().iterator();
@@ -402,6 +399,7 @@ public class ControlSonar
 		while (iter.hasNext())
 		{
 			Entry<LocalDate, List<Vue>> entry = iter.next();
+			
 			// Regroupe tous les lots dans la même liste.
 			lotsTotal.addAll(entry.getValue());
 			LocalDate clef = entry.getKey();

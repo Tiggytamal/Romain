@@ -26,6 +26,11 @@ public class Composant implements ModeleSonar
 	private String langage;
 	private String path;
 	private List<Metrique> metriques;
+	private String uuid;
+	private boolean enabled;
+	private String longName;
+	private int projectId;
+	private int subProjectId;
 
 	/*---------- ACCESSEURS ----------*/
 
@@ -107,7 +112,7 @@ public class Composant implements ModeleSonar
 	}
 
 	@XmlElementWrapper
-	@XmlElement(name = "measures")
+	@XmlElement(name = "measures", required = false)
 	public List<Metrique> getMetriques()
 	{
 		if (metriques == null)
@@ -135,8 +140,63 @@ public class Composant implements ModeleSonar
 		return retour;
 	}
 
-	public void setListeMeriques(List<Metrique> metriques)
+	public void setMetriques(List<Metrique> metriques)
 	{
 		this.metriques = metriques;
+	}
+	
+	@XmlAttribute (name = "uuid", required = false)
+	public String getUuid()
+	{
+		return uuid;
+	}
+
+	public void setUuid(String uuid)
+	{
+		this.uuid = uuid;
+	}
+	
+	@XmlAttribute (name = "uuid", required = false)
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+
+	@XmlAttribute (name = "longName", required = false)
+	public String getLongName()
+	{
+		return longName;
+	}
+
+	public void setLongName(String longName)
+	{
+		this.longName = longName;
+	}
+
+	@XmlAttribute (name = "projectId", required = false)
+	public int getProjectId()
+	{
+		return projectId;
+	}
+
+	public void setProjectId(int projectId)
+	{
+		this.projectId = projectId;
+	}
+
+	@XmlAttribute (name = "subProJectId", required = false)
+	public int getSubProjectId()
+	{
+		return subProjectId;
+	}
+
+	public void setSubProjectId(int subProjectId)
+	{
+		this.subProjectId = subProjectId;
 	}
 }
