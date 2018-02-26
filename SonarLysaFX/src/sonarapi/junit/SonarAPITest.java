@@ -10,14 +10,17 @@ import java.util.regex.Pattern;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Projet;
 import sonarapi.model.Vue;
+import utilities.Statics;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SonarAPITest
@@ -27,8 +30,8 @@ public class SonarAPITest
     @BeforeAll
     public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
     {
-        api = SonarAPI.getInstanceTest();
-//        api = new SonarAPI(Statics.URI, "ETP8137", "28H02m89,;:!");
+//        api = SonarAPI.getInstanceTest();
+        api = new SonarAPI(Statics.URI, "ETP8137", "28H02m89,;:!");
     }
     
 	@Test
@@ -82,5 +85,17 @@ public class SonarAPITest
 		vue.setName("Vue Name sdfs df");
 		vue.setDescription("vue description");
 		api.creerVueAsync(vue);
+	}
+	
+	@SuppressWarnings("static-access")
+	@Test
+	public void testGetSecuriteComposant()
+	{
+		Statics mock = Mockito.mock(Statics.class);
+		int testA = api.getSecuriteComposant("fr.ca.cat.green:WEBLIV_Green_Build:14");
+		Assert.assertEquals(2, testA);
+		int testB = api.getSecuriteComposant("nom erreur");
+		Mockito.verify(mock, Mockito.atLeastOnce()).logger.error(Mockito.anyString());
+		Assert.assertEquals(0, testB);
 	}
 }

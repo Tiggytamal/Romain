@@ -49,6 +49,7 @@ public class ControlAno extends ControlExcel
 	private int colEnv;
 	private int colAno;
 	private int colEtat;
+	private int colSec;
 	private int colRemarque;
 
 	// Liste des noms de colonnes
@@ -58,12 +59,13 @@ public class ControlAno extends ControlExcel
 	private static final String RESPSERVICE = "Responsable Service";
 	private static final String CLARITY = "Projet Clarity";
 	private static final String LIBELLE = "Libelle projet";
-	private static final String CPI = "CPI  du projet";
+	private static final String CPI = "CPI du lot";
 	private static final String EDITION = "Edition";
 	private static final String LOT = "Lot projet RTC";
-	private static final String ENV = "Environnement";
+	private static final String ENV = "Etat du lot";
 	private static final String ANOMALIE = "Anomalie";
-	private static final String ETAT = "Etat";
+	private static final String ETAT = "Etat de l'anomalie";
+	private static final String SECURITE = "Securité";
 	private static final String REMARQUE = "Remarque";
 	private static final String TRAITE = "Traité";
 
@@ -73,6 +75,8 @@ public class ControlAno extends ControlExcel
 	private static final String CLOSE = "Close";
 	private static final String ABANDONNEE = "Abandonnée";
 	private static final String LIENSLOTS = "http://ttp10-snar.ca-technologies.fr/governance?id=";
+	private static final String LIENSANO = "https://ttp10-jazz.ca-technologies.credit-agricole.fr/ccm/web/projects/Support%20NICE#action=com.ibm.team.workitem.viewWorkItem&id=";
+	private static final String SECURITEKO = "X";
 
 	/*---------- CONSTRUCTEURS ----------*/
 
@@ -111,12 +115,13 @@ public class ControlAno extends ControlExcel
 			
 			// Numéro anomalie
 			Cell cellAno = row.getCell(colAno);
-			ano.setnumeroAnomalie((int) cellAno.getNumericCellValue());
+			ano.setNumeroAnomalie((int) cellAno.getNumericCellValue());
 			// Si le liens n'est pas nul on le sauvegarde
 			if (cellAno.getHyperlink() != null)
 				ano.setLiensAno(cellAno.getHyperlink().getAddress());
 			
 			ano.setEtat(row.getCell(colEtat).getStringCellValue());
+			ano.setSecurite(row.getCell(colSec).getStringCellValue());
 			ano.setRemarque(row.getCell(colRemarque).getStringCellValue());
 			retour.add(ano);
 		}
@@ -236,11 +241,12 @@ public class ControlAno extends ControlExcel
 	 * Rajoute les nouvelles anomalies à la première page du fichier Excel
 	 * 
 	 * @param anoAajouter
+	 * @param lotsSecurite 
 	 * @param anoAajouter2
 	 * @param lotsEnErreur
 	 * @throws IOException
 	 */
-	protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar) throws IOException
+	protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, List<String> lotsSecurite) throws IOException
 	{
 		// Création d'une nouvelle feuille d'anomalies
 		Sheet sheet = wb.getSheet(SQ);
@@ -260,7 +266,12 @@ public class ControlAno extends ControlExcel
 		for (Anomalie ano : lotsEnAno)
 		{
 			Row row;
-
+			String lot  = ano.getLot().substring(4);
+			
+			// Contrôle si le lot a une erreur de sécurité pour mettre à jour la donnée.
+			if (lotsSecurite.contains(lot))
+				ano.setSecurite(SECURITEKO);
+			
 			// Si une anomalie est close dans RTC, on la transfert sur l'autre feuille.
 			if (CLOSE.equals(ano.getEtat()) || ABANDONNEE.equals(ano.getEtat()))
 			{
@@ -271,7 +282,7 @@ public class ControlAno extends ControlExcel
 
 			// Mise en vert des anomalies avec un Quality Gate bon
 			row = sheet.createRow(sheet.getLastRowNum() + 1);
-			if (!lotsEnErreurSonar.contains(ano.getLot().substring(4)))
+			if (!lotsEnErreurSonar.contains(lot))
 			{
 				creerLigneSQ(row, ano, CouleurLigne.VERT);
 			}
@@ -286,6 +297,9 @@ public class ControlAno extends ControlExcel
 		for (Anomalie ano : anoAajouter)
 		{
 			Row row = sheet.createRow(sheet.getLastRowNum() + 1);
+			// Contrôle si le lot a une erreur de sécurité pour mettre à jour la donnée.
+			if (lotsSecurite.contains(ano.getLot().substring(4)))
+				ano.setSecurite(SECURITEKO);
 			creerLigneSQ(row, ano, CouleurLigne.ROUGE);
 		}
 		autosizeColumns(sheet);
@@ -356,6 +370,10 @@ public class ControlAno extends ControlExcel
 						break;
 					case ETAT:
 						colEtat = cell.getColumnIndex();
+						testMax(colEtat);
+						break;
+					case SECURITE:
+						colSec = cell.getColumnIndex();
 						testMax(colEtat);
 						break;
 					case REMARQUE:
@@ -429,23 +447,35 @@ public class ControlAno extends ControlExcel
 		cell.setCellValue(ano.getEdition());
 		cell = row.createCell(colLot);
 		cell.setCellStyle(centre);
+		
+		// Gestion des numéros de lots
 		cell.setCellValue(ano.getLot());
 		ajouterLiens(cell, LIENSLOTS, ano.getLot().substring(4));
+		
+		// Gestion de la variable d'environnement
 		cell = row.createCell(colEnv);
 		cell.setCellStyle(centre);
 		if (ano.getEnvironnement() != null)
 			cell.setCellValue(ano.getEnvironnement().toString());
+		
+		// Gestion des numéros d'anomalies
 		cell = row.createCell(colAno);
 		cell.setCellStyle(centre);
-		int numeroAno = ano.getnumeroAnomalie();
-		if (numeroAno != 0 && ano.getLiensAno() != null)
+		int numeroAno = ano.getNumeroAnomalie();
+		if (numeroAno != 0)
 		{
-			cell.setCellValue(ano.getnumeroAnomalie());
-			ajouterLiens(cell, ano.getLiensAno());
+			cell.setCellValue(numeroAno);
+			if (ano.getLiensAno() != null)
+				ajouterLiens(cell, ano.getLiensAno());
+			else 
+				ajouterLiens(cell, LIENSANO, String.valueOf(numeroAno));
 		}
 		cell = row.createCell(colEtat);
 		cell.setCellStyle(normal);
 		cell.setCellValue(ano.getEtat());
+		cell = row.createCell(colSec);
+		cell.setCellStyle(centre);
+		cell.setCellValue(ano.getSecurite());
 		cell = row.createCell(colRemarque);
 		cell.setCellStyle(normal);
 		cell.setCellValue(ano.getRemarque());

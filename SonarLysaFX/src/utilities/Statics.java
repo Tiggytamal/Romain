@@ -14,9 +14,7 @@ import javafx.stage.FileChooser;
  */
 public abstract class Statics
 {
-    private Statics()
-    {
-    }
+    private Statics() {}
 
     /** logger général */
 	public static final Logger logger = LogManager.getLogger("complet.log");

@@ -10,10 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @XmlRootElement(name = "component")
-@JsonIgnoreProperties({"id", "key", "name", "description", "qualifier", "language", "path"})
 public class Composant implements ModeleSonar
 {
 	/*---------- ATTRIBUTS ----------*/
@@ -34,7 +31,7 @@ public class Composant implements ModeleSonar
 
 	/*---------- ACCESSEURS ----------*/
 
-	@XmlAttribute(name = "id")
+	@XmlAttribute(name = "id", required = false)
 	public String getId()
 	{
 		return id;
@@ -45,7 +42,7 @@ public class Composant implements ModeleSonar
 		this.id = id;
 	}
 
-	@XmlAttribute(name = "key")
+	@XmlAttribute(name = "key", required = false)
 	public String getKey()
 	{
 		return key;
@@ -56,7 +53,7 @@ public class Composant implements ModeleSonar
 		this.key = key;
 	}
 
-	@XmlAttribute(name = "name")
+	@XmlAttribute(name = "name", required = false)
 	public String getNom()
 	{
 		return nom;
@@ -78,7 +75,7 @@ public class Composant implements ModeleSonar
 		this.descritpion = descritpion;
 	}
 
-	@XmlAttribute(name = "qualifier")
+	@XmlAttribute(name = "qualifier", required = false)
 	public String getQualifier()
 	{
 		return qualifier;
@@ -156,7 +153,7 @@ public class Composant implements ModeleSonar
 		this.uuid = uuid;
 	}
 	
-	@XmlAttribute (name = "uuid", required = false)
+	@XmlAttribute (name = "enabled", required = false)
 	public boolean isEnabled()
 	{
 		return enabled;
@@ -189,7 +186,7 @@ public class Composant implements ModeleSonar
 		this.projectId = projectId;
 	}
 
-	@XmlAttribute (name = "subProJectId", required = false)
+	@XmlAttribute (name = "subProjectId", required = false)
 	public int getSubProjectId()
 	{
 		return subProjectId;

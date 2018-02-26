@@ -192,7 +192,7 @@ public class Utilities
 			oos.flush();
 		} catch (IOException e)
 		{
-			e.printStackTrace();
+			throw new TechnicalException("Erreur sérialisation", e);
 		}
 	}
 	
@@ -204,9 +204,8 @@ public class Utilities
 			objet = ois.readObject();
 		} catch (IOException | ClassNotFoundException e)
 		{
-			e.printStackTrace();
+			throw new TechnicalException("Erreur desérialisation", e);
 		}
-
 		return classeObjet.cast(objet);
 	}
 

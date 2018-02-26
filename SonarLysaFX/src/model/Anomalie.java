@@ -26,6 +26,8 @@ public class Anomalie
 	private int numeroAnomalie;
 	private String liensAno;
 	private String etat;
+	private String typeAssemblage;
+	private String securite;
 	private String remarque;
 	
 	/*---------- CONSTRUCTEURS ----------*/
@@ -169,12 +171,12 @@ public class Anomalie
 		this.environnement = environnement;
 	}
 	
-	public int getnumeroAnomalie()
+	public int getNumeroAnomalie()
 	{
 		return numeroAnomalie;
 	}
 	
-	public void setnumeroAnomalie(int numeroAnomalie)
+	public void setNumeroAnomalie(int numeroAnomalie)
 	{
 		this.numeroAnomalie = numeroAnomalie;
 	}
@@ -187,6 +189,16 @@ public class Anomalie
 	public void setEtat(String etat)
 	{
 		this.etat = etat;
+	}
+	
+	public String getSecurite()
+	{
+		return securite;
+	}
+
+	public void setSecurite(String securite)
+	{
+		this.securite = securite;
 	}
 	
 	public String getRemarque()
@@ -218,4 +230,14 @@ public class Anomalie
 	{
 		this.liensAno = liensAno;
 	}
+
+	public String getTypeAssemblage()
+	{
+		return typeAssemblage;
+	}
+
+	public void setTypeAssemblage(String typeAssemblage)
+	{
+		this.typeAssemblage = typeAssemblage;
+	}	
 }

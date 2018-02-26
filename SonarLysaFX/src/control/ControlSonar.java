@@ -107,23 +107,23 @@ public class ControlSonar
 		// 2. Récupération des lots Sonar en erreur.
 		Map<String, Set<String>> mapLots;
 		
+		List<String> LotsSecurite = new ArrayList<>();
+		
 		if (ControlSonarTest.deser)
 		{
 			mapLots = Utilities.deserialisation("d:\\lotsSonar.ser", HashMap.class);
 		}
 		else
 		{
-			mapLots = lotSonarQGError(new String[] {"13", "14"});
+			mapLots = lotSonarQGError(new String[] {"13", "14"}, LotsSecurite);
+			Utilities.serialisation("d:\\lotsSecurite.ser", LotsSecurite);
 			Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
 		}
-
-		// 3. Récupération des lots avec problèmes de sécurité
-		List<String> lotsSecurite =  calculSecuriteLots(mapLots);
 		
-		// 4. Supression des lots déjà créés et création des feuille excel avec les nouvelles erreurs
-		majFichierAnomalies(lotsPIC, mapLots, new File(FICHIERANOMALIES));
+		// 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
+		majFichierAnomalies(lotsPIC, mapLots, LotsSecurite, new File(FICHIERANOMALIES));
 
-		// 5. Création des vues
+		// 4. Création des vues
 		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
 		{
 			// Création de la vue et envoie vers SonarQube
@@ -138,11 +138,6 @@ public class ControlSonar
 				api.ajouterSousVue(vue, vueParent);
 			}
 		}
-	}
-
-	private List<String> calculSecuriteLots(Map<String, Set<String>> mapLots)
-	{
-		return null;
 	}
 
 	public void creerVuesDatastage()
@@ -267,7 +262,7 @@ public class ControlSonar
 	 * @param versions
 	 * @return
 	 */
-	private Map<String, Set<String>> lotSonarQGError(String[] versions)
+	private Map<String, Set<String>> lotSonarQGError(String[] versions, List<String> lotSecurite)
 	{
 		// Récupération des composants Sonar selon les version demandées
 		Map<String, List<Projet>> mapProjets = recupererComposantsSonarVersion(versions);
@@ -286,14 +281,19 @@ public class ControlSonar
 				// Récupération du composant
 				Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"lot", "alert_status"});
 
-				// Récupération depuis la map des métriques su numéro de lot et su status de la Quality Gate
+				// Récupération depuis la map des métriques du numéro de lot et du status de la Quality Gate
 				Map<String, String> metriques = composant.getMapMetriques();
 				String lot = metriques.get("lot");
 				String alert = metriques.get("alert_status");
 
+				// Si le lot a un Quality Gate en Erreur, on le rajoute à la liste et on contrôle aussi les erreurs de sécurité. 
+				// S'il y en a on le rajoute aussi à la liste des lots avec des problèmesde sécurité.
 				if (alert != null && Status.getStatus(alert) == Status.ERROR && lot != null && !lot.isEmpty())
 				{
 					retour.get(entry.getKey()).add(lot);
+					int securite = api.getSecuriteComposant(projet.getKey());
+					if (securite > 0)
+						lotSecurite.add(lot);						
 				}
 			}
 		}
@@ -505,10 +505,11 @@ public class ControlSonar
 	 *            Fichier excel d'extraction de la PIC de tous les lots.
 	 * @param mapLots
 	 *            map des lots Sonar avec une quality Gate en erreur
+	 * @param lotsSecurite 
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, File file) throws InvalidFormatException, IOException
+	private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, List<String> lotsSecurite, File file) throws InvalidFormatException, IOException
 	{
 		// Controleur
 		ControlAno controlAno = new ControlAno(file);
@@ -569,7 +570,7 @@ public class ControlSonar
 		}
 		
 		// Mis à jour de la feuille principale
-		controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur);
+		controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite);
 		
 		controlAno.close();
 	}

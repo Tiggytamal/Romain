@@ -80,7 +80,8 @@ public class ControlXML
 		}
 
 		// Contrôle des données
-		createAlert(controleDonneesParam(temp));
+		String string = controleDonneesParam(temp);
+//		createAlert(string);
 	}
 
 	/**
@@ -204,7 +205,6 @@ public class ControlXML
 			builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
 		
 		return builder.toString();
-
 	}
 	
 	private void createAlert(String texte)

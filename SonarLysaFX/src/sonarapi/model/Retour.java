@@ -22,7 +22,7 @@ public class Retour implements ModeleSonar
 	private List<Vue> results;
 	private boolean more;
 	private List<Message> errors;
-	private List<Composant> composants;
+
 	
 	/*---------- ACCESSEURS ----------*/
 
@@ -60,11 +60,5 @@ public class Retour implements ModeleSonar
 	public List<Message> getErrors()
 	{
 		return errors;
-	}
-	
-	@XmlAttribute (name = "components", required = false)
-	public List<Composant> getComposants()
-	{
-		return composants;
 	}
 }

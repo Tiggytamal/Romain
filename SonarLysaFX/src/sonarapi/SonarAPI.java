@@ -3,7 +3,6 @@ package sonarapi;
 import static utilities.Statics.logger;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -18,12 +17,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import sonarapi.model.AjouterProjet;
 import sonarapi.model.AjouterVueLocale;
 import sonarapi.model.Clef;
 import sonarapi.model.Composant;
+import sonarapi.model.Event;
+import sonarapi.model.IssuesSimple;
 import sonarapi.model.Message;
 import sonarapi.model.ModeleSonar;
 import sonarapi.model.Parametre;
@@ -31,7 +30,6 @@ import sonarapi.model.Projet;
 import sonarapi.model.Retour;
 import sonarapi.model.Validation;
 import sonarapi.model.Vue;
-import utilities.AnnotationGenerator;
 import utilities.FunctionalException;
 import utilities.Statics;
 import utilities.enums.Severity;
@@ -139,6 +137,8 @@ public class SonarAPI
 	 * @param metricKeys
 	 *            clé des métriques désirées (issues, bugs, vulnerabilitie, etc..)
 	 * @return un objet de type {@link Composant} avec toutes les informations sur celui-ci
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
 	 */
 	public Composant getMetriquesComposant(String composantKey, String[] metricKeys)
 	{
@@ -164,8 +164,7 @@ public class SonarAPI
 		// 3. Test du retour et renvoie du composant si ok.
 		if (response.getStatus() == Status.OK.getStatusCode())
 		{
-			Annotation annotation = AnnotationGenerator.class.getAnnotation(JsonIgnoreProperties.class);
-			return response.readEntity(Retour.class, new Annotation[] {annotation}).getComponent();
+			return response.readEntity(Retour.class).getComponent();
 		}
 		else
 		{
@@ -174,25 +173,59 @@ public class SonarAPI
 		}
 	}
 	
-	public List<String> getSecuriteComposant(String componentKey)
-	{
-		List<String> retour = new ArrayList<>();
-
+	/**
+	 * Donne le nombre de problèmed de sécurité en cours et à prendre en compte d'un composant.
+	 * 
+	 * @param componentKey
+	 * @return
+	 */
+	public int getSecuriteComposant(String componentKey)
+	{		
+		// 1. Création des paramètres de la requête
 		Parametre paramComposant = new Parametre("componentKeys", componentKey);
+		Parametre paramSeverities = new Parametre("severities", "CRITICAL, BLOCKER");
+		Parametre paramSinceLeakPeriod = new Parametre("sinceLeakPeriod", "true");
+		Parametre paramTypes = new Parametre("types", "VULNERABILITY");
+		Parametre paramResolved = new Parametre("resolved", "false");
+		
 		// 2. appel du webservices
-		final Response response = appelWebserviceGET("api/measures/component", paramComposant);
+		final Response response = appelWebserviceGET("/api/issues/search", paramComposant, paramSeverities, paramSinceLeakPeriod, paramTypes, paramResolved);
 		
 		// 3. Test du retour et renvoie du composant si ok.
 		if (response.getStatus() == Status.OK.getStatusCode())
-		{
-			List<Composant> liste =  response.readEntity(Retour.class).getComposants();
+		{			
+			return response.readEntity(IssuesSimple.class).getTotal();
 		}
 		else
 		{
 			logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
-			return retour;
+			return 0;
 		}
-		return retour;
+	}
+	
+	public String getVersionComposant(String resource)
+	{
+		// 1. Création des paramètres de la requête
+		Parametre paramComposant = new Parametre("componentKeys", resource);
+		Parametre paramCategorie = new Parametre("categories", "Version");
+		
+		// 2. appel du webservices
+		final Response response = appelWebserviceGET("/api/issues/search", paramComposant, paramCategorie);
+		
+		// 3. Test du retour et renvoie de la dernière version si ok.
+		if (response.getStatus() == Status.OK.getStatusCode())
+		{			
+			List<Event> liste =  response.readEntity(new GenericType<List<Event>>() {});
+			if (liste != null && !liste.isEmpty())
+			{
+				return liste.get(0).getN();
+			}
+		}
+		else
+		{
+			logger.error("Erreur API : /api/issues/search - Composant : " + paramComposant.getValeur());
+		}
+		return "";
 	}
 
 	/**
