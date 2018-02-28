@@ -14,7 +14,6 @@ import control.ListControl;
 import control.XMLControl;
 import dao.DaoProjet;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,7 +26,6 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -114,27 +112,14 @@ public class MainScreen extends Application
         listPoles.getSelectionModel().selectFirst();
         listPoles.getSelectionModel().getSelectedItem();
         bdcCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        bdcCol.setOnEditCommit(new EventHandler<CellEditEvent<ApplicationBDC, String>>() {
-            @Override
-            public void handle(CellEditEvent<ApplicationBDC, String> t)
-            {
-                ((ApplicationBDC) t.getTableView().getItems().get(t.getTablePosition().getRow())).setBdc(Integer.parseInt(t.getNewValue()));
-            }
-        });
+        bdcCol.setOnEditCommit(t-> t.getTableView().getItems().get(t.getTablePosition().getRow()).setBdc(Integer.parseInt(t.getNewValue())));
         tauxCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        tauxCol.setOnEditCommit(new EventHandler<CellEditEvent<ApplicationBDC, String>>() {
-            @Override
-            public void handle(CellEditEvent<ApplicationBDC, String> t)
-            {
-                ((ApplicationBDC) t.getTableView().getItems().get(t.getTablePosition().getRow())).setTaux(Float.parseFloat(t.getNewValue()));
-            }
-        });
+        tauxCol.setOnEditCommit(t ->t.getTableView().getItems().get(t.getTablePosition().getRow()).setTaux(Float.parseFloat(t.getNewValue())));
         listApplisBDC.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
     }
 
     @FXML
-    public void charger() throws Exception
+    public void charger()
     {
         String list = listPoles.getSelectionModel().getSelectedItem();
         if (!list.equals("Choisissez un Pôle"))

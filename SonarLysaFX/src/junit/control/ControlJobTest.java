@@ -1,4 +1,4 @@
-package junit.control.quartz;
+package junit.control;
 
 import java.io.IOException;
 

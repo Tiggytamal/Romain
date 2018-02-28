@@ -73,9 +73,9 @@ public class ControlXMLTest
 	    param.getListeApplications().add(new Application());
 	    param.getMapClarity().put("key", new InfoClarity());
 	    param.getLotsPic().put("key", new LotSuiviPic());	    
-	    param.setDateMaj(TypeFichier.APPS);
-	    param.setDateMaj(TypeFichier.CLARITY);
-	    param.setDateMaj(TypeFichier.LOTSPICS);
+	    param.setDateFichier(TypeFichier.APPS);
+	    param.setDateFichier(TypeFichier.CLARITY);
+	    param.setDateFichier(TypeFichier.LOTSPICS);
 	    builder = new StringBuilder();
 	    builder.append("Lots Pics chargés. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.LOTSPICS)).append(Statics.NL);
 	    builder.append("Liste des apllications chargée. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.APPS)).append(Statics.NL);

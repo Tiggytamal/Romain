@@ -31,6 +31,7 @@ import model.LotSuiviPic;
 import model.ParametreXML;
 import model.ParametreXML.TypeFichier;
 import utilities.Statics;
+import utilities.TechnicalException;
 import utilities.Utilities;
 
 /**
@@ -63,25 +64,31 @@ public class ControlXML
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	public void recuprerParamXML() throws JAXBException
+	public ParametreXML recuprerParamXML()
 	{
-		JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
-		ParametreXML temp;
-
-		// Récupération du paramétrage depuis le fichier externe
-		if (fichierParam.exists())
+		JAXBContext context;
+		ParametreXML param;
+		try
 		{
-			temp = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
-		}
-		// Récupération du paramétrage depuis le fichier interne
-		else
+			context = JAXBContext.newInstance(ParametreXML.class);
+			// Récupération du paramétrage depuis le fichier externe
+			if (fichierParam.exists())
+			{
+				param = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
+			}
+			// Récupération du paramétrage depuis le fichier interne
+			else
+			{
+				param = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+			}
+		} catch (JAXBException e)
 		{
-			temp = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+			throw new TechnicalException("Impossible de récupérer le fichier de paramètre", e);
 		}
 
-		// Contrôle des données
-		String string = controleDonneesParam(temp);
-//		createAlert(string);
+		// Contrôle des données et affiche le message de chargement
+		createAlert(controleDonneesParam(param));
+		return param;
 	}
 
 	/**
@@ -130,7 +137,7 @@ public class ControlXML
 		}
 		wb.close();
 		param.setListeApplications(apps);
-		param.setDateMaj(TypeFichier.APPS);
+		param.setDateFichier(TypeFichier.APPS);
 		saveParam();
 	}
 
@@ -140,7 +147,7 @@ public class ControlXML
 		Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
 		control.close();
 		param.setMapClarity(clarity);
-		param.setDateMaj(TypeFichier.CLARITY);
+		param.setDateFichier(TypeFichier.CLARITY);
 		saveParam();
 	}
 
@@ -150,18 +157,24 @@ public class ControlXML
 		Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
 		controlPic.close();
 		param.setLotsPic(lotsPic);
-		param.setDateMaj(TypeFichier.LOTSPICS);
+		param.setDateFichier(TypeFichier.LOTSPICS);
 		saveParam();
 	}
 
 	/*---------- METHODES PRIVEES ----------*/
 
-	private String controleDonneesParam(ParametreXML temp)
+	/**
+	 * Contrôle les informations des différentes maps
+	 * 
+	 * @param param
+	 * @return
+	 */
+	private String controleDonneesParam(ParametreXML param)
 	{
 		// Variables
-		Map<String, LotSuiviPic> lotsPic = temp.getLotsPic();
-		List<Application> applis = temp.getListeApplications();
-		Map<String, InfoClarity> clarity = temp.getMapClarity();
+		Map<String, LotSuiviPic> lotsPic = param.getLotsPic();
+		List<Application> applis = param.getListeApplications();
+		Map<String, InfoClarity> clarity = param.getMapClarity();
 		StringBuilder builder = new StringBuilder();
 		boolean manquant = false;
 
@@ -173,8 +186,7 @@ public class ControlXML
 		}
 		else
 		{
-			builder.append("Lots Pics chargés. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.LOTSPICS)).append(Statics.NL);
-			param.setLotsPic(lotsPic);
+			builder.append("Lots Pics chargés. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.LOTSPICS)).append(Statics.NL);
 		}
 
 		// Contrôle liste application
@@ -185,8 +197,7 @@ public class ControlXML
 		}
 		else
 		{
-			builder.append("Liste des apllications chargée. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.APPS)).append(Statics.NL);
-			param.setListeApplications(applis);
+			builder.append("Liste des apllications chargée. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.APPS)).append(Statics.NL);
 		}
 
 		// Contrôle Referentiel Clarity
@@ -197,16 +208,15 @@ public class ControlXML
 		}
 		else
 		{
-			builder.append("Referentiel Clarity chargé. Dernière Maj : ").append(temp.getDateMaj().get(TypeFichier.CLARITY)).append(Statics.NL);
-			param.setMapClarity(clarity);
+			builder.append("Referentiel Clarity chargé. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.CLARITY)).append(Statics.NL);
 		}
 
 		if (manquant)
 			builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
-		
+
 		return builder.toString();
 	}
-	
+
 	private void createAlert(String texte)
 	{
 		Alert alert = new Alert(AlertType.INFORMATION);

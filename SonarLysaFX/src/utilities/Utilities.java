@@ -12,6 +12,8 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 
+import utilities.enums.Severity;
+
 /**
  * Classe de méthode utilitaires statiques
  *
@@ -162,19 +164,29 @@ public class Utilities
 		return osName == null ? "Unknown" : osName;
 	}
 	
-	public static String transcoEdition(String versionComposant)
+	/**
+	 * Transcodification d'une version de composant en version d'édition
+	 * @param versionComposant
+	 * @return
+	 */
+	public static String transcoVersion(String versionComposant)
 	{
 		if (versionComposant == null)
 			return null;
-		if ("14".equals(versionComposant))
-			return "E31";
-		if ("13".equals(versionComposant))
-			return "E30";
-		if ("12".equals(versionComposant))
-			return "E29";
-		if ("11".equals(versionComposant))
-			return "E28";
-		return null;
+		return "E" + (Integer.parseInt(versionComposant) + 17);
+	}
+	
+	/**
+	 * Transcodifition dune version d'édition en version de composant
+	 * 
+	 * @param versionComposant
+	 * @return
+	 */
+	public static int transcoEdition(String versionEdition)
+	{
+		if (versionEdition != null && versionEdition.matches("E[0-9][0-9]"))
+			return Integer.parseInt(versionEdition.substring(1));
+		throw new FunctionalException(Severity.SEVERITY_ERROR, "Transcodification version Edition impossible");
 	}
 	
 	/**

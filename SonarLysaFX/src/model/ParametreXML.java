@@ -21,7 +21,7 @@ public class ParametreXML
 	/*---------- ATTRIBUTS ----------*/
 
 	private List<Application> listeApplications;
-	private Map<String, String> mapParams;
+	private Map<TypeParam, String> mapParams;
 	private Map<String, InfoClarity> mapClarity; 
 	private Map<String, LotSuiviPic> lotsPic;
 	private Map<String, Boolean> mapApplis;
@@ -32,7 +32,7 @@ public class ParametreXML
     public ParametreXML()
 	{
 	    listeApplications = new ArrayList<>();
-	    mapParams = new HashMap<>();
+	    mapParams = new EnumMap<>(TypeParam.class);
 	    mapClarity = new HashMap<>();
 	    lotsPic = new HashMap<>();
 	    mapApplis = new HashMap<>();
@@ -55,12 +55,12 @@ public class ParametreXML
 	
     @XmlElementWrapper
     @XmlElement(name = "mapParams", required = false)
-    public Map<String, String> getMapParams()
+    public Map<TypeParam, String> getMapParams()
     {
         return mapParams;
     }
 
-    public void setMapParams(Map<String, String> mapParams)
+    public void setMapParams(Map<TypeParam, String> mapParams)
     {
         this.mapParams = mapParams;
     }
@@ -95,6 +95,11 @@ public class ParametreXML
     {
         return dateMaj;
     }
+    
+    public void setDateMaj(Map<TypeFichier, String> dateMaj)
+    {
+    	this.dateMaj = dateMaj;
+    }
 	
 	/**
 	 * Permet de remonter la liste des applications sous forme d'une map (clef = nom application / valeur = etat)
@@ -117,7 +122,7 @@ public class ParametreXML
 	 * Change la date de mise à jour d'un type de fichier.
 	 * @param clef
 	 */
-	public void setDateMaj(TypeFichier fichier)
+	public void setDateFichier(TypeFichier fichier)
 	{
 		dateMaj.put(fichier, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy",Locale.FRANCE)));
 	}
@@ -125,5 +130,10 @@ public class ParametreXML
 	public enum TypeFichier implements Serializable
 	{
 		APPS, CLARITY, LOTSPICS;
+	}
+	
+	public enum TypeParam implements Serializable
+	{
+		VERSIONS;
 	}
 }

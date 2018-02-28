@@ -26,7 +26,7 @@ public class MainScreen extends Application
 	/* Attibuts généraux */
 
 	private static BorderPane root = new BorderPane();
-	public static final ParametreXML param = new ParametreXML();
+	public static final ParametreXML param = new ControlXML().recuprerParamXML();
 	private TrayIconView trayIcon;
 
 	/* Attributs FXML */
@@ -56,7 +56,7 @@ public class MainScreen extends Application
 		stage.show();
 		
 		// Initialisation des paramètres de l'application
-	    new ControlXML().recuprerParamXML();
+	    
 	}
 
 	/*---------- METHODES PRIVEES ----------*/

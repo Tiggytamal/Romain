@@ -16,6 +16,10 @@ public abstract class Statics
 {
     private Statics() {}
 
+    /** Nom du fichier de sauvegarde des anomalies */
+    public static final String NOMFICHIER = "Suivi_Quality_Gate.xlsx";
+    /** chemin absolu d'accès au fichier de suavegarde des anomalies */
+	public static final String ABSOLUTEPATH = "S:\\SER_ASSURANCE_QUALITE\\COMMUN\\Qualimétrie\\Suivi des anomalies qualimétriques\\";
     /** logger général */
 	public static final Logger logger = LogManager.getLogger("complet.log");
     /** logger composants sans applications */

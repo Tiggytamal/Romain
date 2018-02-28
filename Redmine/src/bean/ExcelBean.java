@@ -14,12 +14,11 @@ import java.util.List;
 import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
+import javax.faces.annotation.ManagedProperty;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -105,7 +104,7 @@ public class ExcelBean implements Serializable, Instance
         wbOut = new HSSFWorkbook();
     }
 
-    public String charger(FileUploadEvent event) throws IOException, EncryptedDocumentException, InvalidFormatException
+    public String charger(FileUploadEvent event) throws IOException, InvalidFormatException
     {
         // Récupération du fichier envoyé
         file = event.getFile();

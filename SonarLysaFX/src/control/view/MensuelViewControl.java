@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 
 import control.ControlSonar;
@@ -29,7 +27,7 @@ public class MensuelViewControl
     private LocalDate dateFin;
     
     @FXML
-    public void initialize() throws JAXBException
+    public void initialize()
     {
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
         selectPane.getChildren().clear();

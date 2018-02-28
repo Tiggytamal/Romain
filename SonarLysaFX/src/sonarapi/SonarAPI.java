@@ -3,6 +3,9 @@ package sonarapi;
 import static utilities.Statics.logger;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -206,11 +209,11 @@ public class SonarAPI
 	public String getVersionComposant(String resource)
 	{
 		// 1. Création des paramètres de la requête
-		Parametre paramComposant = new Parametre("componentKeys", resource);
+		Parametre paramResource = new Parametre("resource", resource);
 		Parametre paramCategorie = new Parametre("categories", "Version");
 		
 		// 2. appel du webservices
-		final Response response = appelWebserviceGET("/api/issues/search", paramComposant, paramCategorie);
+		final Response response = appelWebserviceGET("/api/events", paramResource, paramCategorie);
 		
 		// 3. Test du retour et renvoie de la dernière version si ok.
 		if (response.getStatus() == Status.OK.getStatusCode())
@@ -218,12 +221,12 @@ public class SonarAPI
 			List<Event> liste =  response.readEntity(new GenericType<List<Event>>() {});
 			if (liste != null && !liste.isEmpty())
 			{
-				return liste.get(0).getN();
+				return controleVersion(liste);
 			}
 		}
 		else
 		{
-			logger.error("Erreur API : /api/issues/search - Composant : " + paramComposant.getValeur());
+			logger.error("Erreur API : /api/issues/search - Composant : " + paramResource.getValeur());
 		}
 		return "";
 	}
@@ -455,5 +458,32 @@ public class SonarAPI
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Itération sur tous les Event retournés par le webService pour être sûr de bien retourner les informations du plus récent.
+	 * 
+	 * @param liste
+	 * 				liste d'{@link sonarapi.model.Event} des changements de version 
+	 * @return
+	 */
+	private String controleVersion(List<Event> liste)
+	{
+		if (liste == null)
+			throw new IllegalArgumentException("la liste ne peut pas être nulle");
+		
+		LocalDateTime date = LocalDateTime.of(1900, Month.JANUARY, 1, 0, 0);
+		String retour = "";
+		// Itération sur la liste pour récupérer la date la plus récente.
+		for (Event event : liste)
+		{
+			LocalDateTime temp = LocalDateTime.parse(event.getDt(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX"));
+			if (temp.isAfter(date))
+			{
+				date = temp;
+				retour = event.getN();
+			}			
+		}		
+		return retour;
 	}
 }

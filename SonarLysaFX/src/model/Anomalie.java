@@ -29,6 +29,7 @@ public class Anomalie
 	private String typeAssemblage;
 	private String securite;
 	private String remarque;
+	private String version;
 	
 	/*---------- CONSTRUCTEURS ----------*/
 	
@@ -240,4 +241,14 @@ public class Anomalie
 	{
 		this.typeAssemblage = typeAssemblage;
 	}	
+	
+	public String getVersion()
+	{
+		return version;
+	}
+	
+	public void setVersion(String version)
+	{
+		this.version = version;
+	}
 }

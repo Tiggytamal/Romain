@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ public class ControlSonar
 	/*---------- ATTRIBUTS ----------*/
 
 	private final SonarAPI api;
-	private static final String FICHIERANOMALIES = "d:\\Suivi_Quality_Gate.xlsx";
 
 	/*---------- CONSTRUCTEURS ----------*/
 
@@ -107,21 +107,25 @@ public class ControlSonar
 		// 2. Récupération des lots Sonar en erreur.
 		Map<String, Set<String>> mapLots;
 		
-		List<String> LotsSecurite = new ArrayList<>();
+		Set<String> lotsSecurite = new HashSet<>();
+		Set<String> lotRelease = new HashSet<>();
 		
 		if (ControlSonarTest.deser)
 		{
 			mapLots = Utilities.deserialisation("d:\\lotsSonar.ser", HashMap.class);
+			lotsSecurite = Utilities.deserialisation("d:\\lotsSecurite.ser", HashSet.class);
+			lotRelease = Utilities.deserialisation("d:\\lotsRelease.ser", HashSet.class);
 		}
 		else
 		{
-			mapLots = lotSonarQGError(new String[] {"13", "14"}, LotsSecurite);
-			Utilities.serialisation("d:\\lotsSecurite.ser", LotsSecurite);
+			mapLots = lotSonarQGError(new String[] {"13", "14"}, lotsSecurite, lotRelease);
+			Utilities.serialisation("d:\\lotsSecurite.ser", lotsSecurite);
 			Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
+			Utilities.serialisation("d:\\lotsRelease.ser", lotRelease);
 		}
 		
 		// 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
-		majFichierAnomalies(lotsPIC, mapLots, LotsSecurite, new File(FICHIERANOMALIES));
+		majFichierAnomalies(lotsPIC, mapLots, lotsSecurite, lotRelease, Statics.ABSOLUTEPATH);
 
 		// 4. Création des vues
 		for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
@@ -262,7 +266,7 @@ public class ControlSonar
 	 * @param versions
 	 * @return
 	 */
-	private Map<String, Set<String>> lotSonarQGError(String[] versions, List<String> lotSecurite)
+	private Map<String, Set<String>> lotSonarQGError(String[] versions, Set<String> lotSecurite, Set<String> lotRelease)
 	{
 		// Récupération des composants Sonar selon les version demandées
 		Map<String, List<Projet>> mapProjets = recupererComposantsSonarVersion(versions);
@@ -278,8 +282,9 @@ public class ControlSonar
 			// Iteration sur la liste des projets
 			for (Projet projet : entry.getValue())
 			{
+				String key = projet.getKey();
 				// Récupération du composant
-				Composant composant = api.getMetriquesComposant(projet.getKey(), new String[] {"lot", "alert_status"});
+				Composant composant = api.getMetriquesComposant(key, new String[] {"lot", "alert_status"});
 
 				// Récupération depuis la map des métriques du numéro de lot et du status de la Quality Gate
 				Map<String, String> metriques = composant.getMapMetriques();
@@ -290,14 +295,27 @@ public class ControlSonar
 				// S'il y en a on le rajoute aussi à la liste des lots avec des problèmesde sécurité.
 				if (alert != null && Status.getStatus(alert) == Status.ERROR && lot != null && !lot.isEmpty())
 				{
+					// Ajout du lot à la liste de retour
 					retour.get(entry.getKey()).add(lot);
-					int securite = api.getSecuriteComposant(projet.getKey());
+					
+					// Contrôle pour vérifier si le composant à une erreur de sécurité, ce qui ajout le lot à la listeSecurite
+					int securite = api.getSecuriteComposant(key);
 					if (securite > 0)
-						lotSecurite.add(lot);						
+						lotSecurite.add(lot);	
+					
+					// Contrôle du composant pour voir s'il a une version release ou SNAPSHOT
+					if (release(key))
+						lotRelease.add(lot);
 				}
 			}
 		}
 		return retour;
+	}
+
+	private boolean release(String key)
+	{
+		String version = api.getVersionComposant(key);
+		return !version.contains("SNAPSHOT");			
 	}
 
 	/**
@@ -506,13 +524,14 @@ public class ControlSonar
 	 * @param mapLots
 	 *            map des lots Sonar avec une quality Gate en erreur
 	 * @param lotsSecurite 
+	 * @param lotRelease 
 	 * @throws InvalidFormatException
 	 * @throws IOException
 	 */
-	private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, List<String> lotsSecurite, File file) throws InvalidFormatException, IOException
+	private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease, String path) throws InvalidFormatException, IOException
 	{
 		// Controleur
-		ControlAno controlAno = new ControlAno(file);
+		ControlAno controlAno = new ControlAno(new File(path + Statics.NOMFICHIER));
 
 		// Lecture du fichier pour remonter les anomalies en cours.
 		List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
@@ -566,11 +585,11 @@ public class ControlSonar
 			}
 
 			// Mise à jour de la feuille des anomalies pour chaque version de composants
-			anoAajouter.addAll(controlAno.createSheetError(Utilities.transcoEdition(entry.getKey()), anoACreer));
+			anoAajouter.addAll(controlAno.createSheetError(Utilities.transcoVersion(entry.getKey()), anoACreer));
 		}
 		
 		// Mis à jour de la feuille principale
-		controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite);
+		controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease);
 		
 		controlAno.close();
 	}
