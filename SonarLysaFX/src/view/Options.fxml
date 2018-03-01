@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Separator?>
 
 <SplitPane fx:id="splitPane" fx:controller="control.view.OptionViewControl" dividerPositions="0.20" prefHeight="400.0" prefWidth="600.0"
 	xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141">
@@ -35,8 +36,8 @@
 		</AnchorPane>
 		<GridPane fx:id="rightSide" prefWidth="300.0" prefHeight="400.0">
 			<children>
+				<!-- Boutons de chargement des fichiers Excel de paramétrage -->
 				<VBox fx:id="chargementPane" alignment="center">
-					<!-- Bouton pour créer la nouvelle vue dans Sonar -->
 					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
 					<Button text="Charger Lots Pic" fx:id="lotsPic" onAction="#chargerLotsPic" alignment="CENTER" />
 					<Region  prefHeight="20"/>
@@ -45,28 +46,61 @@
 					<Button text="Charger Referentiel Clarity" fx:id="clarity" onAction="#chargerClarity" alignment="CENTER" />
 					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
 				</VBox>
+				<!-- Mise à jour des versions à tester -->
 				<VBox fx:id="optionsPane" alignment="center">
-					<HBox fx:id="versions">
+					<HBox fx:id="versionsPane">
 						<padding>
 							<Insets top="10" right="10" bottom="10" left="10" />
 						</padding>
-						<Label text="Versions : "/>
-						<Region  prefWidth="20" />
+						<Label text="Versions : " />
+						<Region  prefWidth="10" />
 						<ListView fx:id="listeVersions" prefWidth="50">
 							<items>
 								<FXCollections fx:factory="observableArrayList">
 								</FXCollections>
 							</items>
 						</ListView>
-						<Region  prefWidth="20" />
+						<Region  prefWidth="10" />
 						<Button fx:id="supprimer" text="Supprimer" onAction="#suppVersion"/>
 					</HBox>
-					<Region  prefHeight="20" />
+					<Region  prefHeight="10" />
 					<HBox>
-						<TextField fx:id="newVersion" prefWidth="50" promptText="Version" />
-						<Region  prefWidth="20" />
+						<TextField fx:id="newVersionField" prefWidth="80" promptText="Version" />
+						<Region  prefWidth="10" />
 						<Button fx:id="ajouter" text="ajouter" onAction="#ajouterVersion"/>
 					</HBox> 
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+					<!-- Chemin vers les fichiers de suivi -->
+					<HBox>
+						<Label text="Chemin vers les fichiers de suivi : " />
+						<TextField fx:id="pathField" prefWidth="250"  />
+					</HBox> 
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+					<!-- Nom du fichier de suivi -->
+					<HBox>
+						<Label text="Nom du fichier de suivi : " />
+						<TextField fx:id="suiviField" prefWidth="250"  />
+					</HBox> 
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+					<!-- Nom du fichier de suivi Datastage -->
+					<HBox>
+						<Label text="Nom du fichier du suivi Datastage : " />
+						<TextField fx:id="datastageField" prefWidth="250"  />
+					</HBox>
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+					<!-- Valeur du filtre pour les composants Datastage -->	
+					<HBox>
+						<Label text="Filter Datastage : " />
+						<TextField fx:id="filtreField" prefWidth="250"  />
+					</HBox>				
 				</VBox>
 			</children>
 		</GridPane>

@@ -26,7 +26,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.StageStyle;
 import model.ParametreXML.TypeParam;
+import utilities.FunctionalException;
 import utilities.Statics;
+import utilities.enums.Severity;
 
 public class OptionViewControl
 {
@@ -50,42 +52,70 @@ public class OptionViewControl
 	@FXML
 	private VBox optionsPane;
 	@FXML
-	private HBox versions;
+	private HBox versionsPane;
 	@FXML
 	private ListView<String> listeVersions;
 	@FXML
 	private Button supprimer;
 	@FXML
-	private TextField newVersion;
+	private TextField newVersionField;
 	@FXML
 	private Button ajouter;
+	@FXML
+	private TextField pathField;
+	@FXML
+	private TextField suiviField;
+	@FXML
+	private TextField datastageField;
+	@FXML
+	private TextField filtreField;
 
 	// Attributs de classe
 	private FileChooser fc;
 	private Alert alert;
 	private String versionsParam;
-	final int ROW_HEIGHT = 24;
+	private static final int ROW_HEIGHT = 24;
 
 	/*---------- CONSTRUCTEURS ----------*/
 
 	@FXML
 	public void initialize()
 	{
+		// Ajout listener changement de fenêtre d'options
 		options.getSelectionModel().selectedItemProperty().addListener((ov, old, newval) -> switchPanel(ov));
 		rightSide.getChildren().clear();
+		
+		// Initialisation aletre
 		alert = new Alert(AlertType.INFORMATION);
 		alert.initStyle(StageStyle.UTILITY);
 		alert.setContentText("Chargement");
 		alert.setHeaderText(null);
+		
+		// Initialition liste des versions affichée
 		versionsParam = param.getMapParams().get(TypeParam.VERSIONS);
 		if (versionsParam == null)
 			versionsParam = "";
 		if (!versionsParam.isEmpty())
 			listeVersions.getItems().addAll(versionsParam.split("-"));
+		
+		// Mise à jour automatique de la liste des versions
 		listeVersions.getSelectionModel().selectFirst();
 		listeVersions.setPrefHeight((double) listeVersions.getItems().size() * ROW_HEIGHT + 2);
 		listeVersions.getItems().addListener((ListChangeListener.Change<? extends String> c) ->listeVersions.setPrefHeight((double) listeVersions.getItems().size() * ROW_HEIGHT + 2));
-
+		
+		// Intialisation des TextField depuis le fichier de paramètre
+		String path = param.getMapParams().get(TypeParam.ABSOLUTEPATH);
+		if (path != null && !path.isEmpty())
+			pathField.setText(path);
+		String suivi = param.getMapParams().get(TypeParam.NOMFICHIER);
+		if (suivi != null && !suivi.isEmpty())
+			suiviField.setText(suivi);
+		String datastage = param.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE);
+		if (datastage != null && !datastage.isEmpty())
+			datastageField.setText(datastage);
+		String filtre = param.getMapParams().get(TypeParam.FILTREDATASTAGE);
+		if (filtre != null && !filtre.isEmpty())
+			filtreField.setText(filtre);		
 	}
 
 	/*---------- METHODES PUBLIQUES ----------*/
@@ -171,15 +201,19 @@ public class OptionViewControl
 	 */
 	public void ajouterVersion() throws JAXBException
 	{
-		String version = newVersion.getText();
+		String version = newVersionField.getText();
 		// On contrôle la bonne structure du nom de la version et on ne crée pas de doublon
-		if (version.matches("E[0-9][0-9]") && !versionsParam.contains(version))
+		if (version.matches("^E[0-9][0-9]") && !versionsParam.contains(version))
 		{
 			versionsParam += "-" + version;
 			param.getMapParams().put(TypeParam.VERSIONS, versionsParam);
+			listeVersions.getItems().add(version);
+		}
+		else
+		{
+			throw new FunctionalException(Severity.SEVERITY_ERROR, "LA version doit être de la forme ^E[0-9][0-9]");
 		}
 		new ControlXML().saveParam();
-		listeVersions.getItems().add(version);
 	}
 
 	/*---------- METHODES PRIVEES ----------*/

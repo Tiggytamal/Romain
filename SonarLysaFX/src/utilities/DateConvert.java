@@ -264,7 +264,7 @@ public class DateConvert
     public static String dateFrancais(LocalDate date, String pattern)
     {
         if (pattern == null || date == null)
-            throw new UnsupportedOperationException("La date et le pattern ne peuvent être nuls");
-        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRANCE)).replaceAll("\\.", "");
+            throw new IllegalArgumentException("La date et le pattern ne peuvent être nuls");
+        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRANCE)).replaceAll("\\.", "").replaceAll("[é]", "e").replaceAll("û", "u");
     }   
 }

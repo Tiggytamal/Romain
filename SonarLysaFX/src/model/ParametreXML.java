@@ -134,6 +134,6 @@ public class ParametreXML
 	
 	public enum TypeParam implements Serializable
 	{
-		VERSIONS;
+		VERSIONS, FILTREDATASTAGE, ABSOLUTEPATH, NOMFICHIER, NOMFICHIERDATASTAGE;
 	}
 }

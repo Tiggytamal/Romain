@@ -18,7 +18,8 @@ public class JobAnomaliesSonar implements Job
 		try
 		{
 			ControlSonar handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-			handler.creerVuesQGErreur();
+			handler.majFichierSuiviExcel();
+			handler.majFichierSuiviExcelDataStage();
 		} catch (InvalidFormatException | IOException e)
 		{
 			throw new JobExecutionException(e);

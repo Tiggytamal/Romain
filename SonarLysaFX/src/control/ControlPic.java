@@ -258,7 +258,7 @@ public class ControlPic extends ControlExcel
 	        // Création d'une nouvelle date au 1er du mois qui servira du clef à la map.
             LocalDate clef = LocalDate.of(date.getYear(), date.getMonth(), 1);
             
-	        majCouleurLigne(row, IndexedColors.LIGHT_YELLOW);
+	        majCouleurLigne(row, IndexedColors.LIGHT_GREEN);
             	                    
             if (retour.keySet().contains(clef))
             {

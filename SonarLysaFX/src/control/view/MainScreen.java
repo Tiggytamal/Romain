@@ -37,9 +37,7 @@ public class MainScreen extends Application
 
 	@Override
 	public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
-	{
-		Platform.setImplicitExit(false);
-	    
+	{   
 		// Menu de l'application
 		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
 		
@@ -53,10 +51,7 @@ public class MainScreen extends Application
 		stage.setResizable(true);
 		stage.setScene(scene);
 	    stage.iconifiedProperty().addListener(new IconifiedListener());
-		stage.show();
-		
-		// Initialisation des paramètres de l'application
-	    
+		stage.show();    
 	}
 
 	/*---------- METHODES PRIVEES ----------*/

@@ -27,7 +27,6 @@ import model.Anomalie;
 import model.enums.Environnement;
 import utilities.CellHelper;
 import utilities.FunctionalException;
-import utilities.Statics;
 import utilities.enums.Bordure;
 import utilities.enums.Severity;
 
@@ -259,13 +258,13 @@ public class ControlAno extends ControlExcel
 	 * @throws InvalidFormatException
 	 * @throws EncryptedDocumentException
 	 */
-	protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease) throws IOException
+	protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, String path, String fichier) throws IOException
 	{
 		// Création d'une nouvelle feuille d'anomalies
 		Sheet sheet = wb.getSheet(SQ);
 		if (sheet != null)
 		{
-			wb.write(new FileOutputStream(new StringBuilder(Statics.ABSOLUTEPATH).append(LocalDate.now().toString()).append("-").append(Statics.NOMFICHIER).toString()));
+			wb.write(new FileOutputStream(new StringBuilder(path).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
 			wb.removeSheetAt(wb.getSheetIndex(sheet));
 		}
 		sheet = wb.createSheet(SQ);
@@ -609,7 +608,7 @@ public class ControlAno extends ControlExcel
 				ano.setSecurite(SECURITEKO);
 			
 			// Ajout de la donnée de version
-			if (lotsRelease.contains(ano.getLot()))
+			if (lotsRelease.contains(ano.getLot().substring(4)))
 				ano.setVersion(RELEASE);
 			else
 				ano.setVersion(SNAPSHOT);

@@ -182,11 +182,11 @@ public class Utilities
 	 * @param versionComposant
 	 * @return
 	 */
-	public static int transcoEdition(String versionEdition)
+	public static String transcoEdition(String versionEdition)
 	{
 		if (versionEdition != null && versionEdition.matches("E[0-9][0-9]"))
-			return Integer.parseInt(versionEdition.substring(1));
-		throw new FunctionalException(Severity.SEVERITY_ERROR, "Transcodification version Edition impossible");
+			return String.valueOf((Integer.parseInt(versionEdition.substring(1)) - 17));
+		throw new FunctionalException(Severity.SEVERITY_ERROR, "Transcodification version Edition impossible - " + versionEdition);
 	}
 	
 	/**

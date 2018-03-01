@@ -8,21 +8,19 @@ import java.util.Base64;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.Before;
+import org.junit.Test;
 
 import control.ControlSonar;
 import control.ControlXML;
 import junit.TestUtils;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ControlSonarTest
 {
 	private ControlSonar handler;
 	public static boolean deser;
 
-	@BeforeAll
+	@Before
 	public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
 	{
 		// handler = new ControlSonar();
@@ -38,7 +36,7 @@ public class ControlSonarTest
 	}
 
 	@Test
-	public void testCreerVueProduction() throws InvalidFormatException, IOException
+	public void creerVueProduction() throws InvalidFormatException, IOException
 	{
 		handler.creerVueProduction(new File("d:\\Classeur1.xlsx"));
 	}
@@ -50,7 +48,7 @@ public class ControlSonarTest
 	}
 
 	@Test
-	public void créationHeader() throws InvalidFormatException, IOException
+	public void creationHeader() throws InvalidFormatException, IOException
 	{
 		String codeUser;
 		StringBuilder builder = new StringBuilder("ETP8137");
@@ -66,26 +64,32 @@ public class ControlSonarTest
 	}
 
 	@Test
-	public void testRecupererComposantsSonar() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+	public void recupererComposantsSonar() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
 		TestUtils.callPrivate("recupererComposantsSonar", handler, null);
 	}
 
 	@Test
-	public void testCreerVueParApplication()
+	public void creerVueParApplication()
 	{
 		handler.creerVueParApplication();
 	}
 
 
 	@Test
-	public void testcreerVuesQGErreur() throws InvalidFormatException, IOException, JAXBException
+	public void majFichierSuiviExcel() throws InvalidFormatException, IOException, JAXBException
 	{
-		handler.creerVuesQGErreur();
+		handler.majFichierSuiviExcel();
 	}
 	
 	@Test
-	public void testCreerVuesDatastage()
+	public void majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException, JAXBException
+	{
+		handler.majFichierSuiviExcelDataStage();
+	}
+	
+	@Test
+	public void creerVuesDatastage()
 	{
 		handler.creerVuesDatastage();
 	}
