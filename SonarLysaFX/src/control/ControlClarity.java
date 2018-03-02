@@ -18,8 +18,8 @@ import model.InfoClarity;
 public class ControlClarity extends ControlExcel
 {
     /*---------- ATTRIBUTS ----------*/
-    
-    //Liste des indices des colonnes
+
+    // Liste des indices des colonnes
     private int colActif;
     private int colClarity;
     private int colLib;
@@ -29,7 +29,7 @@ public class ControlClarity extends ControlExcel
     private int colDepart;
     private int colService;
     private List<Integer> cols;
-    
+
     // Liste des noms de colonnes
     private static final String ACTIF = "Actif";
     private static final String CLARITY = "Code projet";
@@ -40,29 +40,29 @@ public class ControlClarity extends ControlExcel
     private static final String DEPARTEMENT = "Département";
     private static final String SERVICE = "Service";
     /*---------- CONSTRUCTEURS ----------*/
-   
+
     public ControlClarity(File file) throws InvalidFormatException, IOException
     {
         super(file);
     }
-    
+
     /*---------- METHODES PUBLIQUES ----------*/
 
     public Map<String, InfoClarity> recupInfosClarityExcel()
     {
         // Récupération de la première feuille
         Sheet sheet = wb.getSheetAt(0);
-        
+
         Map<String, InfoClarity> retour = new HashMap<>();
-        for (int i = 1; i < sheet.getLastRowNum(); i++) 
+        for (int i = 1; i < sheet.getLastRowNum(); i++)
         {
             Row row = sheet.getRow(i);
             if (row.getCell(colClarity) != null)
             {
-            	InfoClarity info = traitementLigne(row);
+                InfoClarity info = traitementLigne(row);
                 retour.put(info.getCodeClarity(), info);
             }
-        }        
+        }
         return retour;
     }
 
@@ -72,9 +72,9 @@ public class ControlClarity extends ControlExcel
         // Récupération de la première feuille
         Sheet sheet = wb.getSheetAt(0);
         cols = new ArrayList<>();
-        
-        //Récupération des indices de colonnes
-        for (Cell cell : sheet.getRow(0)) 
+
+        // Récupération des indices de colonnes
+        for (Cell cell : sheet.getRow(0))
         {
             if (cell.getCellTypeEnum() == CellType.STRING)
             {
@@ -111,20 +111,21 @@ public class ControlClarity extends ControlExcel
                     case EDITION:
                         colEdition = cell.getColumnIndex();
                         cols.add(colEdition);
-                        break;              
+                        break;
                     default:
                         // Colonne sans nom reconnu
                         break;
                 }
             }
-        }   
-        
+        }
+
     }
-    
+
     /*---------- METHODES PRIVEES ----------*/
-    
+
     /**
      * Traitement d'une ligne pour créer un objet InfoClarity
+     * 
      * @param row
      * @return
      */
@@ -132,23 +133,23 @@ public class ControlClarity extends ControlExcel
     {
         // Création de l'objet de retour
         InfoClarity info = new InfoClarity();
-        
+
         // Itération sur les colonnes initialisées
         for (Integer col : cols)
         {
             Cell cell = row.getCell(col);
-            
+
             // Si la valeur n'est pas de type String, on passe à la donnée suivante.
             if (cell == null || cell.getCellTypeEnum() != CellType.STRING)
-                continue;    
-            
+                continue;
+
             // Récupération de la donnée et valorisation du retour selon la colonne
             String value = cell.getStringCellValue();
             traitementCellule(value, col, info);
         }
         return info;
     }
-    
+
     /**
      * Traitement d'un cellule pour valoriser une donnée selon la colonne
      * 
@@ -178,9 +179,9 @@ public class ControlClarity extends ControlExcel
         else if (col == colDepart)
             info.setDepartement(value);
         else if (col == colService)
-            info.setService(value);        
+            info.setService(value);
     }
-    
+
     /*---------- ACCESSEURS ----------*/
 
 }

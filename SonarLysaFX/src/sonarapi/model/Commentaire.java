@@ -6,83 +6,83 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Commentaire
 {
-	/*---------- ATTRIBUTS ----------*/
+    /*---------- ATTRIBUTS ----------*/
 
-	private String key;
-	private String login;
-	private String htmlText;
-	private String markdown;
-	private String updatable;
-	private String createdAt;
+    private String key;
+    private String login;
+    private String htmlText;
+    private String markdown;
+    private String updatable;
+    private String createdAt;
 
-	/*---------- CONSTRUCTEURS ----------*/
-	/*---------- METHODES PUBLIQUES ----------*/
-	/*---------- METHODES PRIVEES ----------*/
-	/*---------- ACCESSEURS ----------*/
-	
-	@XmlAttribute (name = "key")
-	public String getKey()
-	{
-		return key;
-	}
+    /*---------- CONSTRUCTEURS ----------*/
+    /*---------- METHODES PUBLIQUES ----------*/
+    /*---------- METHODES PRIVEES ----------*/
+    /*---------- ACCESSEURS ----------*/
 
-	public void setKey(String key)
-	{
-		this.key = key;
-	}
+    @XmlAttribute(name = "key")
+    public String getKey()
+    {
+        return key;
+    }
 
-	@XmlAttribute (name = "login")
-	public String getLogin()
-	{
-		return login;
-	}
+    public void setKey(String key)
+    {
+        this.key = key;
+    }
 
-	public void setLogin(String login)
-	{
-		this.login = login;
-	}
+    @XmlAttribute(name = "login")
+    public String getLogin()
+    {
+        return login;
+    }
 
-	@XmlAttribute (name = "htmlText")
-	public String getHtmlText()
-	{
-		return htmlText;
-	}
+    public void setLogin(String login)
+    {
+        this.login = login;
+    }
 
-	public void setHtmlText(String htmlText)
-	{
-		this.htmlText = htmlText;
-	}
+    @XmlAttribute(name = "htmlText")
+    public String getHtmlText()
+    {
+        return htmlText;
+    }
 
-	@XmlAttribute (name = "markdown")
-	public String getMarkdown()
-	{
-		return markdown;
-	}
+    public void setHtmlText(String htmlText)
+    {
+        this.htmlText = htmlText;
+    }
 
-	public void setMarkdown(String markdown)
-	{
-		this.markdown = markdown;
-	}
+    @XmlAttribute(name = "markdown")
+    public String getMarkdown()
+    {
+        return markdown;
+    }
 
-	@XmlAttribute (name = "updatable")
-	public String getUpdatable()
-	{
-		return updatable;
-	}
+    public void setMarkdown(String markdown)
+    {
+        this.markdown = markdown;
+    }
 
-	public void setUpdatable(String updatable)
-	{
-		this.updatable = updatable;
-	}
+    @XmlAttribute(name = "updatable")
+    public String getUpdatable()
+    {
+        return updatable;
+    }
 
-	@XmlAttribute (name = "createdAt")
-	public String getCreatedAt()
-	{
-		return createdAt;
-	}
+    public void setUpdatable(String updatable)
+    {
+        this.updatable = updatable;
+    }
 
-	public void setCreatedAt(String createdAt)
-	{
-		this.createdAt = createdAt;
-	}
+    @XmlAttribute(name = "createdAt")
+    public String getCreatedAt()
+    {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt)
+    {
+        this.createdAt = createdAt;
+    }
 }

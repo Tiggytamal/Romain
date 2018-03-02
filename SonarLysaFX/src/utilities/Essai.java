@@ -7,11 +7,10 @@ import java.util.Locale;
 public class Essai
 {
 
-	public static void main(String[] args)
-	{
-		LocalDate date = LocalDate.of(2018, 2, 1);
-		System.out.println(date.format(		DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRANCE)));
-;
-	}
+    public static void main(String[] args)
+    {
+        LocalDate date = LocalDate.of(2018, 2, 1);
+        System.out.println(date.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.FRANCE)));;
+    }
 
 }

@@ -20,7 +20,7 @@ import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
 import model.ParametreXML;
-import model.ParametreXML.TypeFichier;
+import model.enums.TypeFichier;
 import utilities.Statics;
 
 @RunWith(JfxRunner.class)
@@ -62,13 +62,7 @@ public class ControlXMLTest
 		builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
 	    Assert.assertEquals(builder.toString(), TestUtils.callPrivate("controleDonneesParam", handler, String.class, param));	
 	    
-	    // 2. Test maps nulles
-	    param.setLotsPic(null);
-	    param.setMapClarity(null);
-	    param.setListeApplications(null);
-	    Assert.assertEquals(builder.toString(), TestUtils.callPrivate("controleDonneesParam", handler, String.class, param));
-	    
-	    // 3. Test maps remplies
+	    // 2. Test maps remplies
 	    param = new ParametreXML();
 	    param.getListeApplications().add(new Application());
 	    param.getMapClarity().put("key", new InfoClarity());

@@ -1,7 +1,6 @@
 package model;
 
 import java.beans.Transient;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -14,6 +13,9 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import model.enums.TypeFichier;
+import model.enums.TypeParam;
 
 @XmlRootElement
 public class ParametreXML
@@ -47,22 +49,12 @@ public class ParametreXML
 	{
 		return listeApplications;
 	}
-
-	public void setListeApplications(List<Application> listeApplications)
-	{
-		this.listeApplications = listeApplications;
-	}
 	
     @XmlElementWrapper
     @XmlElement(name = "mapParams", required = false)
     public Map<TypeParam, String> getMapParams()
     {
         return mapParams;
-    }
-
-    public void setMapParams(Map<TypeParam, String> mapParams)
-    {
-        this.mapParams = mapParams;
     }
     
     @XmlElementWrapper
@@ -71,11 +63,6 @@ public class ParametreXML
 	{
 		return mapClarity;
 	}
-
-	public void setMapClarity(Map<String, InfoClarity> mapClarity)
-	{
-		this.mapClarity = mapClarity;
-	}
 	
     @XmlElementWrapper
     @XmlElement(name = "maplotsPic", required = false)
@@ -83,22 +70,12 @@ public class ParametreXML
 	{
 		return lotsPic;
 	}
- 
-	public void setLotsPic(Map<String, LotSuiviPic> lotsPic)
-	{
-		this.lotsPic = lotsPic;
-	}
 	
     @XmlElementWrapper
     @XmlElement(name = "dateMaj", required = false)
     public Map<TypeFichier, String> getDateMaj()
     {
         return dateMaj;
-    }
-    
-    public void setDateMaj(Map<TypeFichier, String> dateMaj)
-    {
-    	this.dateMaj = dateMaj;
     }
 	
 	/**
@@ -125,15 +102,5 @@ public class ParametreXML
 	public void setDateFichier(TypeFichier fichier)
 	{
 		dateMaj.put(fichier, LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy",Locale.FRANCE)));
-	}
-	
-	public enum TypeFichier implements Serializable
-	{
-		APPS, CLARITY, LOTSPICS;
-	}
-	
-	public enum TypeParam implements Serializable
-	{
-		VERSIONS, FILTREDATASTAGE, ABSOLUTEPATH, NOMFICHIER, NOMFICHIERDATASTAGE;
 	}
 }

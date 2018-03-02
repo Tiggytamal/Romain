@@ -39,29 +39,29 @@ public class CellHelper
     }
 
     /* ---------- METHODS ---------- */
-    
+
     /**
      * Retourne le style de cellule voulu selon la couleur, la bordure désirée et l'alignement du texte
      * 
      * @param IndexedColors
-     *          {@link org.apache.poi.ss.usermodel.IndexedColors}
+     *            {@link org.apache.poi.ss.usermodel.IndexedColors}
      * @param bordure
-     *          {@link utilities.enums.Bordure}
+     *            {@link utilities.enums.Bordure}
      * @param alignement
-     * 			{@link org.apache.poi.ss.usermodel.HorizontalAlignment}   
+     *            {@link org.apache.poi.ss.usermodel.HorizontalAlignment}
      * @return
      */
     public CellStyle getStyle(IndexedColors couleur, Bordure bordure, HorizontalAlignment alignement)
     {
         if (couleur == null || bordure == null || alignement == null)
             throw new IllegalArgumentException("La couleur ou la bordure ne peuvent être nulles");
-        
+
         CellStyle style = getStyle(couleur, bordure);
         // Ajout de l'alignement horizontal
-	    style.setAlignment(alignement);
-	    return style;
+        style.setAlignment(alignement);
+        return style;
     }
-    
+
     /**
      * Retourne une map avec tous les styles possible d'une couleur. les Elements à true ont un style centré horizontalement.
      * 
@@ -70,16 +70,16 @@ public class CellHelper
      */
     public Map<Boolean, CellStyle> createAllStyles(IndexedColors couleur)
     {
-    	if (couleur == null)
-    		throw new IllegalArgumentException("La couleur ne peut pas être nulle");
-    	
-    	// Map de retour
-    	Map<Boolean, CellStyle> retour = new HashMap<>();
+        if (couleur == null)
+            throw new IllegalArgumentException("La couleur ne peut pas être nulle");
 
-    	// Itération sur toutes les bordures possibles
+        // Map de retour
+        Map<Boolean, CellStyle> retour = new HashMap<>();
+
+        // Itération sur toutes les bordures possibles
         for (Bordure bordure : Bordure.values())
-		{
-        	//Création du style
+        {
+            // Création du style
             CellStyle style = wb.createCellStyle();
 
             // Alignement vertical centré plus lignes fines en bordure
@@ -91,58 +91,58 @@ public class CellHelper
             // Choix de la couleur de fond
             style.setFillForegroundColor(couleur.index);
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            
-        	// Switch sur le placement de la cellule, rajout d'une bordure plus épaisse au bord du tableau
-	        switch (bordure)
-	        {
-	            case BAS :
-	                style.setBorderBottom(BorderStyle.THICK);
-	                break;
-	                
-	            case DROITE :
-	                style.setBorderRight(BorderStyle.THICK);
-	                break;
-	                
-	            case GAUCHE :
-	                style.setBorderLeft(BorderStyle.THICK);
-	                break;
-	                
-	            case HAUT :
-	                style.setBorderTop(BorderStyle.THICK);
-	                break;
-	                
-	            case BASDROITE :
-	                style.setBorderRight(BorderStyle.THICK);
-	                style.setBorderBottom(BorderStyle.THICK);
-	                break;
-	                
-	            case BASGAUCHE :
-	                style.setBorderLeft(BorderStyle.THICK);
-	                style.setBorderBottom(BorderStyle.THICK);
-	                break;
-	                
-	            case HAUTDROITE :
-	                style.setBorderTop(BorderStyle.THICK);
-	                style.setBorderRight(BorderStyle.THICK);
-	                break;
-	                
-	            case HAUTGAUCHE :
-	                style.setBorderTop(BorderStyle.THICK);
-	                style.setBorderLeft(BorderStyle.THICK);
-	                break;
-	            case VIDE :
-	                break;
-	        }
-	        retour.put(false, style);
-	        CellStyle styleC = wb.createCellStyle();
-	        styleC.cloneStyleFrom(style);
-	        styleC.setAlignment(HorizontalAlignment.CENTER);
-	        retour.put(true, styleC);	        
-		}
-    	return retour;
+
+            // Switch sur le placement de la cellule, rajout d'une bordure plus épaisse au bord du tableau
+            switch (bordure)
+            {
+                case BAS:
+                    style.setBorderBottom(BorderStyle.THICK);
+                    break;
+
+                case DROITE:
+                    style.setBorderRight(BorderStyle.THICK);
+                    break;
+
+                case GAUCHE:
+                    style.setBorderLeft(BorderStyle.THICK);
+                    break;
+
+                case HAUT:
+                    style.setBorderTop(BorderStyle.THICK);
+                    break;
+
+                case BASDROITE:
+                    style.setBorderRight(BorderStyle.THICK);
+                    style.setBorderBottom(BorderStyle.THICK);
+                    break;
+
+                case BASGAUCHE:
+                    style.setBorderLeft(BorderStyle.THICK);
+                    style.setBorderBottom(BorderStyle.THICK);
+                    break;
+
+                case HAUTDROITE:
+                    style.setBorderTop(BorderStyle.THICK);
+                    style.setBorderRight(BorderStyle.THICK);
+                    break;
+
+                case HAUTGAUCHE:
+                    style.setBorderTop(BorderStyle.THICK);
+                    style.setBorderLeft(BorderStyle.THICK);
+                    break;
+                case VIDE:
+                    break;
+            }
+            retour.put(false, style);
+            CellStyle styleC = wb.createCellStyle();
+            styleC.cloneStyleFrom(style);
+            styleC.setAlignment(HorizontalAlignment.CENTER);
+            retour.put(true, styleC);
+        }
+        return retour;
     }
-    
-    public Cell setFontColor (Cell cell, IndexedColors color)
+
+    public Cell setFontColor(Cell cell, IndexedColors color)
     {
         CellStyle style = wb.createCellStyle();
         style.cloneStyleFrom(cell.getCellStyle());
@@ -154,8 +154,8 @@ public class CellHelper
         cell.setCellStyle(style);
         return cell;
     }
-    
-    public Cell recentrage (Cell cell)
+
+    public Cell recentrage(Cell cell)
     {
         CellStyle style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -166,6 +166,7 @@ public class CellHelper
 
     /**
      * Retourne le style de cellule voulu selon la couleur, la bordure désirée et l'alignement du texte est celui par défault.
+     * 
      * @param couleur
      * @param bordure
      * @return
@@ -192,49 +193,50 @@ public class CellHelper
         // Switch sur le placement de la cellule, rajout d'une bordure plus épaisse au bord du tableau
         switch (bordure)
         {
-            case BAS :
+            case BAS:
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
-            case DROITE :
+
+            case DROITE:
                 style.setBorderRight(BorderStyle.THICK);
                 break;
-                
-            case GAUCHE :
+
+            case GAUCHE:
                 style.setBorderLeft(BorderStyle.THICK);
                 break;
-                
-            case HAUT :
+
+            case HAUT:
                 style.setBorderTop(BorderStyle.THICK);
                 break;
-                
-            case BASDROITE :
+
+            case BASDROITE:
                 style.setBorderRight(BorderStyle.THICK);
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
-            case BASGAUCHE :
+
+            case BASGAUCHE:
                 style.setBorderLeft(BorderStyle.THICK);
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
-            case HAUTDROITE :
+
+            case HAUTDROITE:
                 style.setBorderTop(BorderStyle.THICK);
                 style.setBorderRight(BorderStyle.THICK);
                 break;
-                
-            case HAUTGAUCHE :
+
+            case HAUTGAUCHE:
                 style.setBorderTop(BorderStyle.THICK);
                 style.setBorderLeft(BorderStyle.THICK);
                 break;
-            case VIDE :
+            case VIDE:
                 break;
         }
         return style;
     }
-    
+
     /**
      * Retourne le style de cellule voulu selon la couleur, sans bordure spécifique et avec un texte centré)
+     * 
      * @param couleur
      * @return
      */
@@ -242,27 +244,27 @@ public class CellHelper
     {
         return getStyle(couleur, Bordure.VIDE);
     }
-    
+
     public Cell createHyperLink(String adresse, Cell cell)
     {
-    	// Création de l'hyperlink
-		Hyperlink link = ch.createHyperlink(HyperlinkType.URL);
-		link.setAddress(adresse);
-		
-		// copie du style de la cellule
-		CellStyle style = wb.createCellStyle();
-		style.cloneStyleFrom(cell.getCellStyle());
-		
-		// Création ed la police de caractères
-		Font font = wb.createFont();
-		font.setUnderline(Font.U_SINGLE);
-		font.setColor(IndexedColors.BLUE.index);
-		
-		// retour de la cellule
-		style.setFont(font);
-		cell.setHyperlink(link);
-		cell.setCellStyle(style);
-    	return cell;
+        // Création de l'hyperlink
+        Hyperlink link = ch.createHyperlink(HyperlinkType.URL);
+        link.setAddress(adresse);
+
+        // copie du style de la cellule
+        CellStyle style = wb.createCellStyle();
+        style.cloneStyleFrom(cell.getCellStyle());
+
+        // Création ed la police de caractères
+        Font font = wb.createFont();
+        font.setUnderline(Font.U_SINGLE);
+        font.setColor(IndexedColors.BLUE.index);
+
+        // retour de la cellule
+        style.setFont(font);
+        cell.setHyperlink(link);
+        cell.setCellStyle(style);
+        return cell;
     }
 
     /* ---------- PRIVATE METHODS ---------- */

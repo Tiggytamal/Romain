@@ -10,80 +10,80 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 public class Issues implements ModeleSonar
 {
-	/*---------- ATTRIBUTS ----------*/
+    /*---------- ATTRIBUTS ----------*/
 
-	private int total;
-	private int p;
-	private int ps;
-	private Paging paging;
-	private List<Composant> composants;
-	private List<Issue> listIssues;
-	
-	/*---------- CONSTRUCTEURS ----------*/
-	/*---------- METHODES PUBLIQUES ----------*/
-	/*---------- METHODES PRIVEES ----------*/
-	/*---------- ACCESSEURS ----------*/
-	
-	@XmlAttribute (name = "total")
-	public int getTotal()
-	{
-		return total;
-	}
+    private int total;
+    private int p;
+    private int ps;
+    private Paging paging;
+    private List<Composant> composants;
+    private List<Issue> listIssues;
 
-	public void setTotal(int total)
-	{
-		this.total = total;
-	}
+    /*---------- CONSTRUCTEURS ----------*/
+    /*---------- METHODES PUBLIQUES ----------*/
+    /*---------- METHODES PRIVEES ----------*/
+    /*---------- ACCESSEURS ----------*/
 
-	@XmlAttribute (name = "p")
-	public int getP()
-	{
-		return p;
-	}
+    @XmlAttribute(name = "total")
+    public int getTotal()
+    {
+        return total;
+    }
 
-	public void setP(int p)
-	{
-		this.p = p;
-	}
+    public void setTotal(int total)
+    {
+        this.total = total;
+    }
 
-	@XmlAttribute (name = "ps")
-	public int getPs()
-	{
-		return ps;
-	}
+    @XmlAttribute(name = "p")
+    public int getP()
+    {
+        return p;
+    }
 
-	public void setPs(int ps)
-	{
-		this.ps = ps;
-	}
+    public void setP(int p)
+    {
+        this.p = p;
+    }
 
-	@XmlAttribute (name = "paging")
-	public Paging getPaging()
-	{
-		return paging;
-	}
+    @XmlAttribute(name = "ps")
+    public int getPs()
+    {
+        return ps;
+    }
 
-	public void setPaging(Paging paging)
-	{
-		this.paging = paging;
-	}
+    public void setPs(int ps)
+    {
+        this.ps = ps;
+    }
 
-	@XmlElementWrapper
-	@XmlAttribute (name = "components", required = false)
-	public List<Composant> getComposants()
-	{
-		return composants;
-	}
-	
-	@XmlElementWrapper
-	@XmlAttribute (name = "issues", required = false)
-	public List<Issue> listIssues()
-	{
-		return listIssues;
-	}
+    @XmlAttribute(name = "paging")
+    public Paging getPaging()
+    {
+        return paging;
+    }
 
-	public void setListIssues(List<Issue> listIssues)
-	{
-		this.listIssues = listIssues;
-	}
+    public void setPaging(Paging paging)
+    {
+        this.paging = paging;
+    }
+
+    @XmlElementWrapper
+    @XmlAttribute(name = "components", required = false)
+    public List<Composant> getComposants()
+    {
+        return composants;
+    }
+
+    @XmlElementWrapper
+    @XmlAttribute(name = "issues", required = false)
+    public List<Issue> listIssues()
+    {
+        return listIssues;
+    }
+
+    public void setListIssues(List<Issue> listIssues)
+    {
+        this.listIssues = listIssues;
+    }
 }

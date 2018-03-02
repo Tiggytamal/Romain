@@ -80,6 +80,14 @@
 					<Region prefHeight="10" />
 					<Separator />
 					<Region prefHeight="10" />
+					<!-- Chemin vers l'historique de suivi -->
+					<HBox>
+						<Label text="Chemin vers l'historique de suivi : " />
+						<TextField fx:id="pathHistoField" prefWidth="250"  />
+					</HBox> 
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
 					<!-- Nom du fichier de suivi -->
 					<HBox>
 						<Label text="Nom du fichier de suivi : " />
@@ -100,7 +108,11 @@
 					<HBox>
 						<Label text="Filter Datastage : " />
 						<TextField fx:id="filtreField" prefWidth="250"  />
-					</HBox>				
+					</HBox>		
+					
+					<!-- Bouton de sauvegarde -->	
+					<Region prefHeight="20" />
+					<Button text="Sauvegarder" fx:id="sauvegarder" onAction="#sauvegarder" alignment="CENTER" />
 				</VBox>
 			</children>
 		</GridPane>

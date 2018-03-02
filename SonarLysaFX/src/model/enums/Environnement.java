@@ -41,13 +41,13 @@ public enum Environnement
             case Valeur.EDITION :
                 return EDITION;
             case Valeur.ABANDONNE :
-            	return ABANDONNE;
+                return ABANDONNE;
             case Valeur.TERMINE :
-            	return TERMINE;
+                return TERMINE;
             default :
-            	if (envString.contains(Valeur.EDITION))
-            		return EDITION;
-                return null;                
+                if (envString.contains(Valeur.EDITION))
+                    return EDITION;
+                return null;
         }
         
     }

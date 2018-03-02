@@ -15,124 +15,121 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Utilitaire de conversion entre les deux formats de Date
- *  {@code java.util.Date} et {@code java.time.*}).
+ * Utilitaire de conversion entre les deux formats de Date {@code java.util.Date} et {@code java.time.*}).
  * <p>
  * Toutes les méthodes sont null-safe.
  */
 public class DateConvert
-{    
-    private DateConvert() {}
-    
+{
+    private DateConvert()
+    {
+    }
+
     /**
-     * Appel de {@link #convert(Class, Object, ZoneId)} avec la time-zone par default du système, 
-     * et l'Offset de Greenwich.
+     * Appel de {@link #convert(Class, Object, ZoneId)} avec la time-zone par default du système, et l'Offset de Greenwich.
      */
-    public static Temporal convert(Class<? extends Temporal> classe , Object date)
-    {        
+    public static Temporal convert(Class<? extends Temporal> classe, Object date)
+    {
         return convert(classe, date, ZoneId.systemDefault());
     }
-    
+
     /**
      * Permet de convertir un objet dans les nouveaux formats temporels du JDK 1.8.<br>
      * La time-zone est nécessaire pour {@code java.time.LocalDate} et {@code java.time.LocalDateTime}.<br>
      * Par défault, utilise celle du système. Null-safe.
      * 
      * @param classe
-     * 			Le choix de la classe de retour.
+     *            Le choix de la classe de retour.
      * @param date
-     * 			L'objet à convertir. Supporte les formats suivants : 
-     * <ul>
-     * <li>{@link java.util.Date}
-     * <li>{@link java.sql.Date}
-     * <li>{@link java.sql.Timestamp}
-     * <li>{@link java.time.LocalDate}
-     * <li>{@link java.time.LocalDateTime}
-     * <li>{@link java.time.ZonedDateTime}
-     * <li>{@link java.time.Instant}
-     * <li>{@link java.lang.Long} - Nombre de jours depuis 1970
-     * </ul>
+     *            L'objet à convertir. Supporte les formats suivants :
+     *            <ul>
+     *            <li>{@link java.util.Date}
+     *            <li>{@link java.sql.Date}
+     *            <li>{@link java.sql.Timestamp}
+     *            <li>{@link java.time.LocalDate}
+     *            <li>{@link java.time.LocalDateTime}
+     *            <li>{@link java.time.ZonedDateTime}
+     *            <li>{@link java.time.Instant}
+     *            <li>{@link java.lang.Long} - Nombre de jours depuis 1970
+     *            </ul>
      * @param zone
-     * 			La time_zone souhaitée. Par default, on utlise celle du système.
-     * @return
-     * 		Retourne un objet implémentant l'interface Temporal :
-     * <ul>
-     * <li>{@link java.time.LocalDate}
-     * <li>{@link java.time.LocalDateTime}
-     * <li>{@link java.time.ZonedDateTime}
-     * <li>{@link java.time.OffsetTime}
-     * <li>{@link java.time.OffsetDateTime}
-     * <li>{@link java.time.Instant}
-     * <li>{@link java.time.Year}
-     * <li>{@link java.time.YearMonth}
-     * </ul>
+     *            La time_zone souhaitée. Par default, on utlise celle du système.
+     * @return Retourne un objet implémentant l'interface Temporal :
+     *         <ul>
+     *         <li>{@link java.time.LocalDate}
+     *         <li>{@link java.time.LocalDateTime}
+     *         <li>{@link java.time.ZonedDateTime}
+     *         <li>{@link java.time.OffsetTime}
+     *         <li>{@link java.time.OffsetDateTime}
+     *         <li>{@link java.time.Instant}
+     *         <li>{@link java.time.Year}
+     *         <li>{@link java.time.YearMonth}
+     *         </ul>
      */
-    public static Temporal convert(Class<? extends Temporal> classe , Object date, ZoneId zone)
+    public static Temporal convert(Class<? extends Temporal> classe, Object date, ZoneId zone)
     {
-    	if (zone == null)
-    		zone = ZoneId.systemDefault();
-    	
-    	if (classe == null || date == null)
-            return null;
+        if (classe == null || date == null || zone == null)
+            throw new IllegalArgumentException(
+                    "Méthode DateConvert.convert(Class<? extends Temporal> classe , Object date, ZoneId zone) : une donnée est nulle.");
 
-    	Instant temp = null;
-    	
-    	// Conversion de l'objet en Instant selon sa classe
-    	switch (date.getClass().getName())
-    	{
-    		case "java.lang.Long" :
-    			temp = Instant.ofEpochSecond((Long)date*24*60*60);   			
-    			break;
-    		case "java.time.Instant" :
-    			temp = (Instant) date;
-    			break; 			
-    		case "java.time.ZonedDateTime" :
-    			temp = ((ZonedDateTime) date).toInstant();
-    			break;
-    		case "java.time.LocalDateTime" :
-    			temp = ((LocalDateTime) date).atZone(zone).toInstant();
-    			break;
-    		case "java.time.LocalDate" :
-    			temp = ((LocalDate) date).atStartOfDay(zone).toInstant();
-    			break;
-    		case "java.time.Timestamp" :
-    			temp = ((Timestamp) date).toInstant();
-    			break;
-    		case "java.sql.Date" :
-    			temp = ((java.sql.Date) date).toInstant();
-    			break;
-    		case "java.util.Date" :
-    			temp = ((java.util.Date) date).toInstant();
-    			break;
-    		default :
-    			throw new UnsupportedOperationException("Classe de l'objet non supportée : " + date.getClass().getName());
-    			
-    	}
-    	
-    	// Conversion de l'Instant dans la classe de sortie
+        Instant temp = null;
+
+        // Conversion de l'objet en Instant selon sa classe
+        switch (date.getClass().getName())
+        {
+            case "java.lang.Long":
+                temp = Instant.ofEpochSecond((Long) date * 24 * 60 * 60);
+                break;
+            case "java.time.Instant":
+                temp = (Instant) date;
+                break;
+            case "java.time.ZonedDateTime":
+                temp = ((ZonedDateTime) date).toInstant();
+                break;
+            case "java.time.LocalDateTime":
+                temp = ((LocalDateTime) date).atZone(zone).toInstant();
+                break;
+            case "java.time.LocalDate":
+                temp = ((LocalDate) date).atStartOfDay(zone).toInstant();
+                break;
+            case "java.time.Timestamp":
+                temp = ((Timestamp) date).toInstant();
+                break;
+            case "java.sql.Date":
+                temp = ((java.sql.Date) date).toInstant();
+                break;
+            case "java.util.Date":
+                temp = ((java.util.Date) date).toInstant();
+                break;
+            default:
+                throw new UnsupportedOperationException("Classe de l'objet non supportée : " + date.getClass().getName());
+
+        }
+
+        // Conversion de l'Instant dans la classe de sortie
         switch (classe.getSimpleName())
         {
-            case "LocalDate" :
+            case "LocalDate":
                 return temp.atZone(zone).toLocalDate();
-            case "LocalDateTime" :
-            	return temp.atZone(zone).toLocalDateTime();
-            case "ZonedDateTime" :
-            	return temp.atZone(zone);
-            case "OffestTime" :
-            	return temp.atOffset(ZoneOffset.UTC).toOffsetTime();
-            case "OffsetDateTime" :
-            	return temp.atOffset(ZoneOffset.UTC);
-            case "Instant" :
-            	return temp;
-            case "Year" :
-            	return Year.from(temp);
-            case "YearMonth" :
-            	return YearMonth.from(temp);
-           default :
-            	throw new UnsupportedOperationException("Classe de retour non supportée : " + classe.getClass().getName());                              
+            case "LocalDateTime":
+                return temp.atZone(zone).toLocalDateTime();
+            case "ZonedDateTime":
+                return temp.atZone(zone);
+            case "OffestTime":
+                return temp.atOffset(ZoneOffset.UTC).toOffsetTime();
+            case "OffsetDateTime":
+                return temp.atOffset(ZoneOffset.UTC);
+            case "Instant":
+                return temp;
+            case "Year":
+                return Year.from(temp);
+            case "YearMonth":
+                return YearMonth.from(temp);
+            default:
+                throw new UnsupportedOperationException("Classe de retour non supportée : " + classe.getClass().getName());
         }
     }
-    
+
     /**
      * Appel de {@link #localDate(Date, ZoneId)} avec la time-zone par default du système.
      */
@@ -208,16 +205,16 @@ public class DateConvert
 
         if (date instanceof Timestamp || date instanceof Date)
             return (Date) date;
-        
+
         if (date instanceof LocalDate)
             return Date.from(((LocalDate) date).atStartOfDay(zone).toInstant());
-        
+
         if (date instanceof LocalDateTime)
             return Date.from(((LocalDateTime) date).atZone(zone).toInstant());
-        
+
         if (date instanceof ZonedDateTime)
             return Date.from(((ZonedDateTime) date).toInstant());
-        
+
         if (date instanceof Instant)
             return Date.from((Instant) date);
 
@@ -255,8 +252,7 @@ public class DateConvert
     }
 
     /**
-     * Retourne le mois en français de la date en paramètre.
-     * Utilise le format {@code java.time.LocalDate}
+     * Retourne le mois en français de la date en paramètre. Utilise le format {@code java.time.LocalDate}
      * 
      * @param date
      * @return
@@ -265,6 +261,6 @@ public class DateConvert
     {
         if (pattern == null || date == null)
             throw new IllegalArgumentException("La date et le pattern ne peuvent être nuls");
-        return date.format(DateTimeFormatter.ofPattern(pattern,Locale.FRANCE)).replaceAll("\\.", "").replaceAll("[é]", "e").replaceAll("û", "u");
-    }   
+        return date.format(DateTimeFormatter.ofPattern(pattern, Locale.FRANCE)).replaceAll("\\.", "").replaceAll("[é]", "e").replaceAll("û", "u");
+    }
 }
