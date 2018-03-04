@@ -54,7 +54,7 @@
 						</padding>
 						<Label text="Versions : " />
 						<Region  prefWidth="10" />
-						<ListView fx:id="listeVersions" prefWidth="50">
+						<ListView fx:id="versionsField" prefWidth="50">
 							<items>
 								<FXCollections fx:factory="observableArrayList">
 								</FXCollections>

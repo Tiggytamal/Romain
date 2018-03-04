@@ -191,7 +191,7 @@ public class OptionViewControl
      * 
      * @throws JAXBException
      */
-    public void suppVersion() throws JAXBException
+    public void suppVersion()
     {
         // Suppression de la version de la liste affichée
         int index = versionsField.getSelectionModel().getSelectedIndex();
@@ -210,7 +210,7 @@ public class OptionViewControl
      * 
      * @throws JAXBException
      */
-    public void ajouterVersion() throws JAXBException
+    public void ajouterVersion()
     {
         String version = newVersionField.getText();
         ObservableList<String> liste = versionsField.getItems();

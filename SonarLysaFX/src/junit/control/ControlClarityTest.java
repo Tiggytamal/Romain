@@ -4,18 +4,16 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.Before;
+import org.junit.Test;
 
 import control.ControlClarity;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ControlClarityTest
 {
     private ControlClarity handler;
 
-    @BeforeAll
+    @Before
     public void init() throws InvalidFormatException, IOException
     {
         // handler = new ControlSonar();

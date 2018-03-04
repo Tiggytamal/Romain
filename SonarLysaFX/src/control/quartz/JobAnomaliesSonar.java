@@ -5,15 +5,15 @@ import java.io.IOException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 import control.ControlSonar;
+import utilities.TechnicalException;
 
 public class JobAnomaliesSonar implements Job
 {
 
 	@Override
-	public void execute(JobExecutionContext context) throws JobExecutionException
+	public void execute(JobExecutionContext context)
 	{
 		try
 		{
@@ -22,7 +22,7 @@ public class JobAnomaliesSonar implements Job
 			handler.majFichierSuiviExcelDataStage();
 		} catch (InvalidFormatException | IOException e)
 		{
-			throw new JobExecutionException(e);
+			throw new TechnicalException("Erreur sur le job d'excetion", e);
 		}
 		
 	}

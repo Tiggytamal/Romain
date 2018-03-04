@@ -10,16 +10,22 @@ import javax.xml.bind.JAXBException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import control.ControlSonar;
 import control.ControlXML;
 import junit.TestUtils;
+import sonarapi.SonarAPI;
 
+@RunWith(PowerMockRunner.class)
 public class ControlSonarTest
 {
     private ControlSonar handler;
     public static boolean deser;
-
+    private SonarAPI mock;
+    
     @Before
     public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
     {
@@ -27,6 +33,7 @@ public class ControlSonarTest
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
         deser = false;
         new ControlXML().recuprerParamXML();
+        mock = PowerMockito.mock(SonarAPI.class);
     }
 
     @Test
@@ -47,6 +54,11 @@ public class ControlSonarTest
         handler.majVues();
     }
 
+    @Test
+    public void testAppli()
+    {
+    }
+    
     @Test
     public void creationHeader() throws InvalidFormatException, IOException
     {

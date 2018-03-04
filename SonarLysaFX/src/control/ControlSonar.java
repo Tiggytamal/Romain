@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Sheet;
 
 import junit.control.ControlSonarTest;
 import model.Anomalie;
@@ -638,8 +639,7 @@ public class ControlSonar
                 }
                 else
                 {
-                    // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce
-                    // fichier
+                    // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce fichier
                     LotSuiviPic lot = lotsPIC.get(numeroLot);
                     if (lot == null)
                     {
@@ -655,9 +655,13 @@ public class ControlSonar
             anoAajouter.addAll(controlAno.createSheetError(entry.getKey(), anoACreer));
         }
 
+        //Sauvegarde fichier et maj feuille principale
+        Sheet sheet = controlAno.sauvegardeFichier(path, fichier);
+        
         // Mis à jour de la feuille principale
-        controlAno.majNouvellesAno(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, path, fichier);
+        controlAno.majFeuillePrinciale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
 
+        // Fermeture controleur
         controlAno.close();
     }
 

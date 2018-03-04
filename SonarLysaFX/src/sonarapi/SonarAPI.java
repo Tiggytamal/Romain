@@ -377,7 +377,7 @@ public class SonarAPI
 	 *            Paramètres optionnels de la requête
 	 * @return
 	 */
-	private Response appelWebserviceGET(final String url, Parametre... params)
+	public Response appelWebserviceGET(final String url, Parametre... params)
 	{
 		WebTarget requete = webTarget.path(url);
 
@@ -404,7 +404,7 @@ public class SonarAPI
 	 *            a pas beaoin de paramètres.
 	 * @return
 	 */
-	private Response appelWebservicePOST(final String url, ModeleSonar entite)
+	public Response appelWebservicePOST(final String url, ModeleSonar entite)
 	{
 		// Création ed la requête
 		WebTarget requete = webTarget.path(url);
@@ -427,7 +427,7 @@ public class SonarAPI
 	 *            a pas beaoin de paramètres.
 	 * @return
 	 */
-	private Future<Response> appelWebserviceAsyncPOST(final String url, ModeleSonar entite)
+	public Future<Response> appelWebserviceAsyncPOST(final String url, ModeleSonar entite)
 	{
 		// Création de la requête
 		WebTarget requete = webTarget.path(url);

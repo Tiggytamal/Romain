@@ -20,6 +20,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import application.Main;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Modality;
+import javafx.stage.StageStyle;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
@@ -212,13 +216,13 @@ public class ControlXML
 
     private void createAlert(String texte)
     {
-        // Alert alert = new Alert(AlertType.INFORMATION);
-        // alert.initStyle(StageStyle.UTILITY);
-        // alert.initModality(Modality.NONE);
-        // alert.setContentText(texte);
-        // alert.setHeaderText(null);
-        // alert.show();
-        // alert.setHeaderText(null);
+         Alert alert = new Alert(AlertType.INFORMATION);
+         alert.initStyle(StageStyle.UTILITY);
+         alert.initModality(Modality.NONE);
+         alert.setContentText(texte);
+         alert.setHeaderText(null);
+         alert.show();
+         alert.setHeaderText(null);
     }
 
     /*---------- ACCESSEURS ----------*/

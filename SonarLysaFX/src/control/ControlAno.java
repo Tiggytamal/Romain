@@ -142,6 +142,13 @@ public class ControlAno extends ControlExcel
         return retour;
     }
 
+    /**
+     * Permet de créer les feuille des anomalies par version et retourne les anomalies à créer
+     * @param nomSheet
+     * @param anoAcreer
+     * @return
+     * @throws IOException
+     */
     protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
     {
         // Création de la feuille de calcul
@@ -219,41 +226,23 @@ public class ControlAno extends ControlExcel
         return retour;
     }
 
-    /**
-     * Permet de mettre à jour les anomalies avec une quality Gate bonne
-     * 
-     * @param lotsEnErreur
-     *            Liste de tous les lots avec un Quality Gate à "ERROR".
-     * @throws IOException
-     */
-    protected void majAnoOK(Set<String> lotsEnErreur) throws IOException
+    protected Sheet sauvegardeFichier(String path, String fichier) throws IOException
     {
-        // Récupération de la feuille avec les anomalies
-        Sheet sheet = wb.getSheet(SQ);
-
-        // Itération sur chaque ligne
-        for (int i = 1; i <= sheet.getLastRowNum(); i++)
+        // Récupération feuille principale existante
+        Sheet retour = wb.getSheet(SQ);
+        if (retour != null)
         {
-            Row row = sheet.getRow(i);
-
-            // Si le numéro n'est pas présent dans la liste, c'est que le Quality Gate est bon
-            String string = row.getCell(colLot).getStringCellValue().substring(4);
-            if (!lotsEnErreur.contains(string))
-            {
-                majCouleurLigne(row, IndexedColors.LIGHT_GREEN);
-            }
-            else
-            {
-                majCouleurLigne(row, IndexedColors.WHITE);
-            }
+            // Création du fichier de sauvegarde et effacement de la feuille
+            wb.write(new FileOutputStream(new StringBuilder(path).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
+            wb.removeSheetAt(wb.getSheetIndex(retour));
         }
-
-        // Ecriture du fichier
-        write();
+        retour = wb.createSheet(SQ);
+        creerLigneTitres(retour);
+        return retour;       
     }
-
+    
     /**
-     * Rajoute les nouvelles anomalies à la première page du fichier Excel
+     * Gestion de la feuille principale des anomalies. Maj des anciennes plus création des nouvelles
      * 
      * @param anoAajouter
      * @param lotsSecurite
@@ -263,34 +252,11 @@ public class ControlAno extends ControlExcel
      * @throws InvalidFormatException
      * @throws EncryptedDocumentException
      */
-    protected void majNouvellesAno(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite,
-            Set<String> lotsRelease, String path, String fichier) throws IOException
+    protected void majFeuillePrinciale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet) throws IOException
     {
-        // Création d'une nouvelle feuille d'anomalies
-        Sheet sheet = wb.getSheet(SQ);
-        if (sheet != null)
-        {
-            wb.write(new FileOutputStream(new StringBuilder(path).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
-            wb.removeSheetAt(wb.getSheetIndex(sheet));
-        }
-        sheet = wb.createSheet(SQ);
-        creerLigneTitres(sheet);
-
-        // Récupération feuille des anomalies closes
-        Sheet sheetClose = wb.getSheet(AC);
-        if (sheetClose == null)
-        {
-            sheetClose = wb.createSheet(AC);
-            creerLigneTitres(sheetClose);
-        }
-
-        // Récupération de la liste des anomalies closes
+        // Récupération feuille  et liste des anomalies closes
         List<String> anoClose = new ArrayList<>();
-        for (Iterator<Row> iter = sheetClose.rowIterator(); iter.hasNext();)
-        {
-            Row row = iter.next();
-            anoClose.add(row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-        }
+        Sheet sheetClose = gestionAnomaliesCLoses(anoClose);
 
         // Mise à jour anomalies déjà créées
         for (Anomalie ano : lotsEnAno)
@@ -332,7 +298,7 @@ public class ControlAno extends ControlExcel
         }
 
         // Ajout des nouvelles anomalies
-        ajouterNewAnos(sheet, anoAajouter, anoClose, lotsSecurite, lotsRelease);
+        ajouterNouvellesAnos(sheet, anoAajouter, anoClose, lotsSecurite, lotsRelease);
 
         autosizeColumns(sheet);
         autosizeColumns(sheetClose);
@@ -426,8 +392,6 @@ public class ControlAno extends ControlExcel
 
     /*---------- METHODES PRIVEES ----------*/
 
-    /*---------- METHODES PRIVEES ----------*/
-
     private void creerLigneSQ(Row row, Anomalie ano, IndexedColors couleur)
     {
         // Contrôles
@@ -491,10 +455,7 @@ public class ControlAno extends ControlExcel
         if (numeroAno != 0)
         {
             cell.setCellValue(numeroAno);
-            if (ano.getLiensAno() != null)
-                ajouterLiens(cell, ano.getLiensAno());
-            else
-                ajouterLiens(cell, LIENSANO, String.valueOf(numeroAno));
+            ajouterLiens(cell, LIENSANO, String.valueOf(numeroAno));
         }
         cell = row.createCell(colEtat);
         cell.setCellStyle(normal);
@@ -591,11 +552,6 @@ public class ControlAno extends ControlExcel
         cell.setHyperlink(link);
     }
 
-    private void ajouterLiens(Cell cell, String baseAdresse)
-    {
-        ajouterLiens(cell, baseAdresse, null);
-    }
-
     /**
      * 
      * @param row
@@ -614,7 +570,7 @@ public class ControlAno extends ControlExcel
      * @param lotsSecurite
      * @param lotsRelease
      */
-    private void ajouterNewAnos(Sheet sheet, List<Anomalie> anoAajouter, List<String> anoClose, Set<String> lotsSecurite, Set<String> lotsRelease)
+    private void ajouterNouvellesAnos(Sheet sheet, List<Anomalie> anoAajouter, List<String> anoClose, Set<String> lotsSecurite, Set<String> lotsRelease)
     {
         for (Anomalie ano : anoAajouter)
         {
@@ -640,6 +596,29 @@ public class ControlAno extends ControlExcel
         }
     }
 
+    /**
+     * Retourne la feuille des anomalies closes en remplissant la liste de celles-ci.
+     * 
+     * @param anoClose
+     * @return
+     */
+    private Sheet gestionAnomaliesCLoses(List<String> anoClose)
+    {
+        Sheet retour = wb.getSheet(AC);
+        if (retour == null)
+        {
+            retour = wb.createSheet(AC);
+            creerLigneTitres(retour);
+        }
+        
+        for (Iterator<Row> iter = retour.rowIterator(); iter.hasNext();)
+        {
+            Row row = iter.next();
+            anoClose.add(row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
+        }
+        return retour;
+    }
+    
     /**
      * Contrôle si le code clarity de l'anomalie est bien dans le fichier Excel et renseigne les informations depuis celui-ci
      * 
@@ -688,7 +667,8 @@ public class ControlAno extends ControlExcel
      * @author ETP8137 - Grégoire mathon
      *
      */
-    private enum Index {
+    private enum Index 
+    {
         LOTI, EDITIONI, ENVI, TRAITEI;
     }
 }

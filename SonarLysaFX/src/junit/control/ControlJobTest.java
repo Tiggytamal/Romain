@@ -5,9 +5,8 @@ import java.io.IOException;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.Before;
+import org.junit.Test;
 import org.quartz.SchedulerException;
 
 import control.quartz.ControlJob;
@@ -17,12 +16,11 @@ import control.quartz.ControlJob;
  * @author ETP137 - Grégoire Mathon
  *
  */
-@TestInstance (TestInstance.Lifecycle.PER_CLASS)
 public class ControlJobTest
 {
     private ControlJob handler;
 
-    @BeforeAll
+    @Before
     public void init() throws InvalidFormatException, JAXBException, IOException, SchedulerException
     {
         handler = new ControlJob();
