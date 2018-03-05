@@ -66,28 +66,25 @@ public class ControlXML
     public ParametreXML recuprerParamXML()
     {
         JAXBContext context;
-        ParametreXML param;
+        ParametreXML retour;
         try
         {
             context = JAXBContext.newInstance(ParametreXML.class);
             // Récupération du paramétrage depuis le fichier externe
             if (fichierParam.exists())
             {
-                param = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
+                retour = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
             }
             // Récupération du paramétrage depuis le fichier interne
             else
             {
-                param = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+                retour = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
             }
         } catch (JAXBException e)
         {
             throw new TechnicalException("Impossible de récupérer le fichier de paramètre", e);
         }
-
-        // Contrôle des données et affiche le message de chargement
-        createAlert(controleDonneesParam(param));
-        return param;
+        return retour;
     }
 
     /**
@@ -166,7 +163,7 @@ public class ControlXML
      * @param param
      * @return
      */
-    private String controleDonneesParam(ParametreXML param)
+    private String controleDonneesParam()
     {
         // Variables
         Map<String, LotSuiviPic> lotsPic = param.getLotsPic();
@@ -214,15 +211,18 @@ public class ControlXML
         return builder.toString();
     }
 
-    private void createAlert(String texte)
+    /**
+     * 
+     * @param texte
+     */
+    public void createAlert()
     {
-         Alert alert = new Alert(AlertType.INFORMATION);
-         alert.initStyle(StageStyle.UTILITY);
-         alert.initModality(Modality.NONE);
-         alert.setContentText(texte);
-         alert.setHeaderText(null);
-         alert.show();
-         alert.setHeaderText(null);
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.initStyle(StageStyle.UTILITY);
+        alert.initModality(Modality.NONE);
+        alert.setContentText(controleDonneesParam());
+        alert.setHeaderText(null);
+        alert.show();
     }
 
     /*---------- ACCESSEURS ----------*/

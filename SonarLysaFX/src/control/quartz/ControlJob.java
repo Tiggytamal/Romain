@@ -5,9 +5,13 @@ import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import org.quartz.DateBuilder;
+import org.quartz.Job;
 import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
@@ -24,7 +28,6 @@ public class ControlJob
     public ControlJob() throws SchedulerException
     {
         scheduler = StdSchedulerFactory.getDefaultScheduler();
-        scheduler.start();
     }
 
     public void creationJobAnomaliesSonar() throws SchedulerException
@@ -38,10 +41,31 @@ public class ControlJob
 
         // Mise en place du job.
         scheduler.scheduleJob(job, trigger);
+        scheduler.start();
+    }
+    
+    public void test() throws SchedulerException
+    {
+        JobDetail job = newJob(JobJob.class).withIdentity("job1", "group1").build();
+        Trigger trigger = newTrigger().withIdentity("trigger1", "group1").startNow().withSchedule(SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(1).repeatForever()).build();
+        scheduler.scheduleJob(job, trigger);
+        scheduler.start();
     }
 
     public void fermeturePlanificateur() throws SchedulerException
     {
-        scheduler.shutdown();
+        scheduler.standby();
+    }
+    
+    public static class JobJob implements Job
+    {
+
+        @Override
+        public void execute(JobExecutionContext context) throws JobExecutionException
+        {
+           System.out.println("bouh!");
+            
+        }
+        
     }
 }

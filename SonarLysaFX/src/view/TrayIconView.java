@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 
+import application.Main;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 import utilities.Statics;
@@ -21,22 +22,18 @@ public class TrayIconView
 	private SystemTray tray;
 	private TrayIcon trayIcon;
 	private Stage stage;
+	public static final Image imageBase = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/resources/sonar.jpg"));
+	public static final Image imageRed = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/resources/sonarRed.png"));
 	
 	/*---------- CONSTRUCTEURS ----------*/
 
-	public TrayIconView(Stage stage)
-	{
-		// Dépendance avec l'application
-		this.stage = stage;
-		
+	public TrayIconView()
+	{		
 		// Récupération de la barre de notifications depuis le système
 		tray = SystemTray.getSystemTray();
 
-		// Image utilisée pour l'icône
-		Image image = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/resources/sonar.jpg"));
-
 		// Initialisation de l'icone
-		trayIcon = new TrayIcon(image, Statics.NOMAPPLI);
+		trayIcon = new TrayIcon(imageBase, Statics.NOMAPPLI);
 		trayIcon.setImageAutoSize(true);
 		trayIcon.setToolTip("Tooltip");
 		trayIcon.displayMessage(Statics.NOMAPPLI, "demo", MessageType.INFO);
@@ -60,8 +57,13 @@ public class TrayIconView
 	 */
 	public void addToTray() throws AWTException
 	{
-		stage.hide();
+	    tray.remove(trayIcon);
 		tray.add(trayIcon);
+	}
+	
+	public void hideStage()
+	{
+	    stage.hide();
 	}
 	
 	/**
@@ -76,6 +78,18 @@ public class TrayIconView
 		    stage.toFront();		    
 		});
 	    Platform.setImplicitExit(true);
+	}
+	
+	public void changeImage(Image image)
+	{
+	    if (image != null)
+	        trayIcon.setImage(image);
+	}
+	
+	public void setStage(Stage stage)
+	{
+	    if (stage != null)
+	        this.stage = stage;
 	}
 	
 	/*---------- METHODES PRIVEES ----------*/

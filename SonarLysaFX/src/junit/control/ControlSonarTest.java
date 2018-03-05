@@ -11,29 +11,26 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import control.ControlSonar;
 import control.ControlXML;
+import de.saxsys.javafx.test.JfxRunner;
+import de.saxsys.javafx.test.TestInJfxThread;
 import junit.TestUtils;
-import sonarapi.SonarAPI;
 
-@RunWith(PowerMockRunner.class)
+@RunWith(JfxRunner.class)
 public class ControlSonarTest
 {
     private ControlSonar handler;
     public static boolean deser;
-    private SonarAPI mock;
     
     @Before
     public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
     {
         // handler = new ControlSonar();
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-        deser = false;
+        deser = true;
         new ControlXML().recuprerParamXML();
-        mock = PowerMockito.mock(SonarAPI.class);
     }
 
     @Test
@@ -88,12 +85,14 @@ public class ControlSonarTest
     }
 
     @Test
+    @TestInJfxThread
     public void majFichierSuiviExcel() throws InvalidFormatException, IOException, JAXBException
     {
         handler.majFichierSuiviExcel();
     }
 
     @Test
+    @TestInJfxThread
     public void majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException, JAXBException
     {
         handler.majFichierSuiviExcelDataStage();

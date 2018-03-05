@@ -123,7 +123,6 @@ public class ControlSonar
 
         // Fichier des lots édition
         Map<String, LotSuiviPic> lotsPIC = param.getLotsPic();
-        String path = param.getMapParams().get(TypeParam.ABSOLUTEPATH);
 
         // 2. Récupération des lots Sonar en erreur.
         Map<String, Set<String>> mapLots;
@@ -146,7 +145,7 @@ public class ControlSonar
         }
 
         // 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
-        majFichierAnomalies(lotsPIC, mapLots, lotsSecurite, lotRelease, path, fichier);
+        majFichierAnomalies(lotsPIC, mapLots, lotsSecurite, lotRelease, fichier);
 
         // 4. Création des vues
         for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
@@ -594,11 +593,10 @@ public class ControlSonar
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease,
-            String path, String fichier) throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease, String fichier) throws InvalidFormatException, IOException
     {
         // Controleur
-        ControlAno controlAno = new ControlAno(new File(path + fichier));
+        ControlAno controlAno = new ControlAno(new File(param.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
 
         // Lecture du fichier pour remonter les anomalies en cours.
         List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
@@ -656,7 +654,7 @@ public class ControlSonar
         }
 
         //Sauvegarde fichier et maj feuille principale
-        Sheet sheet = controlAno.sauvegardeFichier(path, fichier);
+        Sheet sheet = controlAno.sauvegardeFichier(fichier);
         
         // Mis à jour de la feuille principale
         controlAno.majFeuillePrinciale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);

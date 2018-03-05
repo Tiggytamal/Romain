@@ -16,14 +16,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import utilities.FunctionalException;
 import utilities.Statics;
+import utilities.enums.Severity;
 
 public class MensuelViewControl
 {
     /* ---------- ATTIBUTS ---------- */
        
     private ControlSonar handler;
+    @SuppressWarnings("unused")
     private LocalDate dateDebut;
+    @SuppressWarnings("unused")
     private LocalDate dateFin;
     
     @FXML
@@ -109,7 +113,6 @@ public class MensuelViewControl
     @FXML
     public void creerVue()
     {
-        System.out.println(dateDebut);
-        System.out.println(dateFin);
+        throw new FunctionalException(Severity.SEVERITY_INFO, "Pas encore implémenté");
     }
 }

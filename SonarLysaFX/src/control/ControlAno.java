@@ -30,6 +30,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import model.Anomalie;
 import model.InfoClarity;
 import model.enums.Environnement;
+import model.enums.TypeParam;
 import utilities.CellHelper;
 import utilities.FunctionalException;
 import utilities.enums.Bordure;
@@ -226,14 +227,14 @@ public class ControlAno extends ControlExcel
         return retour;
     }
 
-    protected Sheet sauvegardeFichier(String path, String fichier) throws IOException
+    protected Sheet sauvegardeFichier(String fichier) throws IOException
     {
         // Récupération feuille principale existante
         Sheet retour = wb.getSheet(SQ);
         if (retour != null)
         {
             // Création du fichier de sauvegarde et effacement de la feuille
-            wb.write(new FileOutputStream(new StringBuilder(path).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
+            wb.write(new FileOutputStream(new StringBuilder(param.getMapParams().get(TypeParam.ABSOLUTEPATHHISTO)).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
             wb.removeSheetAt(wb.getSheetIndex(retour));
         }
         retour = wb.createSheet(SQ);
@@ -644,7 +645,8 @@ public class ControlAno extends ControlExcel
         // Sinon on itère sur les clefs en supprimant les indices de lot, et on prend la première clef correspondante
         for (String key : keyset)
         {
-            if (clarity.equals(key.substring(0, 6)))
+            // ON retire les deux dernières lettres pour les clefs de puis de 6 caractères.
+            if (clarity.equals(key.length() < 6 ? key :  key.substring(0, 6)))
             {
                 InfoClarity info = map.get(key);
                 ano.setDepartement(info.getDepartement());

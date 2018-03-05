@@ -1,6 +1,7 @@
 package control.view;
 
 import java.awt.AWTException;
+import java.awt.Image;
 import java.io.IOException;
 
 import javax.xml.bind.JAXBException;
@@ -19,82 +20,103 @@ import model.ParametreXML;
 import utilities.TechnicalException;
 import view.TrayIconView;
 
+/**
+ * 
+ * @author ETP8137 - Grégoire Mathon
+ *
+ */
 public class MainScreen extends Application
 {
-	/*---------- ATTRIBUTS ----------*/
+    /*---------- ATTRIBUTS ----------*/
 
-	/* Attibuts généraux */
+    /* Attibuts généraux */
 
-	private static BorderPane root = new BorderPane();
-	public static final ParametreXML param = new ControlXML().recuprerParamXML();
-	private TrayIconView trayIcon;
+    private static final BorderPane root = new BorderPane();
+    private static final ControlXML controlXML = new ControlXML();
+    private static final TrayIconView trayIcon = new TrayIconView();
+    public static final ParametreXML param = controlXML.recuprerParamXML();
 
-	/* Attributs FXML */
+    /*---------- CONSTRUCTEURS ----------*/
 
-	/*---------- CONSTRUCTEURS ----------*/
+    /*---------- METHODES PUBLIQUES ----------*/
 
-	/*---------- METHODES PUBLIQUES ----------*/
+    @Override
+    public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
+    {
+        // Menu de l'application
+        final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
 
-	@Override
-	public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
-	{   
-		// Menu de l'application
-		final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
-		
-		// Ajout au panneau principal
-		root.setTop(menu);
+        // Ajout au panneau principal
+        root.setTop(menu);
 
-		// Affichage de l'interface
-		final Scene scene = new Scene(root, 640, 480);
-		trayIcon = new TrayIconView(stage);
-		stage.setTitle("Sonar Lysa");
-		stage.setResizable(true);
-		stage.setScene(scene);
-	    stage.iconifiedProperty().addListener(new IconifiedListener());
-		stage.show();    
-	}
+        // Affichage de l'interface
+        final Scene scene = new Scene(root, 640, 480);
+        trayIcon.setStage(stage);
+        stage.setTitle("Sonar Lysa");
+        stage.setResizable(true);
+        stage.setScene(scene);
+        stage.iconifiedProperty().addListener(new IconifiedListener());
+        stage.show();
+        controlXML.createAlert();
+    }
 
-	/*---------- METHODES PRIVEES ----------*/
+    /*---------- METHODES PRIVEES ----------*/
 
-	/*---------- ACCESSEURS ----------*/
+    /*---------- ACCESSEURS ----------*/
 
-	/**
-	 * Accès au panneau principal depuis les autres contrôleurs.
-	 * 
-	 * @return
-	 * 
-	 */
-	public static BorderPane getRoot()
-	{
-		return root;
-	}
-	
-	/**
-	 * Accèes au fichier de paramètre de l'application
-	 * 
-	 * @return
-	 */
-	public static ParametreXML getParam()
-	{
-	    return param;
-	}
-	
-	private class IconifiedListener implements ChangeListener<Boolean>
-	{
+    /**
+     * Accès au panneau principal depuis les autres contrôleurs.
+     * 
+     * @return
+     * 
+     */
+    public static BorderPane getRoot()
+    {
+        return root;
+    }
+
+    /**
+     * Accèes au fichier de paramètre de l'application
+     * 
+     * @return
+     */
+    public static ParametreXML getParam()
+    {
+        return param;
+    }
+
+    public static void addToTray()
+    {
+        try
+        {
+            trayIcon.addToTray();
+        } catch (AWTException e)
+        {
+            throw new TechnicalException("IconTray inaccessible", e.getCause());
+        }
+    }
+    
+    public static void changeImageTray(Image image)
+    {
+        trayIcon.changeImage(image);
+    }
+
+    /**
+     * Listener rpivé pour réduire l'application dans la barre des tâches.
+     * 
+     * @author ETP8137 - Grégoire Mathon
+     */
+    private class IconifiedListener implements ChangeListener<Boolean>
+    {
         @Override
         public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
         {
             if (newValue)
             {
                 Platform.setImplicitExit(false);
-                try
-                {
-                   trayIcon.addToTray();
-                } catch (AWTException e)
-                {
-                    throw new TechnicalException("IconTray inaccessible", e.getCause());
-                }
-            }           
+                addToTray();
+                trayIcon.hideStage();
+            }
         }
-	}
+    }
 }
