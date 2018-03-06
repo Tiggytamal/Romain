@@ -1,6 +1,6 @@
 package control.view;
 
-import static control.view.MainScreen.param;
+import static control.view.MainScreen.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -98,7 +98,7 @@ public class OptionViewControl
         alert.setHeaderText(null);
 
         // Récupération de la map de paramètres
-        mapParam = param.getMapParams();
+        mapParam = proprietesXML.getMapParams();
 
         // Initialition liste des versions affichée
         String versionsParam = mapParam.get(TypeParam.VERSIONS);
@@ -261,7 +261,7 @@ public class OptionViewControl
             mapParam.put(TypeParam.ABSOLUTEPATHHISTO, pathHisto.replace("\\", "\\\\"));
 
         // Enregistrement paramètres
-        new ControlXML().saveParam();
+        new ControlXML().saveParam(proprietesXML);
     }
 
     /*---------- METHODES PRIVEES ----------*/

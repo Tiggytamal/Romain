@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import application.Main;
 import javafx.stage.FileChooser;
 
 /**
@@ -16,6 +17,8 @@ public abstract class Statics
 {
     private Statics() {}
 
+    /** jarPath */
+    public static final String jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
     /** logger général */
 	public static final Logger logger = LogManager.getLogger("complet.log");
     /** logger composants sans applications */

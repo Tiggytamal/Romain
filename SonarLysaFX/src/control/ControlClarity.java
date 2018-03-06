@@ -67,6 +67,12 @@ public class ControlClarity extends ControlExcel
     }
 
     @Override
+    protected void initColonnes()
+    {
+        // pas implémenté encore       
+    }
+    
+    @Override
     protected void calculIndiceColonnes()
     {
         // Récupération de la première feuille

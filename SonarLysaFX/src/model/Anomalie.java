@@ -33,6 +33,7 @@ public class Anomalie
     private String remarque;
     private String version;
     private LocalDate dateCreation;
+    private LocalDate dateRelance;
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -264,5 +265,15 @@ public class Anomalie
     public LocalDate getDateCreation()
     {
         return dateCreation;
+    }
+    
+    public void setDateRelance(LocalDate dateRelance)
+    {
+        this.dateRelance = dateRelance;
+    }
+    
+    public LocalDate getDateRelance()
+    {
+        return dateRelance;
     }
 }

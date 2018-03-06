@@ -137,7 +137,11 @@ public class ControlPic extends ControlExcel
         return retour;
     }
 
-    /*---------- METHODES PRIVEES ----------*/
+    @Override
+    protected void initColonnes()
+    {
+        // pas implémenté encore       
+    }
 
     /**
      * initialise les numéro des colonnes du fichier Excelvenant de la PIC.
@@ -202,6 +206,8 @@ public class ControlPic extends ControlExcel
         }
     }
 
+    /*---------- METHODES PRIVEES ----------*/
+    
     /**
      * 
      * @param sheet

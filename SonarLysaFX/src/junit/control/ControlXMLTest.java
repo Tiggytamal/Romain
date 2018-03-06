@@ -19,7 +19,8 @@ import junit.TestUtils;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
-import model.ParametreXML;
+import model.ProprietesXML;
+import model.FichiersXML;
 import model.enums.TypeFichier;
 import utilities.Statics;
 
@@ -35,24 +36,24 @@ public class ControlXMLTest
 	}
 
 	@Test
-	public void testCalculerListeApplisDepuisExcel() throws InvalidFormatException, IOException, JAXBException
+	public void calculerListeApplisDepuisExcel() throws InvalidFormatException, IOException, JAXBException
 	{
 		handler.recupListeAppsDepuisExcel(new File("d:\\liste applis.xlsx"));
 		handler.recupInfosClarityDepuisExcel(new File("d:\\Referentiel_Projets.xlsm"));
-		handler.saveParam();
 	}
 	
 	@Test
 	@TestInJfxThread
-	public void testRecuprerParamXML() throws InvalidFormatException, JAXBException, IOException
+	public void recuprerParamXML() throws InvalidFormatException, JAXBException, IOException
 	{
-	    handler.recuprerParamXML();
+	    handler.recuprerXML(FichiersXML.class);
+	    handler.recuprerXML(ProprietesXML.class);
 	}
 	
 	@Test
-	public void testControleDonneesParam() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
+	public void controleDonneesParam() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException
 	{
-		ParametreXML param = new ParametreXML();
+		FichiersXML param = new FichiersXML();
 		
 		// 1. Test parametre initialisé
 		StringBuilder builder = new StringBuilder();
@@ -63,7 +64,7 @@ public class ControlXMLTest
 	    Assert.assertEquals(builder.toString(), TestUtils.callPrivate("controleDonneesParam", handler, String.class, param));	
 	    
 	    // 2. Test maps remplies
-	    param = new ParametreXML();
+	    param = new FichiersXML();
 	    param.getListeApplications().add(new Application());
 	    param.getMapClarity().put("key", new InfoClarity());
 	    param.getLotsPic().put("key", new LotSuiviPic());	    

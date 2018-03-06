@@ -1,10 +1,9 @@
 package control;
 
-import static control.view.MainScreen.param;
+import static control.view.MainScreen.fichiersXML;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
@@ -19,7 +18,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import application.Main;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Modality;
@@ -27,11 +25,10 @@ import javafx.stage.StageStyle;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
-import model.ParametreXML;
+import model.ProprietesXML;
+import model.XML;
 import model.enums.TypeFichier;
-import utilities.Statics;
 import utilities.TechnicalException;
-import utilities.Utilities;
 
 /**
  * Classe de gestion des paramètres de XML de l'application
@@ -43,47 +40,56 @@ public class ControlXML
 {
     /*---------- ATTRIBUTS ----------*/
 
-    private File fichierParam;
-    private String jarPath;
-
     /*---------- CONSTRUCTEURS ----------*/
 
     public ControlXML()
     {
-        jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
-        fichierParam = new File(jarPath + "\\param.xml");
     }
 
     /*---------- METHODES PUBLIQUES ----------*/
-
+    
     /**
      * Récupère le paramètre depuis le fichier externe ou celui interne par default s'il n'existe pas.
+     * @throws IllegalAccessException 
+     * @throws InstantiationException 
      * 
      * @throws JAXBException
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public ParametreXML recuprerParamXML()
+    public XML recuprerXML(Class<? extends XML> typeXML)
     {
+        // variables
         JAXBContext context;
-        ParametreXML retour;
+        XML retour;
         try
         {
-            context = JAXBContext.newInstance(ParametreXML.class);
+            retour = typeXML.newInstance();
+        } catch (InstantiationException | IllegalAccessException e)
+        {
+            throw new TechnicalException("Impossible d'instancier le fichier de paramètre", e);
+        }
+        
+        File file = retour.getFile();
+      
+        try
+        {
+            context = JAXBContext.newInstance(typeXML);
             // Récupération du paramétrage depuis le fichier externe
-            if (fichierParam.exists())
+            if (file.exists())
             {
-                retour = (ParametreXML) context.createUnmarshaller().unmarshal(fichierParam);
+                retour = (XML) context.createUnmarshaller().unmarshal(file);
             }
-            // Récupération du paramétrage depuis le fichier interne
-            else
+            else if (typeXML.isAssignableFrom(ProprietesXML.class))
             {
-                retour = (ParametreXML) context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/param.xml"));
+                retour = typeXML.cast(context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/proprietes.xml")));
             }
+            
         } catch (JAXBException e)
         {
-            throw new TechnicalException("Impossible de récupérer le fichier de paramètre", e);
+            throw new TechnicalException("Impossible de récupérer le fichier de paramètre, erreur JAXB", e);
         }
+        
         return retour;
     }
 
@@ -92,12 +98,12 @@ public class ControlXML
      * 
      * @throws JAXBException
      */
-    public void saveParam() throws JAXBException
+    public void saveParam(XML fichier) throws JAXBException
     {
-        JAXBContext context = JAXBContext.newInstance(ParametreXML.class);
+        JAXBContext context = JAXBContext.newInstance(fichier.getClass());
         Marshaller jaxbMarshaller = context.createMarshaller();
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        jaxbMarshaller.marshal(param, fichierParam);
+        jaxbMarshaller.marshal(fichier, fichier.getFile());
     }
 
     /**
@@ -128,11 +134,11 @@ public class ControlXML
             else
                 app.setActif(false);
 
-            param.getListeApplications().add(app);
+            fichiersXML.getListeApplications().add(app);
         }
         wb.close();
-        param.setDateFichier(TypeFichier.APPS);
-        saveParam();
+        fichiersXML.setDateFichier(TypeFichier.APPS);
+        saveParam(fichiersXML);
     }
 
     public void recupInfosClarityDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
@@ -140,9 +146,9 @@ public class ControlXML
         ControlClarity control = new ControlClarity(file);
         Map<String, InfoClarity> clarity = control.recupInfosClarityExcel();
         control.close();
-        param.getMapClarity().putAll(clarity);
-        param.setDateFichier(TypeFichier.CLARITY);
-        saveParam();
+        fichiersXML.getMapClarity().putAll(clarity);
+        fichiersXML.setDateFichier(TypeFichier.CLARITY);
+        saveParam(fichiersXML);
     }
 
     public void recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException, JAXBException
@@ -150,66 +156,12 @@ public class ControlXML
         ControlPic controlPic = new ControlPic(file);
         Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
         controlPic.close();
-        param.getLotsPic().putAll(lotsPic);
-        param.setDateFichier(TypeFichier.LOTSPICS);
-        saveParam();
+        fichiersXML.getLotsPic().putAll(lotsPic);
+        fichiersXML.setDateFichier(TypeFichier.LOTSPICS);
+        saveParam(fichiersXML);
     }
 
     /*---------- METHODES PRIVEES ----------*/
-
-    /**
-     * Contrôle les informations des différentes maps
-     * 
-     * @param param
-     * @return
-     */
-    private String controleDonneesParam()
-    {
-        // Variables
-        Map<String, LotSuiviPic> lotsPic = param.getLotsPic();
-        List<Application> applis = param.getListeApplications();
-        Map<String, InfoClarity> clarity = param.getMapClarity();
-        StringBuilder builder = new StringBuilder();
-        boolean manquant = false;
-
-        // Contrôle lots Pic
-        if (lotsPic.isEmpty())
-        {
-            builder.append("Données des lots Pic manquantes.").append(Statics.NL);
-            manquant = true;
-        }
-        else
-        {
-            builder.append("Lots Pics chargés. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.LOTSPICS)).append(Statics.NL);
-        }
-
-        // Contrôle liste application
-        if (applis.isEmpty())
-        {
-            builder.append("Liste des apllications manquante.").append(Statics.NL);
-            manquant = true;
-        }
-        else
-        {
-            builder.append("Liste des apllications chargée. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.APPS)).append(Statics.NL);
-        }
-
-        // Contrôle Referentiel Clarity
-        if (clarity.isEmpty())
-        {
-            builder.append("Informations referentiel Clarity manquantes.").append(Statics.NL);
-            manquant = true;
-        }
-        else
-        {
-            builder.append("Referentiel Clarity chargé. Dernière Maj : ").append(param.getDateMaj().get(TypeFichier.CLARITY)).append(Statics.NL);
-        }
-
-        if (manquant)
-            builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
-
-        return builder.toString();
-    }
 
     /**
      * 
@@ -217,10 +169,11 @@ public class ControlXML
      */
     public void createAlert()
     {
+        String texte = fichiersXML.controleDonnees();
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.initStyle(StageStyle.UTILITY);
         alert.initModality(Modality.NONE);
-        alert.setContentText(controleDonneesParam());
+        alert.setContentText(texte);
         alert.setHeaderText(null);
         alert.show();
     }

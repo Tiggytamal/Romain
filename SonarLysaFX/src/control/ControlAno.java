@@ -1,6 +1,7 @@
 package control;
 
-import static control.view.MainScreen.param;
+import static control.view.MainScreen.fichiersXML;
+import static control.view.MainScreen.proprietesXML;
 import static utilities.Statics.loginconnue;
 
 import java.io.File;
@@ -30,6 +31,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import model.Anomalie;
 import model.InfoClarity;
 import model.enums.Environnement;
+import model.enums.TypeCol;
 import model.enums.TypeParam;
 import utilities.CellHelper;
 import utilities.DateConvert;
@@ -64,36 +66,38 @@ public class ControlAno extends ControlExcel
     private int colRemarque;
     private int colVer;
     private int colDateCrea;
+    private int colDateRel;
 
     // Liste des noms de colonnes
-    private static final String DIRECTION = "Direction";
-    private static final String DEPARTEMENT = "Département";
-    private static final String SERVICE = "Service";
-    private static final String RESPSERVICE = "Responsable Service";
-    private static final String CLARITY = "Projet Clarity";
-    private static final String LIBELLE = "Libelle projet";
-    private static final String CPI = "CPI du lot";
-    private static final String EDITION = "Edition";
-    private static final String LOT = "Lot projet RTC";
-    private static final String ENV = "Etat du lot";
-    private static final String ANOMALIE = "Anomalie";
-    private static final String ETAT = "Etat de l'anomalie";
-    private static final String SECURITE = "Sécurité";
-    private static final String REMARQUE = "Remarque";
-    private static final String TRAITE = "Traité";
-    private static final String VERSION = "Version";
-    private static final String DATECREATION = "Date création";
+    private String direction;
+    private String departement;
+    private String service;
+    private String respService;
+    private String clarity;
+    private String libelle;
+    private String cpi;
+    private String edition;
+    private String lot;
+    private String env;
+    private String anomalie;
+    private String etat;
+    private String securite;
+    private String remarque;
+    private String traite;
+    private String version;
+    private String dateCreation;
+    private String DateRelance;
 
     // Nom de la feuillle avec les naomalies en cours
     private static final String SQ = "SUIVI Qualité";
     private static final String AC = "Anomalies closes";
     private static final String CLOSE = "Close";
     private static final String ABANDONNEE = "Abandonnée";
-    private static final String LIENSLOTS = "http://ttp10-snar.ca-technologies.fr/governance?id=view_lot_";
-    private static final String LIENSANO = "https://ttp10-jazz.ca-technologies.credit-agricole.fr/ccm/web/projects/Support%20NICE#action=com.ibm.team.workitem.viewWorkItem&id=";
     private static final String SECURITEKO = "X";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String RELEASE = "RELEASE";
+    private String lienslots;
+    private String liensAnos;
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -138,6 +142,7 @@ public class ControlAno extends ControlExcel
             ano.setRemarque(getCellStringValue(row, colRemarque));
             ano.setVersion(getCellStringValue(row, colVer));
             ano.setDateCreation(getCellDateValue(row, colDateCrea));
+            ano.setDateRelance(getCellDateValue(row, colDateRel));
             retour.add(ano);
         }
         return retour;
@@ -145,6 +150,7 @@ public class ControlAno extends ControlExcel
 
     /**
      * Permet de créer les feuille des anomalies par version et retourne les anomalies à créer
+     * 
      * @param nomSheet
      * @param anoAcreer
      * @return
@@ -189,33 +195,33 @@ public class ControlAno extends ControlExcel
             switch (index)
             {
                 case LOTI:
-                    cell.setCellValue(LOT);
+                    cell.setCellValue(lot);
                     break;
                 case EDITIONI:
-                    cell.setCellValue(EDITION);
+                    cell.setCellValue(edition);
                     break;
                 case ENVI:
-                    cell.setCellValue(ENV);
+                    cell.setCellValue(env);
                     break;
                 case TRAITEI:
-                    cell.setCellValue(TRAITE);
+                    cell.setCellValue(traite);
                     break;
             }
         }
 
         // Itération sur les anomalies à créer. Si elles sont déjà dans les anomalies traitées, on créée une ligne à l'état traitée sinon on crée une ligne à
         // l'état non traité et on ajoute celle-ci aux anomalies à créer.
-        for (Anomalie anomalie : anoAcreer)
+        for (Anomalie ano : anoAcreer)
         {
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
-            if (lotsTraites.contains(anomalie.getLot()))
+            if (lotsTraites.contains(ano.getLot()))
             {
-                creerLigneVersion(row, anomalie, IndexedColors.WHITE, "O");
+                creerLigneVersion(row, ano, IndexedColors.WHITE, "O");
             }
             else
             {
-                creerLigneVersion(row, anomalie, IndexedColors.LIGHT_YELLOW, "N");
-                retour.add(anomalie);
+                creerLigneVersion(row, ano, IndexedColors.LIGHT_YELLOW, "N");
+                retour.add(ano);
             }
         }
 
@@ -234,14 +240,15 @@ public class ControlAno extends ControlExcel
         if (retour != null)
         {
             // Création du fichier de sauvegarde et effacement de la feuille
-            wb.write(new FileOutputStream(new StringBuilder(param.getMapParams().get(TypeParam.ABSOLUTEPATHHISTO)).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
+            wb.write(new FileOutputStream(new StringBuilder(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATHHISTO)).append(LocalDate.now().toString())
+                    .append("-").append(fichier).toString()));
             wb.removeSheetAt(wb.getSheetIndex(retour));
         }
         retour = wb.createSheet(SQ);
         creerLigneTitres(retour);
-        return retour;       
+        return retour;
     }
-    
+
     /**
      * Gestion de la feuille principale des anomalies. Maj des anciennes plus création des nouvelles
      * 
@@ -255,7 +262,7 @@ public class ControlAno extends ControlExcel
      */
     protected void majFeuillePrincipale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet) throws IOException
     {
-        // Récupération feuille  et liste des anomalies closes
+        // Récupération feuille et liste des anomalies closes
         List<String> anoClose = new ArrayList<>();
         Sheet sheetClose = gestionAnomaliesCLoses(anoClose);
 
@@ -263,10 +270,10 @@ public class ControlAno extends ControlExcel
         for (Anomalie ano : lotsEnAno)
         {
             Row row;
-            String lot = ano.getLot().substring(4);
+            String anoLot = ano.getLot().substring(4);
 
             // Contrôle si le lot a une erreur de sécurité pour mettre à jour la donnée.
-            if (lotsSecurite.contains(lot))
+            if (lotsSecurite.contains(anoLot))
                 ano.setSecurite(SECURITEKO);
 
             // Si une anomalie est close dans RTC, on la transfert sur l'autre feuille.
@@ -279,13 +286,13 @@ public class ControlAno extends ControlExcel
 
             // Mise en vert des anomalies avec un Quality Gate bon
             row = sheet.createRow(sheet.getLastRowNum() + 1);
-            if (!lotsEnErreurSonar.contains(lot))
+            if (!lotsEnErreurSonar.contains(anoLot))
             {
                 creerLigneSQ(row, ano, IndexedColors.LIGHT_GREEN);
             }
             else
             {
-                if (lotsRelease.contains(lot))
+                if (lotsRelease.contains(anoLot))
                 {
                     ano.setVersion(RELEASE);
                     creerLigneSQ(row, ano, IndexedColors.LIGHT_YELLOW);
@@ -307,6 +314,36 @@ public class ControlAno extends ControlExcel
     }
 
     @Override
+    protected void initColonnes()
+    {
+        // Intialisation noms des colonnes
+        Map<TypeCol, String> nomColonnes = proprietesXML.getMapColonnes();
+        direction = nomColonnes.get(TypeCol.DIRECTION);
+        departement = nomColonnes.get(TypeCol.DEPARTEMENT);
+        service = nomColonnes.get(TypeCol.SERVICE);
+        respService = nomColonnes.get(TypeCol.RESPSERVICE);
+        clarity = nomColonnes.get(TypeCol.CLARITY);
+        libelle = nomColonnes.get(TypeCol.LIBELLE);
+        cpi = nomColonnes.get(TypeCol.CPI);
+        edition = nomColonnes.get(TypeCol.EDITION);
+        lot = nomColonnes.get(TypeCol.LOT);
+        env = nomColonnes.get(TypeCol.ENV);
+        anomalie = nomColonnes.get(TypeCol.ANOMALIE);
+        etat = nomColonnes.get(TypeCol.ETAT);
+        securite = nomColonnes.get(TypeCol.SECURITE);
+        remarque = nomColonnes.get(TypeCol.REMARQUE);
+        traite = nomColonnes.get(TypeCol.TRAITE);
+        version = nomColonnes.get(TypeCol.VERSION);
+        dateCreation = nomColonnes.get(TypeCol.DATECREATION);
+        DateRelance = nomColonnes.get(TypeCol.DATERELANCE);
+        
+        Map<TypeParam, String> proprietes = proprietesXML.getMapParams();
+        lienslots = proprietes.get(TypeParam.LIENSLOTS);
+        liensAnos = proprietes.get(TypeParam.LIENSANOS);
+        
+    }
+    
+    @Override
     protected void calculIndiceColonnes()
     {
         // Récupération de la première feuille
@@ -319,79 +356,95 @@ public class ControlAno extends ControlExcel
         // Récupération des indices de colonnes
         for (Cell cell : titres)
         {
-            if (cell.getCellTypeEnum() == CellType.STRING)
+            if (cell.getCellTypeEnum() != CellType.STRING)
+                continue;
+            
+            if (cell.getStringCellValue().equals(direction))
             {
-                switch (cell.getStringCellValue())
-                {
-                    case DIRECTION:
-                        colDir = cell.getColumnIndex();
-                        testMax(colDir);
-                        break;
-                    case DEPARTEMENT:
-                        colDepart = cell.getColumnIndex();
-                        testMax(colDepart);
-                        break;
-                    case SERVICE:
-                        colService = cell.getColumnIndex();
-                        testMax(colDir);
-                        break;
-                    case RESPSERVICE:
-                        colResp = cell.getColumnIndex();
-                        testMax(colService);
-                        break;
-                    case CLARITY:
-                        colClarity = cell.getColumnIndex();
-                        testMax(colClarity);
-                        break;
-                    case LIBELLE:
-                        colLib = cell.getColumnIndex();
-                        testMax(colLib);
-                        break;
-                    case CPI:
-                        colCpi = cell.getColumnIndex();
-                        testMax(colCpi);
-                        break;
-                    case EDITION:
-                        colEdition = cell.getColumnIndex();
-                        testMax(colEdition);
-                        break;
-                    case LOT:
-                        colLot = cell.getColumnIndex();
-                        testMax(colLot);
-                        break;
-                    case ENV:
-                        colEnv = cell.getColumnIndex();
-                        testMax(colEnv);
-                        break;
-                    case ANOMALIE:
-                        colAno = cell.getColumnIndex();
-                        testMax(colAno);
-                        break;
-                    case ETAT:
-                        colEtat = cell.getColumnIndex();
-                        testMax(colEtat);
-                        break;
-                    case SECURITE:
-                        colSec = cell.getColumnIndex();
-                        testMax(colSec);
-                        break;
-                    case REMARQUE:
-                        colRemarque = cell.getColumnIndex();
-                        testMax(colRemarque);
-                        break;
-                    case VERSION:
-                        colVer = cell.getColumnIndex();
-                        testMax(colVer);
-                        break;
-                    case DATECREATION:
-                        colDateCrea = cell.getColumnIndex();
-                        testMax(colDateCrea);
-                        break;
-                    default:
-                        // Colonne sans nom reconnu
-                        break;
-                }
+                colDir = cell.getColumnIndex();
+                testMax(colDir);
             }
+            else if (cell.getStringCellValue().equals(departement))
+            {
+                colDepart = cell.getColumnIndex();
+                testMax(colDepart);
+            }
+            else if (cell.getStringCellValue().equals(service))
+            {
+                colService = cell.getColumnIndex();
+                testMax(colService);
+            }
+            else if (cell.getStringCellValue().equals(respService))
+            {
+                colResp = cell.getColumnIndex();
+                testMax(colResp);
+            }
+            else if (cell.getStringCellValue().equals(clarity))
+            {
+                colClarity = cell.getColumnIndex();
+                testMax(colClarity);
+            }
+            else if (cell.getStringCellValue().equals(libelle))
+            {
+                colLib = cell.getColumnIndex();
+                testMax(colLib);
+            }
+            else if (cell.getStringCellValue().equals(cpi))
+            {
+                colCpi = cell.getColumnIndex();
+                testMax(colCpi);
+            }
+            else if (cell.getStringCellValue().equals(edition))
+            {
+                colEdition = cell.getColumnIndex();
+                testMax(colEdition);
+            }
+            else if (cell.getStringCellValue().equals(lot))
+            {
+                colLot = cell.getColumnIndex();
+                testMax(colLot);
+            }
+            else if (cell.getStringCellValue().equals(env))
+            {
+                colEnv = cell.getColumnIndex();
+                testMax(colEnv);
+            }
+            else if (cell.getStringCellValue().equals(anomalie))
+            {
+                colAno = cell.getColumnIndex();
+                testMax(colAno);
+            }
+            else if (cell.getStringCellValue().equals(etat))
+            {
+                colEtat = cell.getColumnIndex();
+                testMax(colEtat);
+            }
+            else if (cell.getStringCellValue().equals(securite))
+            {
+                colSec = cell.getColumnIndex();
+                testMax(colSec);
+            }
+            else if (cell.getStringCellValue().equals(remarque))
+            {
+                colRemarque = cell.getColumnIndex();
+                testMax(colRemarque);
+            }
+            else if (cell.getStringCellValue().equals(version))
+            {
+                colVer = cell.getColumnIndex();
+                testMax(colVer);
+            }
+            else if (cell.getStringCellValue().equals(dateCreation))
+            {
+                colDateCrea = cell.getColumnIndex();
+                testMax(colDateCrea);
+            }
+            else if (cell.getStringCellValue().equals(DateRelance))
+            {
+                colDateRel = cell.getColumnIndex();
+                testMax(colDateRel);
+            }
+
         }
     }
 
@@ -403,14 +456,15 @@ public class ControlAno extends ControlExcel
         if (couleur == null || row == null || ano == null)
             throw new IllegalArgumentException("Les arguments ne peuvent pas être nuls");
 
-        // Variables
+        // Helper
         CellHelper helper = new CellHelper(wb);
-        CellStyle normal = null;
-        CellStyle centre = null;
 
-        // Switch sur la couleur pour créer les styles
-        normal = helper.getStyle(couleur);
-        centre = helper.getStyle(couleur, Bordure.VIDE, HorizontalAlignment.CENTER);
+        // Création des styles
+        CellStyle normal = helper.getStyle(couleur);
+        CellStyle centre = helper.getStyle(couleur, Bordure.VIDE, HorizontalAlignment.CENTER);
+        CellStyle date = wb.createCellStyle();
+        date.cloneStyleFrom(centre);
+        date.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
 
         // Contrôle Clarity et mise à jour données
         controleClarity(ano);
@@ -445,7 +499,7 @@ public class ControlAno extends ControlExcel
 
         // Gestion des numéros de lots
         cell.setCellValue(ano.getLot());
-        ajouterLiens(cell, LIENSLOTS, ano.getLot().substring(4));
+        ajouterLiens(cell, lienslots, ano.getLot().substring(4));
 
         // Gestion de la variable d'environnement
         cell = row.createCell(colEnv);
@@ -460,7 +514,8 @@ public class ControlAno extends ControlExcel
         if (numeroAno != 0)
         {
             cell.setCellValue(numeroAno);
-            ajouterLiens(cell, LIENSANO, String.valueOf(numeroAno));
+            // Rajout de "&id=", car cela fait planter la désérialisation du fichier de paramètres
+            ajouterLiens(cell, liensAnos + "&id=", String.valueOf(numeroAno));
         }
         cell = row.createCell(colEtat);
         cell.setCellStyle(normal);
@@ -474,16 +529,17 @@ public class ControlAno extends ControlExcel
         cell = row.createCell(colVer);
         cell.setCellStyle(centre);
         cell.setCellValue(ano.getVersion());
-        
-        // Gestion de la date de création
+
+        // Gestion de la date de création et de relance       
         cell = row.createCell(colDateCrea);
-        CellStyle styleDate = wb.createCellStyle();
-        styleDate.cloneStyleFrom(centre);
-        styleDate.setDataFormat(createHelper.createDataFormat().getFormat("mm/dd/yy"));
         if (ano.getDateCreation() != null)
             cell.setCellValue(DateConvert.convertToOldDate(ano.getDateCreation()));
+        cell.setCellStyle(date);
         
-        cell.setCellStyle(styleDate);
+        cell = row.createCell(colDateCrea);
+        if (ano.getDateRelance() != null)
+            cell.setCellValue(DateConvert.convertToOldDate(ano.getDateRelance()));
+        cell.setCellStyle(date);
     }
 
     private void creerLigneVersion(Row row, Anomalie ano, IndexedColors couleur, String traite)
@@ -576,11 +632,11 @@ public class ControlAno extends ControlExcel
     private String getCellStringValue(Row row, int cellIndex)
     {
         Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-        if (cell.getCellTypeEnum() == CellType.STRING)  
+        if (cell.getCellTypeEnum() == CellType.STRING)
             return cell.getStringCellValue();
         return "";
     }
-    
+
     /**
      * 
      * @param row
@@ -590,7 +646,7 @@ public class ControlAno extends ControlExcel
     private LocalDate getCellDateValue(Row row, int cellIndex)
     {
         Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-        if (cell.getCellTypeEnum() == CellType.NUMERIC)  
+        if (cell.getCellTypeEnum() == CellType.NUMERIC)
             return DateConvert.localDate(cell.getDateCellValue());
         return null;
     }
@@ -608,23 +664,23 @@ public class ControlAno extends ControlExcel
         {
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 
-            String lot = ano.getLot().substring(4);
+            String anoLot = ano.getLot().substring(4);
 
             // Contrôle si le lot a une erreur de sécurité pour mettre à jour la donnée.
-            if (lotsSecurite.contains(lot))
+            if (lotsSecurite.contains(anoLot))
                 ano.setSecurite(SECURITEKO);
 
             // Ajout de la donnée de version
-            if (lotsRelease.contains(lot))
+            if (lotsRelease.contains(anoLot))
                 ano.setVersion(RELEASE);
             else
                 ano.setVersion(SNAPSHOT);
-            
+
             // Ajout de la date de création à la date du jour
             ano.setDateCreation(LocalDate.now());
 
             // Création de la ligne
-            if (anoClose.contains(lot))
+            if (anoClose.contains(ano.getLot()))
                 creerLigneSQ(row, ano, IndexedColors.GREY_25_PERCENT);
             else
                 creerLigneSQ(row, ano, IndexedColors.LIGHT_ORANGE);
@@ -645,7 +701,7 @@ public class ControlAno extends ControlExcel
             retour = wb.createSheet(AC);
             creerLigneTitres(retour);
         }
-        
+
         for (Iterator<Row> iter = retour.rowIterator(); iter.hasNext();)
         {
             Row row = iter.next();
@@ -653,7 +709,7 @@ public class ControlAno extends ControlExcel
         }
         return retour;
     }
-    
+
     /**
      * Contrôle si le code clarity de l'anomalie est bien dans le fichier Excel et renseigne les informations depuis celui-ci
      * 
@@ -662,14 +718,14 @@ public class ControlAno extends ControlExcel
     private Anomalie controleClarity(Anomalie ano)
     {
         // Récupération infox Clarity depuis fichier Excel
-        Map<String, InfoClarity> map = param.getMapClarity();
-        String clarity = ano.getProjetClarity();
+        Map<String, InfoClarity> map = fichiersXML.getMapClarity();
+        String anoClarity = ano.getProjetClarity();
         Set<String> keyset = map.keySet();
 
         // Vérification si le code Clarity de l'anomalie est bine dans la map
-        if (keyset.contains(clarity))
+        if (keyset.contains(anoClarity))
         {
-            InfoClarity info = map.get(clarity);
+            InfoClarity info = map.get(anoClarity);
             ano.setDepartement(info.getDepartement());
             ano.setDirection(info.getDirection());
             ano.setService(info.getDirection());
@@ -680,7 +736,7 @@ public class ControlAno extends ControlExcel
         for (String key : keyset)
         {
             // ON retire les deux dernières lettres pour les clefs de puis de 6 caractères.
-            if (clarity.equals(key.length() < 6 ? key :  key.substring(0, 6)))
+            if (anoClarity.equals(key.length() < 6 ? key : key.substring(0, 6)))
             {
                 InfoClarity info = map.get(key);
                 ano.setDepartement(info.getDepartement());
@@ -691,7 +747,7 @@ public class ControlAno extends ControlExcel
         }
 
         // Si on ne trouve pas, on renvoie juste l'anomalie avec le log d'erreur
-        loginconnue.warn("Code Clarity inconnu : " + clarity + " - Lot : " + ano.getLot());
+        loginconnue.warn("Code Clarity inconnu : " + anoClarity + " - Lot : " + ano.getLot());
         return ano;
     }
 
@@ -703,8 +759,7 @@ public class ControlAno extends ControlExcel
      * @author ETP8137 - Grégoire mathon
      *
      */
-    private enum Index 
-    {
+    private enum Index {
         LOTI, EDITIONI, ENVI, TRAITEI;
     }
 }

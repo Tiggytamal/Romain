@@ -56,6 +56,7 @@ public abstract class ControlExcel
     {
         this.file = file;
         createWb();
+        initColonnes();
         calculIndiceColonnes();
     }
 
@@ -133,6 +134,8 @@ public abstract class ControlExcel
      */
     protected abstract void calculIndiceColonnes();
 
+    protected abstract void initColonnes();
+    
     /**
      * Met à jour l'indice max des colonnes
      * 

@@ -16,7 +16,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import model.ParametreXML;
+import model.FichiersXML;
+import model.ProprietesXML;
 import view.TrayIconView;
 
 /**
@@ -30,10 +31,16 @@ public class MainScreen extends Application
 
     /* Attibuts généraux */
 
+    /** Affichage général de l'applicaiton */
     private static final BorderPane root = new BorderPane();
+    /** Controleur de gestion des fichier XML */
     private static final ControlXML controlXML = new ControlXML();
+    /** Icône de la barre des tâches */
     private static final TrayIconView trayIcon = new TrayIconView();
-    public static final ParametreXML param = controlXML.recuprerParamXML();
+    /** Sauvegarde des fichiers Excel de paramètre */
+    public static final FichiersXML fichiersXML = (FichiersXML) controlXML.recuprerXML(FichiersXML.class);
+    /** Sauvegarde des fichiers Excel de paramètre */
+    public static final ProprietesXML proprietesXML = (ProprietesXML) controlXML.recuprerXML(ProprietesXML.class);
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -76,13 +83,13 @@ public class MainScreen extends Application
     }
 
     /**
-     * Accèes au fichier de paramètre de l'application
+     * Accèes au fichier de paramètre de sauvegarde des fichiers Excel
      * 
      * @return
      */
-    public static ParametreXML getParam()
+    public static FichiersXML getParamFichier()
     {
-        return param;
+        return fichiersXML;
     }
    
     public static void changeImageTray(Image image)

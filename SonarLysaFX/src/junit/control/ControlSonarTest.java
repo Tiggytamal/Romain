@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import control.ControlSonar;
-import control.ControlXML;
 import de.saxsys.javafx.test.JfxRunner;
 import de.saxsys.javafx.test.TestInJfxThread;
 import junit.TestUtils;
@@ -29,8 +28,7 @@ public class ControlSonarTest
     {
         // handler = new ControlSonar();
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-        deser = true;
-        new ControlXML().recuprerParamXML();
+        deser = false;
     }
 
     @Test

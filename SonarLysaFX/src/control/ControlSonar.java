@@ -1,6 +1,7 @@
 package control;
 
-import static control.view.MainScreen.param;
+import static control.view.MainScreen.fichiersXML;
+import static control.view.MainScreen.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -122,7 +123,7 @@ public class ControlSonar
         // 1. Récupération des données depuis les fichiers Excel.
 
         // Fichier des lots édition
-        Map<String, LotSuiviPic> lotsPIC = param.getLotsPic();
+        Map<String, LotSuiviPic> lotsPIC = fichiersXML.getLotsPic();
 
         // 2. Récupération des lots Sonar en erreur.
         Map<String, Set<String>> mapLots;
@@ -183,7 +184,7 @@ public class ControlSonar
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(true);
 
         // Traitement du fichier dtastage de suivi
-        traitementFichierSuivi(composants, param.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE));
+        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE));
     }
 
     /**
@@ -198,7 +199,7 @@ public class ControlSonar
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(false);
 
         // Traitement du fichier dtastage de suivi
-        traitementFichierSuivi(composants, param.getMapParams().get(TypeParam.NOMFICHIER));
+        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER));
     }
 
     /**
@@ -296,7 +297,7 @@ public class ControlSonar
     private Map<String, List<Projet>> recupererComposantsSonarVersion(boolean datastage)
     {
         // Récupération des versions en paramètre
-        String[] versions = param.getMapParams().get(TypeParam.VERSIONS).split("-");
+        String[] versions = proprietesXML.getMapParams().get(TypeParam.VERSIONS).split("-");
 
         // Appel du webservice pour remonter tous les composants
         List<Projet> projets = api.getComposants();
@@ -318,7 +319,7 @@ public class ControlSonar
                 if (projet.getNom().endsWith(Utilities.transcoEdition(version)))
                 {
                     // Selon que l'on regarde les composants datastage ou non, on remplie la liste en conséquence en utilisant le filtre en paramètre
-                    String filtre = param.getMapParams().get(TypeParam.FILTREDATASTAGE);
+                    String filtre = proprietesXML.getMapParams().get(TypeParam.FILTREDATASTAGE);
                     if ((datastage && projet.getNom().startsWith(filtre)) || (!datastage && !projet.getNom().startsWith(filtre)))
                         retour.get(version).add(projet);
                 }
@@ -447,7 +448,7 @@ public class ControlSonar
             return false;
         }
 
-        Map<String, Boolean> vraiesApplis = param.getMapApplis();
+        Map<String, Boolean> vraiesApplis = fichiersXML.getMapApplis();
 
         if (vraiesApplis.keySet().contains(application))
         {
@@ -593,10 +594,11 @@ public class ControlSonar
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease, String fichier) throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease,
+            String fichier) throws InvalidFormatException, IOException
     {
         // Controleur
-        ControlAno controlAno = new ControlAno(new File(param.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
+        ControlAno controlAno = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
 
         // Lecture du fichier pour remonter les anomalies en cours.
         List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
@@ -637,7 +639,8 @@ public class ControlSonar
                 }
                 else
                 {
-                    // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce fichier
+                    // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce
+                    // fichier
                     LotSuiviPic lot = lotsPIC.get(numeroLot);
                     if (lot == null)
                     {
@@ -653,9 +656,9 @@ public class ControlSonar
             anoAajouter.addAll(controlAno.createSheetError(entry.getKey(), anoACreer));
         }
 
-        //Sauvegarde fichier et maj feuille principale
+        // Sauvegarde fichier et maj feuille principale
         Sheet sheet = controlAno.sauvegardeFichier(fichier);
-        
+
         // Mis à jour de la feuille principale
         controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
 
