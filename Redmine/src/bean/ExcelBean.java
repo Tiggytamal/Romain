@@ -71,18 +71,36 @@ public class ExcelBean implements Serializable, Instance
     private Workbook wbOut;
 
     /** Noms des colonnes de la page Avancement */
-    private final static String OBJECTIF = "NbincidentsObjectif";
-    private final static String ENTRANTS = "NbincidentsEntrants", CLOS = "NbincidentsClos", RESOLVED = "NbincidentsResolved", TRANSFERED = "NbincidentsTransférés",
-            ENCOURS = "NbincidentsEnCours", CIBLE = "Nbd'inc.àtraiterpouratteindrelacible", AVANCEMENT = "Avancement";
+    private static final String OBJECTIF = "NbincidentsObjectif";
+    private static final String ENTRANTS = "NbincidentsEntrants";
+    private static final String CLOS = "NbincidentsClos"; 
+    private static final String RESOLVED = "NbincidentsResolved"; 
+    private static final String TRANSFERED = "NbincidentsTransférés";
+    private static final String ENCOURS = "NbincidentsEnCours";
+    private static final String CIBLE = "Nbd'inc.àtraiterpouratteindrelacible";
+    private static final String AVANCEMENT = "Avancement";
 
     /** Identifiants pour les calculs des incidents */
-    private final static String PENDING = "NbincidentsPending", PROBSRESOLVED = "NbprobsResolved", PROBSENCOURS = "NbproblèmesEnCours", LISTINCS = "Listeincidents",
-            LISTINCSTRANS = "ListeIncidentsTransferes";
+    private static final String PENDING = "NbincidentsPending";
+    private static final String PROBSRESOLVED = "NbprobsResolved";
+    private static final String PROBSENCOURS = "NbproblèmesEnCours";
+    private static final String LISTINCS = "Listeincidents";
+    private static final String LISTINCSTRANS = "ListeIncidentsTransferes";
 
     /** Noms des colonnes de la page du stock SM9 */
-    private final static String SM9NUMERO = "N° d'incident", SM9TRACKER = "Tracker", SM9APP = "Application", SM9BANQUE = "Banque", SM9ENVIRO = "Environnement",
-            SM9PRIORITE = "Priorité", SM9SUJET = "Sujet", SM9ASSIGNE = "Assigné à", SM9STATUT = "Statut de l'incident", SM9OUV = "Date d'ouverture",
-            SM9PRISEENCHARGE = "Date de prise en charge", SM9RESOLUTION = "Date de résolution", SM9REOUV = "Ré-ouverture";
+    private static final String SM9NUMERO = "N° d'incident";
+    private static final String SM9TRACKER = "Tracker";
+    private static final String SM9APP = "Application";
+    private static final String SM9BANQUE = "Banque";
+    private static final String SM9ENVIRO = "Environnement";
+    private static final String SM9PRIORITE = "Priorité";
+    private static final String SM9SUJET = "Sujet";
+    private static final String SM9ASSIGNE = "Assigné à";
+    private static final String SM9STATUT = "Statut de l'incident";
+    private static final String SM9OUV = "Date d'ouverture";
+    private static final String SM9PRISEENCHARGE = "Date de prise en charge";
+    private static final String SM9RESOLUTION = "Date de résolution";
+    private static final String SM9REOUV = "Ré-ouverture";
 
     /** index de la colonne avec les mois de l'annèe */
     private final static int INDEXCOLMOIS = 1;
@@ -151,7 +169,16 @@ public class ExcelBean implements Serializable, Instance
         /* ------ Intialisation des variables ----- */
 
         // Index des cellules
-        int moisEnCours = 0, iEntrants = 0, iResolved = 0, iClos = 0, iTransferes = 0, iEnCours = 0, iCible = 0, iAvancement = 0, iObjectif = 0, compteIndex = 0;
+        int moisEnCours = 0;
+        int iEntrants = 0;
+        int iResolved = 0;
+        int iClos = 0;
+        int iTransferes = 0;
+        int iEnCours = 0;
+        int iCible = 0;
+        int iAvancement = 0;
+        int iObjectif = 0;
+        int compteIndex = 0;
 
         // Création des feuilles de classeur
         Sheet sheetAvancementIn = wbIn.getSheet(Statics.sheetAvancement);

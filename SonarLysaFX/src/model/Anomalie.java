@@ -1,5 +1,7 @@
 package model;
 
+import java.time.LocalDate;
+
 import model.enums.Environnement;
 
 /**
@@ -30,6 +32,7 @@ public class Anomalie
     private String securite;
     private String remarque;
     private String version;
+    private LocalDate dateCreation;
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -251,5 +254,15 @@ public class Anomalie
     public void setVersion(String version)
     {
         this.version = version;
+    }
+    
+    public void setDateCreation(LocalDate dateCreation)
+    {
+        this.dateCreation = dateCreation;
+    }
+    
+    public LocalDate getDateCreation()
+    {
+        return dateCreation;
     }
 }

@@ -43,7 +43,7 @@ public class TrayIconView
 		MenuItem fermer  = new MenuItem("fermer");
 		fermer.addActionListener(e -> System.exit(0));
 		MenuItem ouvrir  = new MenuItem("ouvrir");
-		ouvrir.addActionListener(e -> removeFromTray());
+		ouvrir.addActionListener(e -> openStage());
 	    menu.add(ouvrir);
 		menu.add(fermer);
 		trayIcon.setPopupMenu(menu);
@@ -57,7 +57,6 @@ public class TrayIconView
 	 */
 	public void addToTray() throws AWTException
 	{
-	    tray.remove(trayIcon);
 		tray.add(trayIcon);
 	}
 	
@@ -69,9 +68,8 @@ public class TrayIconView
 	/**
 	 * Retire l'icone de la barre de notifications et affiche la fenêtre de l'application
 	 */
-	public void removeFromTray()
+	public void openStage()
 	{
-		tray.remove(trayIcon);
 		Platform.runLater(() -> { 
 		    stage.setIconified(false);
 		    stage.show();

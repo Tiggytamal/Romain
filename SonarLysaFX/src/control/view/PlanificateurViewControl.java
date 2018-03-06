@@ -34,8 +34,7 @@ public class PlanificateurViewControl
     public void demarrer() throws SchedulerException
     {
         MainScreen.changeImageTray(TrayIconView.imageRed);
-        MainScreen.addToTray();
-        control.test();
+        control.creationJobAnomaliesSonar();
     }
     
     @FXML

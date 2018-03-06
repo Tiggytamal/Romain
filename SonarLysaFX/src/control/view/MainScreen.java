@@ -17,7 +17,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import model.ParametreXML;
-import utilities.TechnicalException;
 import view.TrayIconView;
 
 /**
@@ -41,7 +40,7 @@ public class MainScreen extends Application
     /*---------- METHODES PUBLIQUES ----------*/
 
     @Override
-    public void start(final Stage stage) throws IOException, InterruptedException, JAXBException
+    public void start(final Stage stage) throws IOException, InterruptedException, JAXBException, AWTException
     {
         // Menu de l'application
         final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
@@ -56,6 +55,7 @@ public class MainScreen extends Application
         stage.setResizable(true);
         stage.setScene(scene);
         stage.iconifiedProperty().addListener(new IconifiedListener());
+        trayIcon.addToTray();
         stage.show();
         controlXML.createAlert();
     }
@@ -84,18 +84,7 @@ public class MainScreen extends Application
     {
         return param;
     }
-
-    public static void addToTray()
-    {
-        try
-        {
-            trayIcon.addToTray();
-        } catch (AWTException e)
-        {
-            throw new TechnicalException("IconTray inaccessible", e.getCause());
-        }
-    }
-    
+   
     public static void changeImageTray(Image image)
     {
         trayIcon.changeImage(image);
@@ -114,7 +103,6 @@ public class MainScreen extends Application
             if (newValue)
             {
                 Platform.setImplicitExit(false);
-                addToTray();
                 trayIcon.hideStage();
             }
         }

@@ -27,13 +27,13 @@ public class ControlJobTest
     }
 
     @Test
-    public void testCreationJobAnomaliesSonar() throws SchedulerException, InterruptedException
+    public void creationJobAnomaliesSonar() throws SchedulerException, InterruptedException
     {
         handler.creationJobAnomaliesSonar();
     }
 
     @Test
-    public void testFermeturePlanificateur() throws SchedulerException, InterruptedException
+    public void fermeturePlanificateur() throws SchedulerException, InterruptedException
     {
         handler.fermeturePlanificateur();
     }

@@ -32,6 +32,7 @@ import model.InfoClarity;
 import model.enums.Environnement;
 import model.enums.TypeParam;
 import utilities.CellHelper;
+import utilities.DateConvert;
 import utilities.FunctionalException;
 import utilities.enums.Bordure;
 import utilities.enums.Severity;
@@ -62,6 +63,7 @@ public class ControlAno extends ControlExcel
     private int colSec;
     private int colRemarque;
     private int colVer;
+    private int colDateCrea;
 
     // Liste des noms de colonnes
     private static final String DIRECTION = "Direction";
@@ -80,6 +82,7 @@ public class ControlAno extends ControlExcel
     private static final String REMARQUE = "Remarque";
     private static final String TRAITE = "Traité";
     private static final String VERSION = "Version";
+    private static final String DATECREATION = "Date création";
 
     // Nom de la feuillle avec les naomalies en cours
     private static final String SQ = "SUIVI Qualité";
@@ -116,28 +119,25 @@ public class ControlAno extends ControlExcel
 
             // Création de l'anomalie
             Anomalie ano = new Anomalie();
-            ano.setDirection(getCellValue(row, colDir));
-            ano.setDepartement(getCellValue(row, colDepart));
-            ano.setService(getCellValue(row, colService));
-            ano.setResponsableService(getCellValue(row, colResp));
-            ano.setProjetClarity(getCellValue(row, colClarity));
-            ano.setLibelleProjet(getCellValue(row, colLib));
-            ano.setCpiProjet(getCellValue(row, colCpi));
-            ano.setEdition(getCellValue(row, colEdition));
-            ano.setLot(getCellValue(row, colLot));
-            ano.setEnvironnement(Environnement.getEnvironnement(getCellValue(row, colEnv)));
+            ano.setDirection(getCellStringValue(row, colDir));
+            ano.setDepartement(getCellStringValue(row, colDepart));
+            ano.setService(getCellStringValue(row, colService));
+            ano.setResponsableService(getCellStringValue(row, colResp));
+            ano.setProjetClarity(getCellStringValue(row, colClarity));
+            ano.setLibelleProjet(getCellStringValue(row, colLib));
+            ano.setCpiProjet(getCellStringValue(row, colCpi));
+            ano.setEdition(getCellStringValue(row, colEdition));
+            ano.setLot(getCellStringValue(row, colLot));
+            ano.setEnvironnement(Environnement.getEnvironnement(getCellStringValue(row, colEnv)));
 
             // Numéro anomalie
             Cell cellAno = row.getCell(colAno, MissingCellPolicy.CREATE_NULL_AS_BLANK);
             ano.setNumeroAnomalie((int) cellAno.getNumericCellValue());
-            // Si le liens n'est pas nul on le sauvegarde
-            if (cellAno.getHyperlink() != null)
-                ano.setLiensAno(cellAno.getHyperlink().getAddress());
-
-            ano.setEtat(getCellValue(row, colEtat));
-            ano.setSecurite(getCellValue(row, colSec));
-            ano.setRemarque(getCellValue(row, colRemarque));
-            ano.setVersion(getCellValue(row, colVer));
+            ano.setEtat(getCellStringValue(row, colEtat));
+            ano.setSecurite(getCellStringValue(row, colSec));
+            ano.setRemarque(getCellStringValue(row, colRemarque));
+            ano.setVersion(getCellStringValue(row, colVer));
+            ano.setDateCreation(getCellDateValue(row, colDateCrea));
             retour.add(ano);
         }
         return retour;
@@ -253,7 +253,7 @@ public class ControlAno extends ControlExcel
      * @throws InvalidFormatException
      * @throws EncryptedDocumentException
      */
-    protected void majFeuillePrinciale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet) throws IOException
+    protected void majFeuillePrincipale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet) throws IOException
     {
         // Récupération feuille  et liste des anomalies closes
         List<String> anoClose = new ArrayList<>();
@@ -383,6 +383,10 @@ public class ControlAno extends ControlExcel
                         colVer = cell.getColumnIndex();
                         testMax(colVer);
                         break;
+                    case DATECREATION:
+                        colDateCrea = cell.getColumnIndex();
+                        testMax(colDateCrea);
+                        break;
                     default:
                         // Colonne sans nom reconnu
                         break;
@@ -470,6 +474,16 @@ public class ControlAno extends ControlExcel
         cell = row.createCell(colVer);
         cell.setCellStyle(centre);
         cell.setCellValue(ano.getVersion());
+        
+        // Gestion de la date de création
+        cell = row.createCell(colDateCrea);
+        CellStyle styleDate = wb.createCellStyle();
+        styleDate.cloneStyleFrom(centre);
+        styleDate.setDataFormat(createHelper.createDataFormat().getFormat("mm/dd/yy"));
+        if (ano.getDateCreation() != null)
+            cell.setCellValue(DateConvert.convertToOldDate(ano.getDateCreation()));
+        
+        cell.setCellStyle(styleDate);
     }
 
     private void creerLigneVersion(Row row, Anomalie ano, IndexedColors couleur, String traite)
@@ -559,9 +573,26 @@ public class ControlAno extends ControlExcel
      * @param cellIndex
      * @return
      */
-    private String getCellValue(Row row, int cellIndex)
+    private String getCellStringValue(Row row, int cellIndex)
     {
-        return row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue();
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.STRING)  
+            return cell.getStringCellValue();
+        return "";
+    }
+    
+    /**
+     * 
+     * @param row
+     * @param cellIndex
+     * @return
+     */
+    private LocalDate getCellDateValue(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.NUMERIC)  
+            return DateConvert.localDate(cell.getDateCellValue());
+        return null;
     }
 
     /**
@@ -588,6 +619,9 @@ public class ControlAno extends ControlExcel
                 ano.setVersion(RELEASE);
             else
                 ano.setVersion(SNAPSHOT);
+            
+            // Ajout de la date de création à la date du jour
+            ano.setDateCreation(LocalDate.now());
 
             // Création de la ligne
             if (anoClose.contains(lot))

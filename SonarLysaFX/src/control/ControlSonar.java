@@ -657,7 +657,7 @@ public class ControlSonar
         Sheet sheet = controlAno.sauvegardeFichier(fichier);
         
         // Mis à jour de la feuille principale
-        controlAno.majFeuillePrinciale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
+        controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
 
         // Fermeture controleur
         controlAno.close();
