@@ -53,7 +53,7 @@ public class FichiersXML implements XML
     @Override
     public String controleDonnees()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("Chargement fichiers Excel :").append(Statics.NL);
         boolean manquant = false;
 
         // Contrôle lots Pic
@@ -92,7 +92,7 @@ public class FichiersXML implements XML
         if (manquant)
             builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
 
-        return builder.toString();
+        return builder.append(Statics.NL).toString();
     }
 	
 	/*---------- ACCESSEURS ----------*/

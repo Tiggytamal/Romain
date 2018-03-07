@@ -26,6 +26,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.StageStyle;
+import model.enums.TypeCol;
 import model.enums.TypeParam;
 import utilities.FunctionalException;
 import utilities.Statics;
@@ -74,6 +75,12 @@ public class OptionViewControl
     private TextField filtreField;
     @FXML
     private Button sauvegarder;
+    @FXML
+    private VBox colonnesPane;
+    @FXML
+    private TextField directionField;
+    @FXML
+    private TextField departementField;
 
     // Attributs de classe
     private FileChooser fc;
@@ -97,13 +104,16 @@ public class OptionViewControl
         alert.setContentText("Chargement");
         alert.setHeaderText(null);
 
-        // Récupération de la map de paramètres
-        mapParam = proprietesXML.getMapParams();
+        initParametres(proprietesXML.getMapParams());
+
+        initColonnes(proprietesXML.getMapColonnes());
+    }
+
+    private void initParametres(Map<TypeParam, String> mapParam)
+    {
 
         // Initialition liste des versions affichée
         String versionsParam = mapParam.get(TypeParam.VERSIONS);
-        if (versionsParam == null)
-            versionsParam = "";
         
         if (!versionsParam.isEmpty())
         {
@@ -118,25 +128,18 @@ public class OptionViewControl
                 (ListChangeListener.Change<? extends String> c) -> versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2));
 
         // Intialisation des TextField depuis le fichier de paramètre
-        String path = mapParam.get(TypeParam.ABSOLUTEPATH);
-        if (path != null && !path.isEmpty())
-            pathField.setText(path.replace("\\\\", "\\"));
-
-        String suivi = mapParam.get(TypeParam.NOMFICHIER);
-        if (suivi != null && !suivi.isEmpty())
-            suiviField.setText(suivi);
-
-        String datastage = mapParam.get(TypeParam.NOMFICHIERDATASTAGE);
-        if (datastage != null && !datastage.isEmpty())
-            datastageField.setText(datastage);
-
-        String filtre = mapParam.get(TypeParam.FILTREDATASTAGE);
-        if (filtre != null && !filtre.isEmpty())
-            filtreField.setText(filtre);
-
-        String pathHisto = mapParam.get(TypeParam.ABSOLUTEPATHHISTO);
-        if (pathHisto != null && !pathHisto.isEmpty())
-            pathHistoField.setText(pathHisto.replace("\\\\", "\\"));
+        pathField.setText(mapParam.get(TypeParam.ABSOLUTEPATH).replace("\\\\", "\\"));
+        suiviField.setText(mapParam.get(TypeParam.NOMFICHIER));
+        datastageField.setText(mapParam.get(TypeParam.NOMFICHIERDATASTAGE));
+        filtreField.setText(mapParam.get(TypeParam.FILTREDATASTAGE));
+        pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
+        
+    }
+    
+    private void initColonnes(Map<TypeCol, String> mapColonnes)
+    {
+        departementField.setText(mapColonnes.get(TypeCol.DEPARTEMENT));
+        
     }
 
     /*---------- METHODES PUBLIQUES ----------*/
@@ -214,7 +217,6 @@ public class OptionViewControl
     {
         String version = newVersionField.getText();
         ObservableList<String> liste = versionsField.getItems();
-        liste.sort((o1, o2) -> o1.compareTo(o2));
         // On contrôle la bonne structure du nom de la version et on ne crée pas de doublon
         if (version.matches("^E[0-9][0-9]") && !liste.contains(version))
         {
@@ -224,6 +226,7 @@ public class OptionViewControl
         {
             throw new FunctionalException(Severity.SEVERITY_ERROR, "La version doit être de la forme ^E[0-9][0-9]");
         }
+        liste.sort((o1, o2) -> o1.compareTo(o2));
     }
 
     public void sauvegarder() throws JAXBException

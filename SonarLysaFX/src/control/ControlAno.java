@@ -86,7 +86,7 @@ public class ControlAno extends ControlExcel
     private String traite;
     private String version;
     private String dateCreation;
-    private String DateRelance;
+    private String dateRelance;
 
     // Nom de la feuillle avec les naomalies en cours
     private static final String SQ = "SUIVI Qualité";
@@ -96,6 +96,7 @@ public class ControlAno extends ControlExcel
     private static final String SECURITEKO = "X";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String RELEASE = "RELEASE";
+    private static final int NOMBRECOL = TypeCol.values().length;
     private String lienslots;
     private String liensAnos;
 
@@ -335,7 +336,7 @@ public class ControlAno extends ControlExcel
         traite = nomColonnes.get(TypeCol.TRAITE);
         version = nomColonnes.get(TypeCol.VERSION);
         dateCreation = nomColonnes.get(TypeCol.DATECREATION);
-        DateRelance = nomColonnes.get(TypeCol.DATERELANCE);
+        dateRelance = nomColonnes.get(TypeCol.DATERELANCE);
         
         Map<TypeParam, String> proprietes = proprietesXML.getMapParams();
         lienslots = proprietes.get(TypeParam.LIENSLOTS);
@@ -352,6 +353,7 @@ public class ControlAno extends ControlExcel
             throw new FunctionalException(Severity.SEVERITY_ERROR, "Le fichier n'a pas de page Suivi Qualité");
 
         titres = sheet.getRow(0);
+        int nbreCol = 0;
 
         // Récupération des indices de colonnes
         for (Cell cell : titres)
@@ -363,89 +365,108 @@ public class ControlAno extends ControlExcel
             {
                 colDir = cell.getColumnIndex();
                 testMax(colDir);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(departement))
             {
                 colDepart = cell.getColumnIndex();
                 testMax(colDepart);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(service))
             {
                 colService = cell.getColumnIndex();
                 testMax(colService);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(respService))
             {
                 colResp = cell.getColumnIndex();
                 testMax(colResp);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(clarity))
             {
                 colClarity = cell.getColumnIndex();
                 testMax(colClarity);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(libelle))
             {
                 colLib = cell.getColumnIndex();
                 testMax(colLib);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(cpi))
             {
                 colCpi = cell.getColumnIndex();
                 testMax(colCpi);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(edition))
             {
                 colEdition = cell.getColumnIndex();
                 testMax(colEdition);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(lot))
             {
                 colLot = cell.getColumnIndex();
                 testMax(colLot);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(env))
             {
                 colEnv = cell.getColumnIndex();
                 testMax(colEnv);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(anomalie))
             {
                 colAno = cell.getColumnIndex();
                 testMax(colAno);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(etat))
             {
                 colEtat = cell.getColumnIndex();
                 testMax(colEtat);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(securite))
             {
                 colSec = cell.getColumnIndex();
                 testMax(colSec);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(remarque))
             {
                 colRemarque = cell.getColumnIndex();
                 testMax(colRemarque);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(version))
             {
                 colVer = cell.getColumnIndex();
                 testMax(colVer);
+                nbreCol ++;
             }
             else if (cell.getStringCellValue().equals(dateCreation))
             {
                 colDateCrea = cell.getColumnIndex();
                 testMax(colDateCrea);
+                nbreCol ++;
             }
-            else if (cell.getStringCellValue().equals(DateRelance))
+            else if (cell.getStringCellValue().equals(dateRelance))
             {
                 colDateRel = cell.getColumnIndex();
                 testMax(colDateRel);
+                nbreCol ++;
             }
 
         }
+        if (nbreCol != NOMBRECOL)
+            throw new FunctionalException(Severity.SEVERITY_ERROR, "Le fichier excel est mal configuré, vérifié les colonnes de celui-ci");
     }
 
     /*---------- METHODES PRIVEES ----------*/
@@ -536,7 +557,7 @@ public class ControlAno extends ControlExcel
             cell.setCellValue(DateConvert.convertToOldDate(ano.getDateCreation()));
         cell.setCellStyle(date);
         
-        cell = row.createCell(colDateCrea);
+        cell = row.createCell(colDateRel);
         if (ano.getDateRelance() != null)
             cell.setCellValue(DateConvert.convertToOldDate(ano.getDateRelance()));
         cell.setCellStyle(date);

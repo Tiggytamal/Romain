@@ -56,7 +56,34 @@ public class ProprietesXML implements XML
     @Override
     public String controleDonnees()
     {
-        // TODO Auto-generated method stub
-        return null;
+        int nbreColKO = 0;
+        int nbreParamKO = 0;
+        StringBuilder builder = new StringBuilder("Chargement paramètres :").append(Statics.NL);
+        for (TypeCol typeCol : TypeCol.values())
+        {
+            if (mapColonnes.get(typeCol) == null || mapColonnes.get(typeCol).isEmpty())
+                nbreColKO++;
+        }
+        if (nbreColKO == 0)
+            builder.append("Nom colonnes OK").append(Statics.NL);
+        else
+            builder.append("Certaines colonnes sont mal renseignées").append(Statics.NL);
+        
+        for (TypeParam typeParam : TypeParam.values())
+        {
+            if (mapParams.get(typeParam) == null || mapParams.get(typeParam).isEmpty())
+            {
+                nbreParamKO++;
+            }
+        }
+        if (nbreParamKO == 0)
+            builder.append("paramètres OK").append(Statics.NL);
+        else
+            builder.append("Certaines paramètres sont mal renseignés").append(Statics.NL);
+        
+        if (nbreParamKO != 0 || nbreColKO != 0)
+            builder.append("Merci de changer les paramètres en option ou de recharger le fichier par défaut.");
+        
+        return builder.toString();
     }
 }

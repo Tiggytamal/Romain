@@ -60,17 +60,26 @@ public class ControlSonar
     /**
      * Crée les vues par application des composants dans SonarQube
      */
+    @SuppressWarnings("unchecked")
     public void creerVueParApplication()
     {
         // Création de la liste des composants par application
-        Map<String, List<Projet>> mapApplication = controlerSonarQube();
+        Map<String, List<Projet>> mapApplication;
+        if (ControlSonarTest.deser)
+        {
+            mapApplication = Utilities.deserialisation("d:\\mapApplis.ser", HashMap.class);
+        }
+        else
+        {
+            mapApplication = controlerSonarQube();
+            Utilities.serialisation("d:\\mapApplis.ser", mapApplication);
+        }
 
         // Parcours de la liste pour créer chaque vue applicative avec ses composants
         for (Map.Entry<String, List<Projet>> entry : mapApplication.entrySet())
         {
             // Création de la vue principale
-            Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(),
-                    false);
+            Vue vue = creerVue("APPMASTERAPP" + entry.getKey(), "APPLI MASTER " + entry.getKey(), "Liste des composants de l'application " + entry.getKey(), false);
             api.ajouterSousProjets(entry.getValue(), vue);
         }
     }
@@ -515,8 +524,7 @@ public class ControlSonar
         String date = builderDate.toString();
 
         // Création de la vue et envoie vers SonarQube
-        Vue vue = creerVue(new StringBuilder("MEPMEP").append(nom).append(date).toString(),
-                new StringBuilder("TEP ").append(nom).append(Statics.SPACE).append(date).toString(),
+        Vue vue = creerVue(new StringBuilder("MEPMEP").append(nom).append(date).toString(), new StringBuilder("TEP ").append(nom).append(Statics.SPACE).append(date).toString(),
                 new StringBuilder("Vue des lots mis en production pendant les mois de ").append(nom).append(Statics.SPACE).append(date).toString(), true);
 
         // Ajout des sous-vue
@@ -594,8 +602,8 @@ public class ControlSonar
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease,
-            String fichier) throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease, String fichier)
+            throws InvalidFormatException, IOException
     {
         // Controleur
         ControlAno controlAno = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));

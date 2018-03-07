@@ -18,6 +18,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.control.TreeItem?>
 
 <SplitPane fx:id="splitPane" fx:controller="control.view.OptionViewControl" dividerPositions="0.20" prefHeight="400.0" prefWidth="600.0"
 	xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141">
@@ -29,6 +31,7 @@
 						<FXCollections fx:factory="observableArrayList">
 							<String fx:value="Chargement fichiers" />
 							<String fx:value="Paramètres" />
+							<String fx ; value="Nom Colonnes" />
 						</FXCollections>
 					</items>
 				</ListView>
@@ -36,83 +39,110 @@
 		</AnchorPane>
 		<GridPane fx:id="rightSide" prefWidth="300.0" prefHeight="400.0">
 			<children>
+
 				<!-- Boutons de chargement des fichiers Excel de paramétrage -->
 				<VBox fx:id="chargementPane" alignment="center">
-					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
+					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
 					<Button text="Charger Lots Pic" fx:id="lotsPic" onAction="#chargerLotsPic" alignment="CENTER" />
-					<Region  prefHeight="20"/>
+					<Region prefHeight="20" />
 					<Button text="Charger Applications" fx:id="applis" onAction="#chargerApplis" alignment="CENTER" />
-					<Region  prefHeight="20" />
+					<Region prefHeight="20" />
 					<Button text="Charger Referentiel Clarity" fx:id="clarity" onAction="#chargerClarity" alignment="CENTER" />
-					<Region  prefHeight="20" VBox.vgrow="ALWAYS"/>
+					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
 				</VBox>
-				<!-- Mise à jour des versions à tester -->
+
+				<!-- Paramètre des fichiers -->
 				<VBox fx:id="optionsPane" alignment="center">
 					<HBox fx:id="versionsPane">
 						<padding>
 							<Insets top="10" right="10" bottom="10" left="10" />
 						</padding>
 						<Label text="Versions : " />
-						<Region  prefWidth="10" />
+						<Region prefWidth="10" />
 						<ListView fx:id="versionsField" prefWidth="50">
 							<items>
 								<FXCollections fx:factory="observableArrayList">
 								</FXCollections>
 							</items>
 						</ListView>
-						<Region  prefWidth="10" />
-						<Button fx:id="supprimer" text="Supprimer" onAction="#suppVersion"/>
+						<Region prefWidth="10" />
+						<Button fx:id="supprimer" text="Supprimer" onAction="#suppVersion" />
 					</HBox>
-					<Region  prefHeight="10" />
+					<Region prefHeight="10" />
 					<HBox>
 						<TextField fx:id="newVersionField" prefWidth="80" promptText="Version" />
-						<Region  prefWidth="10" />
-						<Button fx:id="ajouter" text="ajouter" onAction="#ajouterVersion"/>
-					</HBox> 
+						<Region prefWidth="10" />
+						<Button fx:id="ajouter" text="ajouter" onAction="#ajouterVersion" />
+					</HBox>
 					<Region prefHeight="10" />
 					<Separator />
 					<Region prefHeight="10" />
+
 					<!-- Chemin vers les fichiers de suivi -->
 					<HBox>
 						<Label text="Chemin vers les fichiers de suivi : " />
-						<TextField fx:id="pathField" prefWidth="250"  />
-					</HBox> 
-					<Region prefHeight="10" />
-					<Separator />
-					<Region prefHeight="10" />
-					<!-- Chemin vers l'historique de suivi -->
-					<HBox>
-						<Label text="Chemin vers l'historique de suivi : " />
-						<TextField fx:id="pathHistoField" prefWidth="250"  />
-					</HBox> 
-					<Region prefHeight="10" />
-					<Separator />
-					<Region prefHeight="10" />
-					<!-- Nom du fichier de suivi -->
-					<HBox>
-						<Label text="Nom du fichier de suivi : " />
-						<TextField fx:id="suiviField" prefWidth="250"  />
-					</HBox> 
-					<Region prefHeight="10" />
-					<Separator />
-					<Region prefHeight="10" />
-					<!-- Nom du fichier de suivi Datastage -->
-					<HBox>
-						<Label text="Nom du fichier du suivi Datastage : " />
-						<TextField fx:id="datastageField" prefWidth="250"  />
+						<TextField fx:id="pathField" prefWidth="400" />
 					</HBox>
 					<Region prefHeight="10" />
 					<Separator />
 					<Region prefHeight="10" />
-					<!-- Valeur du filtre pour les composants Datastage -->	
+
+					<!-- Chemin vers l'historique de suivi -->
+					<HBox>
+						<Label text="Chemin vers l'historique de suivi : " />
+						<TextField fx:id="pathHistoField" prefWidth="250" />
+					</HBox>
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+
+					<!-- Nom du fichier de suivi -->
+					<HBox>
+						<Label text="Nom du fichier de suivi : " />
+						<TextField fx:id="suiviField" prefWidth="250" />
+					</HBox>
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+
+					<!-- Nom du fichier de suivi Datastage -->
+					<HBox>
+						<Label text="Nom du fichier du suivi Datastage : " />
+						<TextField fx:id="datastageField" prefWidth="250" />
+					</HBox>
+					<Region prefHeight="10" />
+					<Separator />
+					<Region prefHeight="10" />
+
+					<!-- Valeur du filtre pour les composants Datastage -->
 					<HBox>
 						<Label text="Filter Datastage : " />
-						<TextField fx:id="filtreField" prefWidth="250"  />
-					</HBox>		
-					
-					<!-- Bouton de sauvegarde -->	
+						<TextField fx:id="filtreField" prefWidth="250" />
+					</HBox>
+
+					<!-- Bouton de sauvegarde -->
 					<Region prefHeight="20" />
 					<Button text="Sauvegarder" fx:id="sauvegarder" onAction="#sauvegarder" alignment="CENTER" />
+				</VBox>
+
+				<!-- Nom des colonnes -->
+				<VBox fx:id="colonnesPane" alignment="center">
+
+					<!-- Direction -->
+					<HBox>
+						<Label text="Direction : " />
+						<TextField fx:id="directionField" prefWidth="250" />
+					</HBox>
+					<Separator />
+
+					<!-- Departement -->
+					<HBox>
+						<Label text="Departement : " />
+						<TextField fx:id="departementField" prefWidth="250" />
+					</HBox>
+					<Separator />
+
+
 				</VBox>
 			</children>
 		</GridPane>

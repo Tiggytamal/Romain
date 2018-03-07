@@ -1,6 +1,7 @@
 package control;
 
 import static control.view.MainScreen.fichiersXML;
+import static control.view.MainScreen.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import javafx.stage.StageStyle;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
-import model.ProprietesXML;
 import model.XML;
 import model.enums.TypeFichier;
 import utilities.TechnicalException;
@@ -41,10 +41,6 @@ public class ControlXML
     /*---------- ATTRIBUTS ----------*/
 
     /*---------- CONSTRUCTEURS ----------*/
-
-    public ControlXML()
-    {
-    }
 
     /*---------- METHODES PUBLIQUES ----------*/
     
@@ -79,10 +75,6 @@ public class ControlXML
             if (file.exists())
             {
                 retour = (XML) context.createUnmarshaller().unmarshal(file);
-            }
-            else if (typeXML.isAssignableFrom(ProprietesXML.class))
-            {
-                retour = typeXML.cast(context.createUnmarshaller().unmarshal(getClass().getResourceAsStream("/resources/proprietes.xml")));
             }
             
         } catch (JAXBException e)
@@ -169,7 +161,7 @@ public class ControlXML
      */
     public void createAlert()
     {
-        String texte = fichiersXML.controleDonnees();
+        String texte = fichiersXML.controleDonnees() + proprietesXML.controleDonnees();
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.initStyle(StageStyle.UTILITY);
         alert.initModality(Modality.NONE);
