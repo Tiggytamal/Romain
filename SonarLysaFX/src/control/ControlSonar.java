@@ -98,7 +98,6 @@ public class ControlSonar
 
     /**
      * Permet de créer les vues mensuelles et trimestrielle des composants mis en production
-     * 
      * @param file
      * @throws InvalidFormatException
      * @throws IOException
@@ -120,7 +119,6 @@ public class ControlSonar
 
     /**
      * Méthode de traitement pour mettre à jour les fichiers de suivi d'anomalies ainsi que la création de vue dans SonarQube
-     * 
      * @param composants
      * @param versions
      * @throws InvalidFormatException
@@ -183,7 +181,6 @@ public class ControlSonar
 
     /**
      * Mise à jour du fichier Excel des suivis d'anomalies pour les composants Datastage
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      */
@@ -198,7 +195,6 @@ public class ControlSonar
 
     /**
      * Mise à jour du fichier Excel des suivis d'anomalies pour tous les composants non Datastage
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      */
@@ -238,7 +234,6 @@ public class ControlSonar
 
     /**
      * Récupère tous les lots créés dans Sonar.
-     * 
      * @return
      */
     private Map<String, Vue> recupererLotsSonarQube()
@@ -257,7 +252,6 @@ public class ControlSonar
 
     /**
      * Permet de récupérer la dernière version de chaque composants créés dans Sonar
-     * 
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -300,7 +294,6 @@ public class ControlSonar
 
     /**
      * Permet de récupérer les composants de Sonar triés par version avec sépration des composants datastage
-     * 
      * @return
      */
     private Map<String, List<Projet>> recupererComposantsSonarVersion(boolean datastage)
@@ -340,7 +333,6 @@ public class ControlSonar
     /**
      * Récupère tous les composants Sonar des versions choisies avec une qualityGate en erreur.<br>
      * la clef de la map correspond à la version, et la valeur, à la liste des lots en erreur de cette version.
-     * 
      * @param versions
      * @return
      */
@@ -352,50 +344,67 @@ public class ControlSonar
         // Itération sur les composants pour remplir la map de retour avec les lot en erreur par version
         for (Map.Entry<String, List<Projet>> entry : composants.entrySet())
         {
-            retour.put(entry.getKey(), new TreeSet<>());
+            String entryKey = entry.getKey();
+            retour.put(entryKey, new TreeSet<>());
 
             // Iteration sur la liste des projets
             for (Projet projet : entry.getValue())
             {
-                String key = projet.getKey();
-                // Récupération du composant
-                Composant composant = api.getMetriquesComposant(key, new String[] { "lot", "alert_status" });
-
-                // Récupération depuis la map des métriques du numéro de lot et du status de la Quality Gate
-                Map<String, String> metriques = composant.getMapMetriques();
-                String lot = metriques.get("lot");
-                String alert = metriques.get("alert_status");
-
-                // Si le lot a un Quality Gate en Erreur, on le rajoute à la liste et on contrôle aussi les erreurs de sécurité.
-                // S'il y en a on le rajoute aussi à la liste des lots avec des problèmesde sécurité.
-                if (alert != null && Status.getStatus(alert) == Status.ERROR && lot != null && !lot.isEmpty())
-                {
-                    // Ajout du lot à la liste de retour
-                    retour.get(entry.getKey()).add(lot);
-
-                    // Contrôle pour vérifier si le composant à une erreur de sécurité, ce qui ajout le lot à la listeSecurite
-                    int securite = api.getSecuriteComposant(key);
-                    if (securite > 0)
-                        lotSecurite.add(lot);
-
-                    // Contrôle du composant pour voir s'il a une version release ou SNAPSHOT
-                    if (release(key))
-                        lotRelease.add(lot);
-                }
+                traitementProjet(projet, retour, entryKey, lotSecurite, lotRelease);
             }
         }
         return retour;
     }
+    /**
+     * Taritement Sonar d'un projet
+     * @param projet
+     * @param retour
+     * @param entryKey
+     * @param lotSecurite
+     * @param lotRelease
+     */
+    private void traitementProjet(Projet projet, HashMap<String, Set<String>> retour, String entryKey, Set<String> lotSecurite, Set<String> lotRelease)
+    {
+        String key = projet.getKey();
+        // Récupération du composant
+        Composant composant = api.getMetriquesComposant(key, new String[] { "lot", "alert_status" });
 
+        // Récupération depuis la map des métriques du numéro de lot et du status de la Quality Gate
+        Map<String, String> metriques = composant.getMapMetriques();
+        String lot = metriques.get("lot");
+        String alert = metriques.get("alert_status");
+
+        // Si le lot a un Quality Gate en Erreur, on le rajoute à la liste et on contrôle aussi les erreurs de sécurité.
+        // S'il y en a on le rajoute aussi à la liste des lots avec des problèmesde sécurité.
+        if (alert != null && Status.getStatus(alert) == Status.ERROR && lot != null && !lot.isEmpty())
+        {
+            // Ajout du lot à la liste de retour
+            retour.get(entryKey).add(lot);
+            
+            // Contrôle pour vérifier si le composant à une erreur de sécurité, ce qui ajout le lot à la listeSecurite
+            if (api.getSecuriteComposant(key) > 0)
+                lotSecurite.add(lot);
+            
+            // Contrôle du composant pour voir s'il a une version release ou SNAPSHOT
+            if (release(key))
+                lotRelease.add(lot);
+        }
+    }
+    
+    /**
+     * Test si un composant a une version release ou snapshot.
+     * @param key
+     * @return
+     */
     private boolean release(String key)
     {
         String version = api.getVersionComposant(key);
         return !version.contains("SNAPSHOT");
     }
+    
 
     /**
      * Crée une map de toutes les apllications dans Sonar avec pour chacunes la liste des composants liés.
-     * 
      * @param mapProjets
      * @return
      */
@@ -616,8 +625,13 @@ public class ControlSonar
         for (Anomalie ano : listeLotenAno)
         {
             String string = ano.getLot();
+            
             if (string.startsWith("Lot "))
                 string = string.substring(4);
+            
+            //Mise à jour des données depuis la PIC
+            ano.majDepuisPic(lotsPIC.get(string));
+            
             numeroslots.add(string);
         }
 

@@ -5,6 +5,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * Classe de modèle pour les erreurs remontées dans SonarQube
  * 
@@ -12,6 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  */
 @XmlRootElement
+@JsonIgnoreProperties({"flows","components"})
 public class Issue implements ModeleSonar
 {
     /*---------- ATTRIBUTS ----------*/

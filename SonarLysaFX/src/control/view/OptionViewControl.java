@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.StageStyle;
 import model.enums.TypeCol;
+import model.enums.TypeKey;
 import model.enums.TypeParam;
 import utilities.FunctionalException;
 import utilities.Statics;
@@ -81,6 +82,36 @@ public class OptionViewControl
     private TextField directionField;
     @FXML
     private TextField departementField;
+    @FXML
+    private TextField serviceField;
+    @FXML
+    private TextField respServiceField;
+    @FXML
+    private TextField clarityField;
+    @FXML
+    private TextField libelleField;
+    @FXML
+    private TextField cpiField;
+    @FXML
+    private TextField editionField;
+    @FXML
+    private TextField lotField;
+    @FXML
+    private TextField etatLotField;
+    @FXML
+    private TextField anomalieField;
+    @FXML
+    private TextField dateCreaField;
+    @FXML
+    private TextField etatAnoField;
+    @FXML
+    private TextField dateRelField;
+    @FXML
+    private TextField remarqueField;
+    @FXML
+    private TextField securiteField;
+    @FXML
+    private TextField versionField;
 
     // Attributs de classe
     private FileChooser fc;
@@ -138,8 +169,23 @@ public class OptionViewControl
     
     private void initColonnes(Map<TypeCol, String> mapColonnes)
     {
+        directionField.setText(mapColonnes.get(TypeCol.DIRECTION));
         departementField.setText(mapColonnes.get(TypeCol.DEPARTEMENT));
-        
+        serviceField.setText(mapColonnes.get(TypeCol.SERVICE));
+        respServiceField.setText(mapColonnes.get(TypeCol.RESPSERVICE));
+        clarityField.setText(mapColonnes.get(TypeCol.CLARITY));
+        libelleField.setText(mapColonnes.get(TypeCol.LIBELLE));
+        cpiField.setText(mapColonnes.get(TypeCol.CPI));
+        editionField.setText(mapColonnes.get(TypeCol.EDITION));
+        lotField.setText(mapColonnes.get(TypeCol.LOT));
+        etatLotField.setText(mapColonnes.get(TypeCol.ENV));
+        anomalieField.setText(mapColonnes.get(TypeCol.ANOMALIE));
+        dateCreaField.setText(mapColonnes.get(TypeCol.DATECREATION));
+        dateRelField.setText(mapColonnes.get(TypeCol.DATERELANCE));
+        etatAnoField.setText(mapColonnes.get(TypeCol.ETAT));
+        remarqueField.setText(mapColonnes.get(TypeCol.REMARQUE));
+        securiteField.setText(mapColonnes.get(TypeCol.SECURITE));
+        versionField.setText(mapColonnes.get(TypeCol.VERSION));
     }
 
     /*---------- METHODES PUBLIQUES ----------*/
@@ -247,23 +293,42 @@ public class OptionViewControl
         if (path != null && !path.isEmpty())
             mapParam.put(TypeParam.ABSOLUTEPATH, path.replace("\\", "\\\\"));
 
-        String suivi = suiviField.getText();
-        if (suivi != null && !suivi.isEmpty())
-            mapParam.put(TypeParam.NOMFICHIER, suivi);
+        saveText(suiviField, mapParam, TypeParam.NOMFICHIER);
 
-        String datastage = datastageField.getText();
-        if (datastage != null && !datastage.isEmpty())
-            mapParam.put(TypeParam.NOMFICHIERDATASTAGE, datastage);
+        saveText(datastageField, mapParam, TypeParam.NOMFICHIERDATASTAGE);
 
-        String filtre = filtreField.getText();
-        if (filtre != null && !filtre.isEmpty())
-            mapParam.put(TypeParam.FILTREDATASTAGE, filtre);
+        saveText(filtreField, mapParam, TypeParam.FILTREDATASTAGE);
 
         String pathHisto = pathHistoField.getText();
         if (pathHisto != null && !pathHisto.isEmpty())
             mapParam.put(TypeParam.ABSOLUTEPATHHISTO, pathHisto.replace("\\", "\\\\"));
 
         // Enregistrement paramètres
+        new ControlXML().saveParam(proprietesXML);
+    }
+    
+    
+    public void saveCols() throws JAXBException
+    {
+        Map<TypeCol, String> mapCols = proprietesXML.getMapColonnes();
+        saveText(directionField, mapCols, TypeCol.DIRECTION);
+        saveText(serviceField, mapCols, TypeCol.SERVICE);
+        saveText(departementField, mapCols, TypeCol.DEPARTEMENT);
+        saveText(respServiceField, mapCols, TypeCol.RESPSERVICE);
+        saveText(clarityField, mapCols, TypeCol.CLARITY);
+        saveText(libelleField, mapCols, TypeCol.LIBELLE);
+        saveText(cpiField, mapCols, TypeCol.CPI);
+        saveText(editionField, mapCols, TypeCol.EDITION);
+        saveText(lotField, mapCols, TypeCol.LOT);
+        saveText(etatLotField, mapCols, TypeCol.ENV);
+        saveText(anomalieField, mapCols, TypeCol.ANOMALIE);
+        saveText(dateCreaField, mapCols, TypeCol.DATECREATION);
+        saveText(dateRelField, mapCols, TypeCol.DATERELANCE);
+        saveText(etatAnoField, mapCols, TypeCol.ETAT);
+        saveText(remarqueField, mapCols, TypeCol.REMARQUE);
+        saveText(securiteField, mapCols, TypeCol.SECURITE);
+        saveText(versionField, mapCols, TypeCol.VERSION);
+        
         new ControlXML().saveParam(proprietesXML);
     }
 
@@ -281,6 +346,18 @@ public class OptionViewControl
             rightSide.getChildren().clear();
             rightSide.getChildren().add(optionsPane);
         }
+        if (ov.getValue().equals("Nom Colonnes"))
+        {
+            rightSide.getChildren().clear();
+            rightSide.getChildren().add(colonnesPane);
+        }
+    }
+    
+    private <T extends TypeKey> void saveText(TextField textField, Map<T, String> map, T clef)
+    {
+        String text = textField.getText();
+        if (text != null && !text.isEmpty())
+            map.put(clef, text);
     }
 
     /*---------- ACCESSEURS ----------*/

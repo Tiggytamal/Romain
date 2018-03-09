@@ -44,6 +44,13 @@ public class Anomalie
     public Anomalie(LotSuiviPic lot)
     {
         this();
+        majDepuisPic(lot);
+    }
+    
+    /*---------- METHODES PUBLIQUES ----------*/
+    
+    public void majDepuisPic(LotSuiviPic lot)
+    {
         setCpiProjet(lot.getCpiProjet());
         setEdition(lot.getEdition());
         setLibelleProjet(lot.getLibelle());
@@ -51,7 +58,6 @@ public class Anomalie
         setLot("Lot " + lot.getLot());
         setEnvironnement(calculerEnvironnement(lot));
     }
-    /*---------- METHODES PUBLIQUES ----------*/
     /*---------- METHODES PRIVEES ----------*/
 
     /**

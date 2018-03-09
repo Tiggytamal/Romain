@@ -2,7 +2,7 @@
 <Configuration status="WARN">
 
 	<Properties>
-	    <Property name="log-path">d:/logs</Property>
+	    <Property name="log-path">S:/SER_ASSURANCE_QUALITE/COMMUN/Qualimétrie/Suivi des anomalies qualimétriques/logs</Property>
 	</Properties>
 	
 	<Appenders>
@@ -21,8 +21,7 @@
 	
 	        <!-- set file size policy -->
 	        <Policies>
-	            <TimeBasedTriggeringPolicy />
-	            <SizeBasedTriggeringPolicy size="5 MB" />
+	        	<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 	        </Policies>
 	    </RollingFile>
 	    
@@ -45,8 +44,7 @@
 	
 	        <!-- set file size policy -->
 	        <Policies>
-	            <TimeBasedTriggeringPolicy />
-	            <SizeBasedTriggeringPolicy size="5 MB" />
+	            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 	        </Policies>
 	    </RollingFile>
 	    
@@ -59,8 +57,7 @@
 	
 	        <!-- set file size policy -->
 	        <Policies>
-	            <TimeBasedTriggeringPolicy />
-	            <SizeBasedTriggeringPolicy size="5 MB" />
+	            <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 	        </Policies>
 	    </RollingFile>
 	    

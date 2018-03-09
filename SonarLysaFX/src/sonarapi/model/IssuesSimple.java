@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @author ETP8137 - Grégoire Mathon
  *
  */
-@JsonIgnoreProperties({"issues", "components"})
+@JsonIgnoreProperties({"components", "issues"})
 public class IssuesSimple extends Issues
 {
 

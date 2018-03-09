@@ -91,7 +91,7 @@ public class MainScreen extends Application
     {
         return fichiersXML;
     }
-   
+
     public static void changeImageTray(Image image)
     {
         trayIcon.changeImage(image);

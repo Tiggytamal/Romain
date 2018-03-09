@@ -6,8 +6,10 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@XmlRootElement
+@JsonIgnoreProperties({"components"})
 public class Issues implements ModeleSonar
 {
     /*---------- ATTRIBUTS ----------*/
@@ -77,7 +79,7 @@ public class Issues implements ModeleSonar
 
     @XmlElementWrapper
     @XmlAttribute(name = "issues", required = false)
-    public List<Issue> listIssues()
+    public List<Issue> getListIssues()
     {
         return listIssues;
     }

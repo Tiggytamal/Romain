@@ -25,6 +25,8 @@ import sonarapi.model.AjouterVueLocale;
 import sonarapi.model.Clef;
 import sonarapi.model.Composant;
 import sonarapi.model.Event;
+import sonarapi.model.Issue;
+import sonarapi.model.Issues;
 import sonarapi.model.IssuesSimple;
 import sonarapi.model.Message;
 import sonarapi.model.ModeleSonar;
@@ -201,10 +203,39 @@ public class SonarAPI
 		}
 		else
 		{
-			logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
+			logger.error("Erreur API : api/issues/search - Composant : " + paramComposant.getValeur());
 			return 0;
 		}
 	}
+	
+	   /**
+     * Donne le nombre de problèmed de sécurité en cours et à prendre en compte d'un composant.
+     * 
+     * @param componentKey
+     * @return
+     */
+    public List<Issue> getIssuesComposant(String componentKey)
+    {       
+        // 1. Création des paramètres de la requête
+        Parametre paramComposant = new Parametre("componentKeys", componentKey);
+        Parametre paramSeverities = new Parametre("severities", "CRITICAL, BLOCKER");
+        Parametre paramSinceLeakPeriod = new Parametre("sinceLeakPeriod", "true");
+        Parametre paramResolved = new Parametre("resolved", "false");
+        
+        // 2. appel du webservices
+        final Response response = appelWebserviceGET("/api/issues/search", paramComposant, paramSeverities, paramSinceLeakPeriod, paramResolved);
+        
+        // 3. Test du retour et renvoie du composant si ok.
+        if (response.getStatus() == Status.OK.getStatusCode())
+        {           
+            return response.readEntity(Issues.class).getListIssues();
+        }
+        else
+        {
+            logger.error("Erreur API : api/issues/search - Composant : " + paramComposant.getValeur());
+            return new ArrayList<>();
+        }
+    }
 	
 	public String getVersionComposant(String resource)
 	{
@@ -445,7 +476,7 @@ public class SonarAPI
 	 * 
 	 * @param response
 	 */
-	private void gestionErreur(Response response)
+	private boolean gestionErreur(Response response)
 	{
 		if (response.getStatus() != Status.OK.getStatusCode() && response.getStatus() != Status.NO_CONTENT.getStatusCode())
 		{
@@ -457,7 +488,9 @@ public class SonarAPI
 					logger.error(message.getMsg());
 				}
 			}
+			return false;
 		}
+		return true;
 	}
 	
 	/**
