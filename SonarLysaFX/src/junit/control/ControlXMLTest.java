@@ -46,8 +46,8 @@ public class ControlXMLTest
 	@TestInJfxThread
 	public void recuprerParamXML() throws InvalidFormatException, JAXBException, IOException
 	{
-	    handler.recuprerXML(FichiersXML.class);
-	    handler.recuprerXML(ProprietesXML.class);
+	    handler.recupererXML(FichiersXML.class);
+	    handler.recupererXML(ProprietesXML.class);
 	}
 	
 	@Test

@@ -13,8 +13,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import model.FichiersXML;
 import model.ProprietesXML;
@@ -38,9 +38,9 @@ public class MainScreen extends Application
     /** Icône de la barre des tâches */
     private static final TrayIconView trayIcon = new TrayIconView();
     /** Sauvegarde des fichiers Excel de paramètre */
-    public static final FichiersXML fichiersXML = (FichiersXML) controlXML.recuprerXML(FichiersXML.class);
+    public static final FichiersXML fichiersXML = (FichiersXML) controlXML.recupererXML(FichiersXML.class);
     /** Sauvegarde des fichiers Excel de paramètre */
-    public static final ProprietesXML proprietesXML = (ProprietesXML) controlXML.recuprerXML(ProprietesXML.class);
+    public static final ProprietesXML proprietesXML = (ProprietesXML) controlXML.recupererXML(ProprietesXML.class);
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -50,7 +50,7 @@ public class MainScreen extends Application
     public void start(final Stage stage) throws IOException, InterruptedException, JAXBException, AWTException
     {
         // Menu de l'application
-        final MenuBar menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
+        final HBox menu = FXMLLoader.load(getClass().getResource("/view/Menu.fxml"));
 
         // Ajout au panneau principal
         root.setTop(menu);

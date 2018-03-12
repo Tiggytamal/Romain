@@ -425,7 +425,6 @@
 		<fx:jar destfile="dist/SonarLysaFX.jar">
 			<fx:application refid="fxApplication"/>
 			<fileset dir="build/classes" />
-            <fileset dir="build/libs/" includes="**/*.jar" />
 			<fx:resources refid="appRes"/>
 	
 			<manifest>

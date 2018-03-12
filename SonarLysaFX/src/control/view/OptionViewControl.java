@@ -121,7 +121,6 @@ public class OptionViewControl
 
     /*---------- CONSTRUCTEURS ----------*/
 
-    //253542
     @FXML
     public void initialize()
     {

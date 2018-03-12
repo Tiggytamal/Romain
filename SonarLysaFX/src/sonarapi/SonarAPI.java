@@ -8,6 +8,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -325,7 +326,7 @@ public class SonarAPI
 			return;
 
 		Response response = appelWebservicePOST("api/views/delete", new Clef(vue.getKey()));
-		logger.info("retour supprimer vue : " + response.getStatus() + " " + response.getStatusInfo());
+		logger.info("retour supprimer vue " + vue.getKey() + " : " + response.getStatus() + " " + response.getStatusInfo());
 		gestionErreur(response);
 	}
 
@@ -336,7 +337,7 @@ public class SonarAPI
 	 * @param parent
 	 * @return
 	 */
-	public void ajouterSousVues(List<Vue> listeViews, Vue parent)
+	public void ajouterSousVues(Collection<Vue> listeViews, Vue parent)
 	{
 		for (Vue vue : listeViews)
 		{

@@ -53,7 +53,7 @@ public class ControlXML
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public XML recuprerXML(Class<? extends XML> typeXML)
+    public XML recupererXML(Class<? extends XML> typeXML)
     {
         // variables
         JAXBContext context;

@@ -101,4 +101,11 @@ public class ControlSonarTest
     {
         handler.creerVuesDatastage();
     }
+    
+    @Test
+    public void creerVurCDM() throws InvalidFormatException, IOException
+    {
+        File file = new File("d:\\chccdm.xlsx");
+        handler.creerVueCDM(file);
+    }
 }

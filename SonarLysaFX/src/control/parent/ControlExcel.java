@@ -1,12 +1,14 @@
-package control;
+package control.parent;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
@@ -17,6 +19,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import utilities.CellHelper;
+import utilities.DateConvert;
 
 /**
  * Classe mère des contrôleurs pour les fichiers Excel
@@ -81,7 +84,7 @@ public abstract class ControlExcel
      * 
      * @throws IOException
      */
-    protected void close() throws IOException
+    public void close() throws IOException
     {
         wb.close();
 
@@ -145,6 +148,48 @@ public abstract class ControlExcel
     {
         if (maxIndice < i)
             maxIndice = i;
+    }
+    
+    /**
+     * Retourne la valeur d'une cellule de type String
+     * @param row
+     * @param cellIndex
+     * @return
+     */
+    protected String getCellStringValue(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.STRING)
+            return cell.getStringCellValue();
+        return "";
+    }
+
+    /**
+     * Retourne la valeur d'une cellule de type Date
+     * @param row
+     * @param cellIndex
+     * @return
+     */
+    protected LocalDate getCellDateValue(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.NUMERIC)
+            return DateConvert.localDate(cell.getDateCellValue());
+        return null;
+    }
+    
+    /**
+     * Retourne la valeur d'une cellule de type numerique
+     * @param row
+     * @param cellIndex
+     * @return
+     */
+    protected int getCellNumericValue(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.NUMERIC)
+            return (int)cell.getNumericCellValue();
+        return 0;
     }
 
     /*---------- METHODES PRIVEES ----------*/

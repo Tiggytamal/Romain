@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 
+import control.parent.ControlExcel;
 import model.LotSuiviPic;
 
 import org.apache.poi.ss.usermodel.Sheet;
@@ -69,6 +70,39 @@ public class ControlPic extends ControlExcel
     /*---------- METHODES PUBLIQUES ----------*/
 
     /**
+     * Permet de retourner une map avec comme clef les editions CHCCDM, et comme la valeur, la liste des lots de chaque édition.
+     * @return
+     */
+    protected Map<String, List<Vue>> recupLotsCHCCDM()
+    {
+        Map<String, List<Vue>> retour = new HashMap<>();
+        
+        // Récupération de la première feuille
+        Sheet sheet = wb.getSheetAt(0);
+        
+        // Iteration sur les colonnes de la feuille, en evitant la première ligne avec les titres.
+        for (int i = 1; i < sheet.getLastRowNum(); i++)
+        {
+            // récupération de l'édition et du numéro de lot.
+            Row row = sheet.getRow(i);
+            String edition = row.getCell(colEdition).getStringCellValue();
+            String lot = String.valueOf((int) row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
+            
+            // Création de la vue
+            Vue vue = new Vue();
+            vue.setKey("view_lot_" + lot);
+            vue.setName(lot);
+            
+            // Remplissage de la map
+            if(!retour.keySet().contains(edition))
+                retour.put(edition, new ArrayList<>());
+            retour.get(edition).add(vue);
+        }
+        
+        return retour;
+    }
+    
+    /**
      * Permet de classer tous les lots Sonar du fichier dans une map. On enlève d'abord tout ceux qui ne sont pas présents dans SonarQube.<br>
      * Puis on les classes dans des listes, la clef de chaque liste correspond au mois et à l'année de mise en production du lot.<br>
      * Le fichier excel doit avoir un formattage spécifique, avec une colonne <b>Lot</b> (numérique) et un colonne <b>livraison édition</b> (date).<br>
@@ -118,19 +152,19 @@ public class ControlPic extends ControlExcel
 
                 // Création de l'objet
                 LotSuiviPic lot = new LotSuiviPic();
-                lot.setLot(String.valueOf((int) row.getCell(colLot, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue()));
-                lot.setLibelle(row.getCell(colLibelle, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                lot.setProjetClarity(row.getCell(colClarity, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                lot.setCpiProjet(row.getCell(colCpi, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                lot.setEdition(row.getCell(colEdition, MissingCellPolicy.CREATE_NULL_AS_BLANK).getStringCellValue());
-                lot.setNbreComposants((int) row.getCell(colNbCompos, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
-                lot.setNbrePaquets((int) row.getCell(colNbpaquets, MissingCellPolicy.CREATE_NULL_AS_BLANK).getNumericCellValue());
-                lot.setBuild(DateConvert.localDate(row.getCell(colBuild, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-                lot.setDevtu(DateConvert.localDate(row.getCell(colDevtu, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-                lot.setTfon(DateConvert.localDate(row.getCell(colTfon, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-                lot.setVmoe(DateConvert.localDate(row.getCell(colVmoe, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-                lot.setVmoa(DateConvert.localDate(row.getCell(colVmoa, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
-                lot.setLivraison(DateConvert.localDate(row.getCell(colLiv, MissingCellPolicy.CREATE_NULL_AS_BLANK).getDateCellValue()));
+                lot.setLot(String.valueOf(getCellNumericValue(row, colLot)));
+                lot.setLibelle(getCellStringValue(row, colLibelle));
+                lot.setProjetClarity(getCellStringValue(row, colClarity));
+                lot.setCpiProjet(getCellStringValue(row, colCpi));
+                lot.setEdition(getCellStringValue(row, colEdition));
+                lot.setNbreComposants(getCellNumericValue(row, colNbCompos));
+                lot.setNbrePaquets(getCellNumericValue(row, colNbpaquets));
+                lot.setBuild(getCellDateValue(row, colBuild));
+                lot.setDevtu(getCellDateValue(row, colDevtu));
+                lot.setTfon(getCellDateValue(row, colTfon));
+                lot.setVmoe(getCellDateValue(row, colVmoe));
+                lot.setVmoa(getCellDateValue(row, colVmoa));
+                lot.setLivraison(getCellDateValue(row, colLiv));
                 retour.put(lot.getLot(), lot);
             }
         }

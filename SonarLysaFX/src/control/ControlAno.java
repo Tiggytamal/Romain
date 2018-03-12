@@ -26,9 +26,9 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 
+import control.parent.ControlExcel;
 import model.Anomalie;
 import model.InfoClarity;
 import model.enums.Environnement;
@@ -662,48 +662,6 @@ public class ControlAno extends ControlExcel
         cell.getCellStyle().setFont(font);
         link.setAddress(baseAdresse + variable);
         cell.setHyperlink(link);
-    }
-
-    /**
-     * 
-     * @param row
-     * @param cellIndex
-     * @return
-     */
-    private String getCellStringValue(Row row, int cellIndex)
-    {
-        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-        if (cell.getCellTypeEnum() == CellType.STRING)
-            return cell.getStringCellValue();
-        return "";
-    }
-
-    /**
-     * 
-     * @param row
-     * @param cellIndex
-     * @return
-     */
-    private LocalDate getCellDateValue(Row row, int cellIndex)
-    {
-        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-        if (cell.getCellTypeEnum() == CellType.NUMERIC)
-            return DateConvert.localDate(cell.getDateCellValue());
-        return null;
-    }
-    
-    /**
-     * 
-     * @param row
-     * @param cellIndex
-     * @return
-     */
-    private int getCellNumericValue(Row row, int cellIndex)
-    {
-        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
-        if (cell.getCellTypeEnum() == CellType.NUMERIC)
-            return (int)cell.getNumericCellValue();
-        return 0;
     }
 
     /**

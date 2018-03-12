@@ -25,18 +25,11 @@ public class MensuelViewControl
     /* ---------- ATTIBUTS ---------- */
        
     private ControlSonar handler;
+    
     @SuppressWarnings("unused")
     private LocalDate dateDebut;
     @SuppressWarnings("unused")
     private LocalDate dateFin;
-    
-    @FXML
-    public void initialize()
-    {
-        handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-        selectPane.getChildren().clear();
-        backgroundPane.getChildren().remove(creer);       
-    }
     
     /* Attributs FXML */
     
@@ -66,6 +59,16 @@ public class MensuelViewControl
     private ToggleGroup toggleGroup;
     @FXML
     private VBox selectPane;
+    
+    /* ---------- CONSTRUCTEURS ---------- */
+    
+    @FXML
+    public void initialize()
+    {
+        handler = new ControlSonar("ETP8137", "28H02m89,;:!");
+        selectPane.getChildren().clear();
+        backgroundPane.getChildren().remove(creer);       
+    }
     
     /* ---------- METHODES PUBLIQUES ---------- */
     

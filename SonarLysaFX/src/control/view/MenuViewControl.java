@@ -2,15 +2,13 @@ package control.view;
 
 import java.io.IOException;
 
+import control.parent.ViewControl;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 
-public class MenuViewControl
+public class MenuViewControl extends ViewControl
 {
     /* ---------- ATTIBUTS ---------- */
     
@@ -23,43 +21,51 @@ public class MenuViewControl
     private MenuItem options;
     @FXML
     private MenuItem planificateur;
+    @FXML
+    private MenuItem maintenance;
+    @FXML
+    private Button connexion;
     
     /* ---------- METHODES PUBLIQUES ---------- */
     
     @FXML
+    public void test()
+    {
+
+    }
+    
+    @FXML
     public void switchToMensuel(ActionEvent event) throws IOException 
     {
-        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Mensuel.fxml"));        
-        BorderPane border = MainScreen.getRoot();
-        border.setCenter(pane);
+        load("/view/Mensuel.fxml");        
     }
     
     @FXML
     public void switchToApplications(ActionEvent event) throws IOException 
     {
-        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Applications.fxml"));        
-        BorderPane border = MainScreen.getRoot();
-        border.setCenter(pane);
+        load("/view/Applications.fxml");        
     }
     
     @FXML
     public void switchToOptions(ActionEvent event) throws IOException 
     {
-        SplitPane pane = FXMLLoader.load( getClass().getResource("/view/Options.fxml"));        
-        BorderPane border = MainScreen.getRoot();
-        border.setCenter(pane);
+        load("/view/Options.fxml");        
     }
     
     @FXML
     public void switchToPlanificateur(ActionEvent event) throws IOException 
     {
-        GridPane pane = FXMLLoader.load( getClass().getResource("/view/Planificateur.fxml"));        
-        BorderPane border = MainScreen.getRoot();
-        border.setCenter(pane);
+        load("/view/Planificateur.fxml");        
+    }
+    
+    @FXML
+    public void switchToMaintenance(ActionEvent event) throws IOException 
+    {
+        load("/view/Maintenance.fxml");        
     }
 
     /* ---------- METHODES PRIVEES ---------- */
-        
+    
     /* ---------- ACCESSEURS ---------- */
     
 }

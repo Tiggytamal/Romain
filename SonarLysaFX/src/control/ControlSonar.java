@@ -57,6 +57,30 @@ public class ControlSonar
 
     /*---------- METHODES PUBLIQUES ----------*/
 
+    
+    public void creerVueCDM(File file) throws InvalidFormatException, IOException
+    {   
+        // Suprression des vues existantes possibles
+        for (int i = 1; i < 53; i++)
+        {
+            Vue vue = new Vue();
+            vue.setKey("CHC_CDM2018-S" + i);
+            api.supprimerVue(vue);
+        }
+        
+        // récupération des informations du fichier Excel
+        ControlPic control = new ControlPic(file);
+        Map<String, List<Vue>> map = control.recupLotsCHCCDM();
+
+        // Création des nouvelles vues
+        for (Map.Entry<String, List<Vue>> entry : map.entrySet())
+        {
+            String key = entry.getKey();
+            Vue vue = creerVue(key, key, "Vue de l'edition " + key, false);
+            api.ajouterSousVues(entry.getValue(), vue);
+        }
+    }
+    
     /**
      * Crée les vues par application des composants dans SonarQube
      */
