@@ -47,7 +47,7 @@ public class FichiersXML implements XML
     @Override
     public File getFile()
     {
-        return new File (Statics.jarPath + NOMFICHIER);
+        return new File (Statics.JARPATH + NOMFICHIER);
     }
     
     @Override

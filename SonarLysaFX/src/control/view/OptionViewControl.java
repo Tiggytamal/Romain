@@ -1,6 +1,6 @@
 package control.view;
 
-import static control.view.MainScreen.proprietesXML;
+import static utilities.Statics.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;

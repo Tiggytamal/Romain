@@ -1,7 +1,7 @@
 package control;
 
-import static control.view.MainScreen.fichiersXML;
-import static control.view.MainScreen.proprietesXML;
+import static utilities.Statics.fichiersXML;
+import static utilities.Statics.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;

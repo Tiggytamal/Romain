@@ -6,7 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import application.Main;
+import control.ControlXML;
 import javafx.stage.FileChooser;
+import model.FichiersXML;
+import model.ProprietesXML;
 
 /**
  * Classe regroupant toutes les constantes statiques
@@ -17,8 +20,10 @@ public abstract class Statics
 {
     private Statics() {}
 
+    /** Wrapper des informations générales de fonctionnement de l'application*/
+    public static final Info info = new Info();
     /** jarPath */
-    public static final String jarPath = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
+    public static final String JARPATH = Utilities.urlToFile(Utilities.getLocation(Main.class)).getParentFile().getPath();
     /** logger général */
 	public static final Logger logger = LogManager.getLogger("complet.log");
     /** logger composants sans applications */
@@ -27,14 +32,8 @@ public abstract class Statics
     public static final Logger loginconnue = LogManager.getLogger("inconnue-log");
     /** logger applications non listée dans le référentiel */
     public static final Logger lognonlistee = LogManager.getLogger("nonlistee-log");
-    /** Adresse fichier de la liste des applis */
-    public static final String FICHIERLISTEAPPLI = "d:\\liste applis.xlsx";
     /** Nom de l'application */
     public static final String NOMAPPLI = "SonarLyza";
-    /** Adresse du serveur SonarQube */
-    public static final String URI = "http://ttp10-snar.ca-technologies.fr";
-    /** adresse du serveur SonarQube de test */
-    public static final String URITEST = "http://ttt10-snar.ca-technologies.fr";
     /** Valeur pour le séparateur de ligne indépendant du système */
     public static final String NL = System.getProperty("line.separator");
     /** Date du jour */
@@ -69,4 +68,10 @@ public abstract class Statics
     public static final String INCONNUE = "INCONNUE";
     /** filter pour fichiers Excel */
     public static final FileChooser.ExtensionFilter FILTEREXCEL = new FileChooser.ExtensionFilter("Fichiers Excel (*.xls)", "*.xls", "*.xlsx", "*.xlsm");
+    /** Controleur XML */
+    private static final ControlXML controlXML = new ControlXML();
+    /** Sauvegarde des fichiers Excel de paramètre */
+    public static final FichiersXML fichiersXML = (FichiersXML) controlXML.recupererXML(FichiersXML.class);
+    /** Sauvegarde des fichiers Excel de paramètre */
+    public static final ProprietesXML proprietesXML = (ProprietesXML) controlXML.recupererXML(ProprietesXML.class);
 }

@@ -1,7 +1,7 @@
 package control;
 
-import static control.view.MainScreen.fichiersXML;
-import static control.view.MainScreen.proprietesXML;
+import static utilities.Statics.fichiersXML;
+import static utilities.Statics.proprietesXML;
 import static utilities.Statics.loginconnue;
 
 import java.io.File;
@@ -265,7 +265,7 @@ public class ControlAno extends ControlExcel
                 ano.setSecurite(SECURITEKO);
 
             // Si une anomalie est close dans RTC, on la transfert sur l'autre feuille.
-            if (CLOSE.equals(ano.getEtat()) || ABANDONNEE.equals(ano.getEtat()))
+            if (CLOSE.equalsIgnoreCase(ano.getEtat()) || ABANDONNEE.equals(ano.getEtat()))
             {
                 row = sheetClose.createRow(sheetClose.getLastRowNum() + 1);
                 creerLigneSQ(row, ano, IndexedColors.WHITE);

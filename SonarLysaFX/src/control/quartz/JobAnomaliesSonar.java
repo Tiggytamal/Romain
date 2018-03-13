@@ -7,6 +7,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
 import control.ControlSonar;
+import utilities.Statics;
 import utilities.TechnicalException;
 
 public class JobAnomaliesSonar implements Job
@@ -17,7 +18,7 @@ public class JobAnomaliesSonar implements Job
 	{
 		try
 		{
-			ControlSonar handler = new ControlSonar("ETP8137", "28H02m89,;:!");
+			ControlSonar handler = new ControlSonar(Statics.info.getPseudo(), Statics.info.getMotDePasse());
 			handler.majFichierSuiviExcel();
 			handler.majFichierSuiviExcelDataStage();
 		} catch (InvalidFormatException | IOException e)

@@ -16,8 +16,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import model.FichiersXML;
-import model.ProprietesXML;
 import view.TrayIconView;
 
 /**
@@ -33,14 +31,8 @@ public class MainScreen extends Application
 
     /** Affichage général de l'applicaiton */
     private static final BorderPane root = new BorderPane();
-    /** Controleur de gestion des fichier XML */
-    private static final ControlXML controlXML = new ControlXML();
     /** Icône de la barre des tâches */
     private static final TrayIconView trayIcon = new TrayIconView();
-    /** Sauvegarde des fichiers Excel de paramètre */
-    public static final FichiersXML fichiersXML = (FichiersXML) controlXML.recupererXML(FichiersXML.class);
-    /** Sauvegarde des fichiers Excel de paramètre */
-    public static final ProprietesXML proprietesXML = (ProprietesXML) controlXML.recupererXML(ProprietesXML.class);
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -64,7 +56,7 @@ public class MainScreen extends Application
         stage.iconifiedProperty().addListener(new IconifiedListener());
         trayIcon.addToTray();
         stage.show();
-        controlXML.createAlert();
+        new ControlXML().createAlert();
     }
 
     /*---------- METHODES PRIVEES ----------*/
@@ -80,16 +72,6 @@ public class MainScreen extends Application
     public static BorderPane getRoot()
     {
         return root;
-    }
-
-    /**
-     * Accèes au fichier de paramètre de sauvegarde des fichiers Excel
-     * 
-     * @return
-     */
-    public static FichiersXML getParamFichier()
-    {
-        return fichiersXML;
     }
 
     public static void changeImageTray(Image image)

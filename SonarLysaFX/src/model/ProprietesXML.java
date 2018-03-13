@@ -50,7 +50,7 @@ public class ProprietesXML implements XML
     @Override
     public File getFile()
     {
-        return new File (Statics.jarPath + NOMFICHIER);
+        return new File (Statics.JARPATH + NOMFICHIER);
     }
 
     @Override

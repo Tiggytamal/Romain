@@ -1,7 +1,11 @@
 package control;
 
-import static control.view.MainScreen.fichiersXML;
-import static control.view.MainScreen.proprietesXML;
+import static utilities.Statics.fichiersXML;
+import static utilities.Statics.proprietesXML;
+import static utilities.Statics.logSansApp;
+import static utilities.Statics.lognonlistee;
+import static utilities.Statics.loginconnue;
+import static utilities.Statics.logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +33,7 @@ import model.enums.TypeParam;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Projet;
+import sonarapi.model.QualityGate;
 import sonarapi.model.Status;
 import sonarapi.model.Vue;
 import utilities.DateConvert;
@@ -52,7 +57,7 @@ public class ControlSonar
      */
     public ControlSonar(String name, String password)
     {
-        api = new SonarAPI(Statics.URI, name, password);
+        api = new SonarAPI(proprietesXML.getMapParams().get(TypeParam.URLSONAR), name, password);
     }
 
     /*---------- METHODES PUBLIQUES ----------*/
@@ -63,8 +68,8 @@ public class ControlSonar
         // Suprression des vues existantes possibles
         for (int i = 1; i < 53; i++)
         {
-            Vue vue = new Vue();
-            vue.setKey("CHC_CDM2018-S" + i);
+            Vue vue = new Vue();            
+            vue.setKey("CHC_CDM2018-S" + String.format("%02d", i));
             api.supprimerVue(vue);
         }
         
@@ -213,7 +218,10 @@ public class ControlSonar
         // Appel de la récupération des composants datastage avec les vesions en paramètre
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(true);
 
-        // Traitement du fichier dtastage de suivi
+        //Mise à jour des liens des compoasnts datastage avec le bon QG
+        liensQG(composants, proprietesXML.getMapParams().get(TypeParam.NOMQGDATASTAGE));
+        
+        // Traitement du fichier datastage de suivi
         traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE));
     }
 
@@ -468,7 +476,7 @@ public class ControlSonar
             }
             else
             {
-                Statics.logSansApp.warn("Application non renseignée - Composant : " + projet.getNom());
+                logSansApp.warn("Application non renseignée - Composant : " + projet.getNom());
             }
         }
         return mapApplications;
@@ -486,7 +494,7 @@ public class ControlSonar
     {
         if (application.equals(Statics.INCONNUE))
         {
-            Statics.loginconnue.warn("Application : INCONNUE - Composant : " + nom);
+            loginconnue.warn("Application : INCONNUE - Composant : " + nom);
             return false;
         }
 
@@ -498,10 +506,10 @@ public class ControlSonar
             {
                 return true;
             }
-            Statics.lognonlistee.warn("Application obsolète : " + application + " - composant : " + nom);
+            lognonlistee.warn("Application obsolète : " + application + " - composant : " + nom);
             return false;
         }
-        Statics.lognonlistee.warn("Application n'existant pas dans le référenciel : " + application + " - composant : " + nom);
+        lognonlistee.warn("Application n'existant pas dans le référenciel : " + application + " - composant : " + nom);
         return false;
     }
 
@@ -622,21 +630,41 @@ public class ControlSonar
 
         return vue;
     }
+    
+    /**
+     * Permet de lier tous les composants sonar à une QG particulière
+     * @param composants
+     * @param nomQG
+     */
+    private void liensQG(Map<String, List<Projet>> composants, String nomQG)
+    {
+        // Récupération de l'Id de la QualityGate
+        QualityGate qg = api.getQualityGate(nomQG);
+        
+        // Iteration sur tous les composants pour les associer au QualityGate
+        for (Map.Entry<String, List<Projet>> entry : composants.entrySet())
+        {
+            for (Projet projet : entry.getValue())
+            {
+                api.associerQualitygate(projet, qg);
+            }
+        }
+        
+    }
 
     /**
      * Permet de mettre à jour le fichier des anomalies Sonar, en allant chercher les nouvelles dans Sonar et en vérifiant celles qui ne sont plus d'actualité.
      * 
-     * @param lotsPIC
+     * @param mapLotsPIC
      *            Fichier excel d'extraction de la PIC de tous les lots.
-     * @param mapLots
+     * @param mapLotsSonar
      *            map des lots Sonar avec une quality Gate en erreur
      * @param lotsSecurite
      * @param lotRelease
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> lotsPIC, Map<String, Set<String>> mapLots, Set<String> lotsSecurite, Set<String> lotRelease, String fichier)
-            throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> mapLotsPIC, Map<String, Set<String>> mapLotsSonar, Set<String> lotsSecurite, Set<String> lotRelease, String fichier) throws InvalidFormatException, IOException
     {
         // Controleur
         ControlAno controlAno = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
@@ -645,32 +673,20 @@ public class ControlSonar
         List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
 
         // Création de la liste des lots
-        List<String> numeroslots = new ArrayList<>();
-        for (Anomalie ano : listeLotenAno)
-        {
-            String string = ano.getLot();
-            
-            if (string.startsWith("Lot "))
-                string = string.substring(4);
-            
-            //Mise à jour des données depuis la PIC
-            ano.majDepuisPic(lotsPIC.get(string));
-            
-            numeroslots.add(string);
-        }
+        List<String> numeroslots = creationNumerosLots(listeLotenAno, mapLotsPIC);
 
         // Liste des anomalies à ajouter après traitement
         List<Anomalie> anoAajouter = new ArrayList<>();
 
         // Iteration sur les lots du fichier des anomalies en cours pour resortir celles qui n'ont plus une Quality Gate bloquante.
         Set<String> lotsEnErreur = new TreeSet<>();
-        for (Set<String> value : mapLots.values())
+        for (Set<String> value : mapLotsSonar.values())
         {
             lotsEnErreur.addAll(value);
         }
 
         // Itération sur les lots en erreurs venant de Sonar pour chaque version de composants (13, 14, ...)
-        for (Entry<String, Set<String>> entry : mapLots.entrySet())
+        for (Entry<String, Set<String>> entry : mapLotsSonar.entrySet())
         {
             List<Anomalie> anoACreer = new ArrayList<>();
             Iterator<String> iter = entry.getValue().iterator();
@@ -687,10 +703,10 @@ public class ControlSonar
                 {
                     // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce
                     // fichier
-                    LotSuiviPic lot = lotsPIC.get(numeroLot);
+                    LotSuiviPic lot = mapLotsPIC.get(numeroLot);
                     if (lot == null)
                     {
-                        Statics.lognonlistee.warn("Mettre à jour le fichier Pic - Lots : " + numeroLot + " non listé");
+                        lognonlistee.warn("Mettre à jour le fichier Pic - Lots : " + numeroLot + " non listé");
                         continue;
                     }
                     Anomalie ano = new Anomalie(lot);
@@ -710,6 +726,40 @@ public class ControlSonar
 
         // Fermeture controleur
         controlAno.close();
+    }
+    
+    /**
+     * Permet de créer la liste des numéros de lots déjà en anomalie et mets à jour les {@code Anomalie} depuis les infos de la Pic
+     * 
+     * @param listeLotenAno
+     *              liste des {@code Anomalie} déjà connues
+     * @param mapLotsPIC
+     *              map des lots connus de la Pic.
+     * @return
+     */
+    private List<String> creationNumerosLots(List<Anomalie> listeLotenAno, Map<String, LotSuiviPic> mapLotsPIC)
+    {
+        List<String> retour = new ArrayList<>();
+        
+        // Iteration sur la liste des anomalies
+        for (Anomalie ano : listeLotenAno)
+        {
+            String string = ano.getLot();
+            
+            if (string.startsWith("Lot "))
+                string = string.substring(4);
+            
+            //Mise à jour des données depuis la PIC
+            LotSuiviPic lotPic = mapLotsPIC.get(string);
+
+            if (lotPic != null)
+                ano.majDepuisPic(lotPic);
+            else
+                logger.warn("Un lot du fichier Excel n'est pas connu dans la Pic : " + string);
+            
+            retour.add(string);
+        }        
+        return retour;
     }
 
     /*---------- ACCESSEURS ----------*/

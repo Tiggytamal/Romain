@@ -1,6 +1,7 @@
 package sonarapi.junit;
 
 import static org.junit.Assert.assertTrue;
+import static utilities.Statics.proprietesXML;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import model.enums.TypeParam;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
 import sonarapi.model.Vue;
@@ -27,7 +29,7 @@ public class SonarAPITest
     public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
     {
 //        api = SonarAPI.getInstanceTest();
-        api = new SonarAPI(Statics.URI, "ETP8137", "28H02m89,;:!");
+        api = new SonarAPI(proprietesXML.getMapParams().get(TypeParam.URLSONAR), "ETP8137", "28H02m89,;:!");
     }
     
 	@Test
