@@ -141,7 +141,7 @@ public class ControlAno extends ControlExcel
      * @return
      * @throws IOException
      */
-    protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer) throws IOException
+    protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer)
     {
         // Création de la feuille de calcul
         Sheet sheet = wb.getSheet(nomSheet);
@@ -229,9 +229,11 @@ public class ControlAno extends ControlExcel
         if (retour != null)
         {
             // Création du fichier de sauvegarde et effacement de la feuille
-            wb.write(new FileOutputStream(new StringBuilder(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATHHISTO)).append(LocalDate.now().toString()) .append("-").append(fichier).toString()));
+            wb.write(new FileOutputStream(new StringBuilder(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATHHISTO)).append(LocalDate.now().toString()).append("-").append(fichier).toString()));
             wb.removeSheetAt(wb.getSheetIndex(retour));
         }
+
+        // Création des lignes de titres
         retour = wb.createSheet(SQ);
         creerLigneTitres(retour);
         return retour;
@@ -252,7 +254,7 @@ public class ControlAno extends ControlExcel
     {
         // Récupération feuille et liste des anomalies closes
         Map<String, Anomalie> anoClose = new HashMap<>();
-        Sheet sheetClose = saveAnomaliesCLoses(anoClose);
+        Sheet sheetClose = saveAnomaliesCloses(anoClose);
 
         // Mise à jour anomalies déjà créées
         for (Anomalie ano : lotsEnAno)
@@ -309,7 +311,7 @@ public class ControlAno extends ControlExcel
         {
             row = sheetClose.createRow(sheetClose.getLastRowNum() + 1);
             creerLigneSQ(row, ano, IndexedColors.WHITE);
-        }        
+        }
     }
 
     @Override
@@ -334,13 +336,13 @@ public class ControlAno extends ControlExcel
         version = nomColonnes.get(TypeCol.VERSION);
         dateCreation = nomColonnes.get(TypeCol.DATECREATION);
         dateRelance = nomColonnes.get(TypeCol.DATERELANCE);
-        
+
         Map<TypeParam, String> proprietes = proprietesXML.getMapParams();
         lienslots = proprietes.get(TypeParam.LIENSLOTS);
         liensAnos = proprietes.get(TypeParam.LIENSANOS);
-        
+
     }
-    
+
     @Override
     protected void calculIndiceColonnes()
     {
@@ -357,108 +359,108 @@ public class ControlAno extends ControlExcel
         {
             if (cell.getCellTypeEnum() != CellType.STRING)
                 continue;
-            
+
             if (cell.getStringCellValue().equals(direction))
             {
                 colDir = cell.getColumnIndex();
                 testMax(colDir);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(departement))
             {
                 colDepart = cell.getColumnIndex();
                 testMax(colDepart);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(service))
             {
                 colService = cell.getColumnIndex();
                 testMax(colService);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(respService))
             {
                 colResp = cell.getColumnIndex();
                 testMax(colResp);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(clarity))
             {
                 colClarity = cell.getColumnIndex();
                 testMax(colClarity);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(libelle))
             {
                 colLib = cell.getColumnIndex();
                 testMax(colLib);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(cpi))
             {
                 colCpi = cell.getColumnIndex();
                 testMax(colCpi);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(edition))
             {
                 colEdition = cell.getColumnIndex();
                 testMax(colEdition);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(lot))
             {
                 colLot = cell.getColumnIndex();
                 testMax(colLot);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(env))
             {
                 colEnv = cell.getColumnIndex();
                 testMax(colEnv);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(anomalie))
             {
                 colAno = cell.getColumnIndex();
                 testMax(colAno);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(etat))
             {
                 colEtat = cell.getColumnIndex();
                 testMax(colEtat);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(securite))
             {
                 colSec = cell.getColumnIndex();
                 testMax(colSec);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(remarque))
             {
                 colRemarque = cell.getColumnIndex();
                 testMax(colRemarque);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(version))
             {
                 colVer = cell.getColumnIndex();
                 testMax(colVer);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(dateCreation))
             {
                 colDateCrea = cell.getColumnIndex();
                 testMax(colDateCrea);
-                nbreCol ++;
+                nbreCol++;
             }
             else if (cell.getStringCellValue().equals(dateRelance))
             {
                 colDateRel = cell.getColumnIndex();
                 testMax(colDateRel);
-                nbreCol ++;
+                nbreCol++;
             }
 
         }
@@ -476,62 +478,60 @@ public class ControlAno extends ControlExcel
      */
     private void creerLigneSQ(Row row, Anomalie ano, IndexedColors couleur)
     {
-        // Contrôles
+        // 1. Contrôles
         if (couleur == null || row == null || ano == null)
             throw new IllegalArgumentException("Les arguments ne peuvent pas être nuls");
 
-        // Helper
+        // 2. Helper
         CellHelper helper = new CellHelper(wb);
 
-        // Création des styles
+        // 3. Création des styles
         CellStyle normal = helper.getStyle(couleur);
         CellStyle centre = helper.getStyle(couleur, Bordure.VIDE, HorizontalAlignment.CENTER);
         CellStyle date = wb.createCellStyle();
         date.cloneStyleFrom(centre);
         date.setDataFormat(createHelper.createDataFormat().getFormat("dd/mm/yyyy"));
 
+        // 4. Valorisation des cellules avec les données de l'anomalie
+        
         // Contrôle Clarity et mise à jour données
         controleClarity(ano);
 
-        // Alimentation avec les données de l'anomalie
-        Cell cell = row.createCell(colDir);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getDirection());
-        cell = row.createCell(colDepart);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getDepartement());
-        cell = row.createCell(colService);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getService());
-        cell = row.createCell(colResp);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getResponsableService());
-        cell = row.createCell(colClarity);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getProjetClarity());
-        cell = row.createCell(colLib);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getLibelleProjet());
-        cell = row.createCell(colCpi);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getCpiProjet());
-        cell = row.createCell(colEdition);
-        cell.setCellStyle(centre);
-        cell.setCellValue(ano.getEdition());
-        cell = row.createCell(colLot);
-        cell.setCellStyle(centre);
-
-        // Gestion des numéros de lots
-        cell.setCellValue(ano.getLot());
+        // Direction
+        valoriserCellule(row, colDir, normal, ano.getDirection(), ano.getDirectionComment());
+        
+        // Département
+        valoriserCellule(row, colDepart, normal, ano.getDepartement(), ano.getDepartementComment());
+        
+        // Service
+        valoriserCellule(row, colService, normal, ano.getService(), ano.getServiceComment());
+        
+        // Responsable service
+        valoriserCellule(row, colResp, normal, ano.getResponsableService(), ano.getResponsableServiceComment());
+        
+        // code projet Clarity
+        valoriserCellule(row, colClarity, normal, ano.getProjetClarity(), ano.getProjetClarityComment());
+        
+        // libelle projet
+        valoriserCellule(row, colLib, normal, ano.getLibelleProjet(), ano.getLibelleProjetComment());
+        
+        // Cpi du lot
+        valoriserCellule(row, colCpi, normal, ano.getCpiProjet(), ano.getCpiProjetComment());
+        
+        // Edition
+        valoriserCellule(row, colEdition, centre, ano.getEdition(), ano.getEditionComment());
+        
+        // Numéro du lot
+        Cell cell = valoriserCellule(row, colLot, centre, ano.getLot(), ano.getLotComment());
         ajouterLiens(cell, lienslots, ano.getLot().substring(4));
 
-        // Gestion de la variable d'environnement
+        // Environnement
         cell = row.createCell(colEnv);
         cell.setCellStyle(centre);
         if (ano.getEnvironnement() != null)
             cell.setCellValue(ano.getEnvironnement().toString());
 
-        // Gestion des numéros d'anomalies
+        // Numéros anomalie
         cell = row.createCell(colAno);
         cell.setCellStyle(centre);
         int numeroAno = ano.getNumeroAnomalie();
@@ -541,25 +541,26 @@ public class ControlAno extends ControlExcel
             // Rajout de "&id=", car cela fait planter la désérialisation du fichier de paramètres
             ajouterLiens(cell, liensAnos + "&id=", String.valueOf(numeroAno));
         }
-        cell = row.createCell(colEtat);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getEtat());
-        cell = row.createCell(colSec);
-        cell.setCellStyle(centre);
-        cell.setCellValue(ano.getSecurite());
-        cell = row.createCell(colRemarque);
-        cell.setCellStyle(normal);
-        cell.setCellValue(ano.getRemarque());
-        cell = row.createCell(colVer);
-        cell.setCellStyle(centre);
-        cell.setCellValue(ano.getVersion());
+        
+        // Etat anomalie
+        valoriserCellule(row, colEtat, normal, ano.getEtat(), ano.getEtatComment());
+        
+        // Anomalie de sécurite
+        valoriserCellule(row, colSec, centre, ano.getSecurite(), ano.getSecuriteComment());
+        
+        // Remarques
+        valoriserCellule(row, colRemarque, normal, ano.getRemarque(), ano.getRemarqueComment());
+        
+        // Version composants
+        valoriserCellule(row, colVer, centre, ano.getVersion(), ano.getVersionComment());
 
-        // Gestion de la date de création et de relance       
+        // Date création
         cell = row.createCell(colDateCrea);
         if (ano.getDateCreation() != null)
             cell.setCellValue(DateConvert.convertToOldDate(ano.getDateCreation()));
         cell.setCellStyle(date);
-        
+
+        // Date relance
         cell = row.createCell(colDateRel);
         if (ano.getDateRelance() != null)
             cell.setCellValue(DateConvert.convertToOldDate(ano.getDateRelance()));
@@ -577,18 +578,10 @@ public class ControlAno extends ControlExcel
     {
         CellStyle centre = helper.getStyle(couleur, Bordure.VIDE, HorizontalAlignment.CENTER);
 
-        Cell cell = row.createCell(Index.LOTI.ordinal());
-        cell.setCellValue(ano.getLot());
-        cell.setCellStyle(centre);
-        cell = row.createCell(Index.EDITIONI.ordinal());
-        cell.setCellValue(ano.getEdition());
-        cell.setCellStyle(helper.getStyle(couleur));
-        cell = row.createCell(Index.ENVI.ordinal());
-        cell.setCellValue(ano.getEnvironnement().toString());
-        cell.setCellStyle(centre);
-        cell = row.createCell(Index.TRAITEI.ordinal());
-        cell.setCellValue(traite);
-        cell.setCellStyle(centre);
+        valoriserCellule(row, Index.LOTI.ordinal(), centre, ano.getLot(), null);
+        valoriserCellule(row, Index.EDITIONI.ordinal(), helper.getStyle(couleur), ano.getEdition(), null);
+        valoriserCellule(row, Index.ENVI.ordinal(), centre, ano.getEnvironnement().toString(), null);
+        valoriserCellule(row, Index.TRAITEI.ordinal(), centre, traite, null);
     }
 
     /**
@@ -694,50 +687,47 @@ public class ControlAno extends ControlExcel
 
             // Création de la ligne
             if (mapAnoCloses.keySet().contains(ano.getLot()))
-                {
-                    Anomalie anoClose = mapAnoCloses.get(ano.getLot());
-                    ano.setDateCreation(anoClose.getDateCreation());
-                    ano.setDateRelance(anoClose.getDateRelance());
-                    ano.setRemarque(anoClose.getRemarque());
-                    ano.setNumeroAnomalie(anoClose.getNumeroAnomalie());
-                    ano.setEtat("A vérifier");
-                    creerLigneSQ(row, ano, IndexedColors.GREY_25_PERCENT);
-                    mapAnoCloses.remove(ano.getLot());
-                }
+            {
+                Anomalie anoClose = mapAnoCloses.get(ano.getLot());
+                ano.setDateCreation(anoClose.getDateCreation());
+                ano.setDateRelance(anoClose.getDateRelance());
+                ano.setRemarque(anoClose.getRemarque());
+                ano.setNumeroAnomalie(anoClose.getNumeroAnomalie());
+                ano.setEtat("A vérifier");
+                creerLigneSQ(row, ano, IndexedColors.GREY_25_PERCENT);
+                mapAnoCloses.remove(ano.getLot());
+            }
             else
                 creerLigneSQ(row, ano, IndexedColors.LIGHT_ORANGE);
         }
     }
 
     /**
-     * Enregistre toutes les anomalies de la fauille des anomalies closes, puis retourne une feuille vide pour les traitements suivants.
+     * Enregistre toutes les anomalies de la feuille des anomalies closes, puis retourne une feuille vide pour les traitements suivants.
      * 
      * @param anoClose
      * @return
      */
-    private Sheet saveAnomaliesCLoses( Map<String, Anomalie> anoClose)
+    private Sheet saveAnomaliesCloses(Map<String, Anomalie> anoClose)
     {
         // Récupération de la feuille des ano closes.
         Sheet retour = wb.getSheet(AC);
-        if (retour == null)
+        if (retour != null)
         {
-            retour = wb.createSheet(AC);
-            creerLigneTitres(retour);
-            return retour;
+            // Itération sur les lignes sauf la première qui correspond aux titres. Récupération des informations des anomalies
+            for (Iterator<Row> iter = retour.rowIterator(); iter.hasNext();)
+            {
+                Row row = iter.next();
+                if (row.getRowNum() == 0)
+                    continue;
+                Anomalie ano = creaAnodepuisExcel(row);
+                anoClose.put(ano.getLot(), ano);
+            }
+            wb.removeSheetAt(wb.getSheetIndex(retour));
         }
-
-        // Itération sur les lignes sauf la première qui correspond aux titres. Récupération des informations des anomalies
-        for (Iterator<Row> iter = retour.rowIterator(); iter.hasNext();)
-        {
-            Row row = iter.next();
-            if (row.getRowNum() == 0)
-                continue;
-            Anomalie ano = creaAnodepuisExcel(row);
-            anoClose.put(ano.getLot(), ano);
-        }
-        
-        wb.removeSheetAt(wb.getSheetIndex(retour));
-        return wb.createSheet(AC);
+        retour = wb.createSheet(AC);
+        creerLigneTitres(retour);
+        return retour;
     }
 
     /**
@@ -752,26 +742,26 @@ public class ControlAno extends ControlExcel
         String anoClarity = ano.getProjetClarity();
         Set<String> keyset = map.keySet();
 
-        // Vérification si le code Clarity de l'anomalie est bine dans la map
+        // Vérification si le code Clarity de l'anomalie est bien dans la map
         if (keyset.contains(anoClarity))
         {
             InfoClarity info = map.get(anoClarity);
             ano.setDepartement(info.getDepartement());
             ano.setDirection(info.getDirection());
-            ano.setService(info.getDirection());
+            ano.setService(info.getService());
             return ano;
         }
 
         // Sinon on itère sur les clefs en supprimant les indices de lot, et on prend la première clef correspondante
         for (String key : keyset)
         {
-            // ON retire les deux dernières lettres pour les clefs de puis de 6 caractères.
-            if (anoClarity.equals(key.length() < 6 ? key : key.substring(0, 6)))
+            // On retire les deux dernières lettres pour les clefs de plus de 6 caractères finissants par 0[1-9]
+            if (anoClarity.equals(key.length() > 5 && key.matches(".*0[0-9]$") ? key.substring(0, 6) : key))
             {
                 InfoClarity info = map.get(key);
                 ano.setDepartement(info.getDepartement());
                 ano.setDirection(info.getDirection());
-                ano.setService(info.getDirection());
+                ano.setService(info.getService());
                 return ano;
             }
         }
@@ -780,7 +770,7 @@ public class ControlAno extends ControlExcel
         loginconnue.warn("Code Clarity inconnu : " + anoClarity + " - Lot : " + ano.getLot());
         return ano;
     }
-    
+
     /**
      * 
      * @param row
@@ -790,24 +780,39 @@ public class ControlAno extends ControlExcel
     {
         Anomalie retour = new Anomalie();
         retour.setDirection(getCellStringValue(row, colDir));
+        retour.setDirectionComment(getCellComment(row, colDir));
         retour.setDepartement(getCellStringValue(row, colDepart));
+        retour.setDepartementComment(getCellComment(row, colDepart));
         retour.setService(getCellStringValue(row, colService));
+        retour.setServiceComment(getCellComment(row, colService));
         retour.setResponsableService(getCellStringValue(row, colResp));
+        retour.setResponsableServiceComment(getCellComment(row, colResp));
         retour.setProjetClarity(getCellStringValue(row, colClarity));
+        retour.setProjetClarityComment(getCellComment(row, colClarity));
         retour.setLibelleProjet(getCellStringValue(row, colLib));
+        retour.setLibelleProjetComment(getCellComment(row, colLib));
         retour.setCpiProjet(getCellStringValue(row, colCpi));
+        retour.setCpiProjetComment(getCellComment(row, colCpi));
         retour.setEdition(getCellStringValue(row, colEdition));
+        retour.setEditionComment(getCellComment(row, colEdition));
         retour.setLot(getCellStringValue(row, colLot));
+        retour.setLotComment(getCellComment(row, colLot));
         retour.setEnvironnement(Environnement.getEnvironnement(getCellStringValue(row, colEnv)));
-
-        // Numéro anomalie
+        retour.setEnvironnementComment(getCellComment(row, colEnv));
         retour.setNumeroAnomalie(getCellNumericValue(row, colAno));
+        retour.setNumeroAnomalieComment(getCellComment(row, colAno));
         retour.setEtat(getCellStringValue(row, colEtat));
+        retour.setEtatComment(getCellComment(row, colEtat));
         retour.setSecurite(getCellStringValue(row, colSec));
+        retour.setSecuriteComment(getCellComment(row, colSec));
         retour.setRemarque(getCellStringValue(row, colRemarque));
+        retour.setRemarqueComment(getCellComment(row, colRemarque));
         retour.setVersion(getCellStringValue(row, colVer));
+        retour.setVersionComment(getCellComment(row, colVer));
         retour.setDateCreation(getCellDateValue(row, colDateCrea));
+        retour.setDateCreationComment(getCellComment(row, colDateCrea));
         retour.setDateRelance(getCellDateValue(row, colDateRel));
+        retour.setDateRelanceComment(getCellComment(row, colDateRel));
         return retour;
     }
 

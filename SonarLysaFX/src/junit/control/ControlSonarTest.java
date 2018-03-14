@@ -91,7 +91,7 @@ public class ControlSonarTest
 
     @Test
     @TestInJfxThread
-    public void majFichierSuiviExctelDataStage() throws InvalidFormatException, IOException, JAXBException
+    public void majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException, JAXBException
     {
         handler.majFichierSuiviExcelDataStage();
     }

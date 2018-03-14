@@ -2,12 +2,14 @@ package model;
 
 import java.time.LocalDate;
 
+import org.apache.poi.ss.usermodel.Comment;
+
 import model.enums.Environnement;
 
 /**
- * Classe de modèle uqi correspond aux données du fichier Excel des anomalies
+ * Classe de modèle qui correspond aux données du fichier Excel des anomalies
  * 
- * @author ETP8137
+ * @author ETP8137 - Grégoire mathon
  *
  */
 public class Anomalie
@@ -15,30 +17,51 @@ public class Anomalie
     /*---------- ATTRIBUTS ----------*/
 
     private String direction;
+    private Comment directionComment;
     private String departement;
+    private Comment departementComment;
     private String service;
+    private Comment serviceComment;
     private String responsableService;
+    private Comment responsableServiceComment;
     private String projetClarity;
+    private Comment projetClarityComment;
     private String libelleProjet;
+    private Comment libelleProjetComment;
     private String cpiProjet;
+    private Comment cpiProjetComment;
     private String edition;
+    private Comment editionComment;
     private String lot;
+    private Comment lotComment;
     private String liensLot;
+    private Comment liensLotComment;
     private Environnement environnement;
+    private Comment environnementComment;
     private int numeroAnomalie;
+    private Comment numeroAnomalieComment;
     private String liensAno;
+    private Comment liensAnoComment;
     private String etat;
+    private Comment etatComment;
     private String typeAssemblage;
+    private Comment typeAssemblageComment;
     private String securite;
+    private Comment securiteComment;
     private String remarque;
+    private Comment remarqueComment;
     private String version;
+    private Comment versionComment;
     private LocalDate dateCreation;
+    private Comment dateCreationComment;
     private LocalDate dateRelance;
+    private Comment dateRelanceComment;
 
     /*---------- CONSTRUCTEURS ----------*/
 
     public Anomalie()
     {
+        super();
     }
 
     public Anomalie(LotSuiviPic lot)
@@ -281,5 +304,207 @@ public class Anomalie
     public LocalDate getDateRelance()
     {
         return dateRelance;
+    }
+    
+    /*---------- ACCESSEURS COMMENTAIRES ----------*/
+    
+    public Comment getDirectionComment()
+    {
+        return directionComment;
+    }
+
+    public void setDirectionComment(Comment directionComment)
+    {
+        this.directionComment = directionComment;
+    }
+
+    public Comment getDepartementComment()
+    {
+        return departementComment;
+    }
+
+    public void setDepartementComment(Comment departementComment)
+    {
+        this.departementComment = departementComment;
+    }
+
+    public Comment getServiceComment()
+    {
+        return serviceComment;
+    }
+
+    public void setServiceComment(Comment serviceComment)
+    {
+        this.serviceComment = serviceComment;
+    }
+
+    public Comment getResponsableServiceComment()
+    {
+        return responsableServiceComment;
+    }
+
+    public void setResponsableServiceComment(Comment responsableServiceComment)
+    {
+        this.responsableServiceComment = responsableServiceComment;
+    }
+
+    public Comment getProjetClarityComment()
+    {
+        return projetClarityComment;
+    }
+
+    public void setProjetClarityComment(Comment projetClarityComment)
+    {
+        this.projetClarityComment = projetClarityComment;
+    }
+
+    public Comment getLibelleProjetComment()
+    {
+        return libelleProjetComment;
+    }
+
+    public void setLibelleProjetComment(Comment libelleProjetComment)
+    {
+        this.libelleProjetComment = libelleProjetComment;
+    }
+
+    public Comment getCpiProjetComment()
+    {
+        return cpiProjetComment;
+    }
+
+    public void setCpiProjetComment(Comment cpiProjetComment)
+    {
+        this.cpiProjetComment = cpiProjetComment;
+    }
+
+    public Comment getEditionComment()
+    {
+        return editionComment;
+    }
+
+    public void setEditionComment(Comment editionComment)
+    {
+        this.editionComment = editionComment;
+    }
+
+    public Comment getLotComment()
+    {
+        return lotComment;
+    }
+
+    public void setLotComment(Comment lotComment)
+    {
+        this.lotComment = lotComment;
+    }
+
+    public Comment getLiensLotComment()
+    {
+        return liensLotComment;
+    }
+
+    public void setLiensLotComment(Comment liensLotComment)
+    {
+        this.liensLotComment = liensLotComment;
+    }
+
+    public Comment getEnvironnementComment()
+    {
+        return environnementComment;
+    }
+
+    public void setEnvironnementComment(Comment environnementComment)
+    {
+        this.environnementComment = environnementComment;
+    }
+
+    public Comment getNumeroAnomalieComment()
+    {
+        return numeroAnomalieComment;
+    }
+
+    public void setNumeroAnomalieComment(Comment numeroAnomalieComment)
+    {
+        this.numeroAnomalieComment = numeroAnomalieComment;
+    }
+
+    public Comment getLiensAnoComment()
+    {
+        return liensAnoComment;
+    }
+
+    public void setLiensAnoComment(Comment liensAnoComment)
+    {
+        this.liensAnoComment = liensAnoComment;
+    }
+
+    public Comment getEtatComment()
+    {
+        return etatComment;
+    }
+
+    public void setEtatComment(Comment etatComment)
+    {
+        this.etatComment = etatComment;
+    }
+
+    public Comment getTypeAssemblageComment()
+    {
+        return typeAssemblageComment;
+    }
+
+    public void setTypeAssemblageComment(Comment typeAssemblageComment)
+    {
+        this.typeAssemblageComment = typeAssemblageComment;
+    }
+
+    public Comment getSecuriteComment()
+    {
+        return securiteComment;
+    }
+
+    public void setSecuriteComment(Comment securiteComment)
+    {
+        this.securiteComment = securiteComment;
+    }
+
+    public Comment getRemarqueComment()
+    {
+        return remarqueComment;
+    }
+
+    public void setRemarqueComment(Comment remarqueComment)
+    {
+        this.remarqueComment = remarqueComment;
+    }
+
+    public Comment getVersionComment()
+    {
+        return versionComment;
+    }
+
+    public void setVersionComment(Comment versionComment)
+    {
+        this.versionComment = versionComment;
+    }
+
+    public Comment getDateCreationComment()
+    {
+        return dateCreationComment;
+    }
+
+    public void setDateCreationComment(Comment dateCreationComment)
+    {
+        this.dateCreationComment = dateCreationComment;
+    }
+
+    public Comment getDateRelanceComment()
+    {
+        return dateRelanceComment;
+    }
+
+    public void setDateRelanceComment(Comment dateRelanceComment)
+    {
+        this.dateRelanceComment = dateRelanceComment;
     }
 }

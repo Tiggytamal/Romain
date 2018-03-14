@@ -9,9 +9,13 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -191,7 +195,74 @@ public abstract class ControlExcel
             return (int)cell.getNumericCellValue();
         return 0;
     }
+    
+    /**
+     * Retourne le commentaire d'une cellule
+     * 
+     * @param row
+     * @param cellIndex
+     * @return
+     */
+    protected Comment getCellComment(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        return cell.getCellComment();
+    }
+    
+    /**
+     * Rajoute un commentaire à une cellule
+     * @param commentaire
+     * @param cell
+     */
+    protected Comment createComment(Comment commentaire, Cell cell)
+    {
+        // Drawing de base pour le commentaire
+        Drawing<?> drawing = cell.getSheet().createDrawingPatriarch();
+        
+        // Création de l'ancre du commentaire
+        ClientAnchor ca = createHelper.createClientAnchor();
+        
+        // On utilise la position relative du commentaire précedent pour créer le nouveau
+        ca.setRow1(cell.getRowIndex());
+        ca.setRow2(cell.getRowIndex() + commentaire.getClientAnchor().getRow2() - commentaire.getClientAnchor().getRow1());
+        ca.setCol1(cell.getColumnIndex());
+        ca.setCol2(cell.getColumnIndex() + commentaire.getClientAnchor().getCol2() - commentaire.getClientAnchor().getCol1());
+        
+        // Création et valorisation des données du commentaire
+        Comment retour = drawing.createCellComment(ca);
+        retour.setAuthor(commentaire.getAuthor());
+        retour.setString(commentaire.getString());
+        return retour;
+    }
 
+    /**
+     * Permet de créer et de valoriser une cellule. Seul le style, le texte et le comentaire peuvent être nuls.
+     * @param row
+     *          Ligne dans laquelle on veut créer la cellule
+     * @param indexCol
+     *          Index de colonne pour créer la cellule
+     * @param style
+     *          Style utilisé pour la cellule
+     * @param texte
+     *          Texte de la cellule
+     * @param commentaire
+     *          Commentaire de la cellule
+     * @return
+     */
+    protected Cell valoriserCellule(Row row, int indexCol, CellStyle style, String texte, Comment commentaire)
+    {
+        if (row == null)
+            throw new IllegalArgumentException("Row row nul pour la méthode control.parent.ControlExcel.valoriserCellule.");
+        
+        Cell cell = row.createCell(indexCol);
+        if (style != null)
+            cell.setCellStyle(style);
+        if (texte != null)
+            cell.setCellValue(texte);
+        if (commentaire != null)
+            createComment(commentaire, cell);
+        return cell;        
+    }
     /*---------- METHODES PRIVEES ----------*/
     /*---------- ACCESSEURS ----------*/
 }

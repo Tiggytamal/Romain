@@ -56,7 +56,7 @@ public class MenuViewControl extends ViewControl
         ConnexionDialog dialog = new ConnexionDialog();
         // Récupération du pseudo et du mdp
         Optional<Pair<String, String>> result = dialog.showAndWait();
-        // Contr^le dans Sonar de la validitée
+        // Contrôle dans Sonar de la validitée
         result.ifPresent(pair -> testMdP(pair.getKey(), pair.getValue()));
     }
     
