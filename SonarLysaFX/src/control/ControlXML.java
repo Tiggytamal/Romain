@@ -26,6 +26,7 @@ import javafx.stage.StageStyle;
 import model.Application;
 import model.InfoClarity;
 import model.LotSuiviPic;
+import model.RespService;
 import model.XML;
 import model.enums.TypeFichier;
 import utilities.TechnicalException;
@@ -145,11 +146,21 @@ public class ControlXML
 
     public void recupLotsPicDepuisExcel(File file) throws IOException, InvalidFormatException, JAXBException
     {
-        ControlPic controlPic = new ControlPic(file);
-        Map<String, LotSuiviPic> lotsPic = controlPic.recupLotsDepuisPic();
-        controlPic.close();
+        ControlPic control = new ControlPic(file);
+        Map<String, LotSuiviPic> lotsPic = control.recupLotsDepuisPic();
+        control.close();
         fichiersXML.getLotsPic().putAll(lotsPic);
         fichiersXML.setDateFichier(TypeFichier.LOTSPICS);
+        saveParam(fichiersXML);
+    }
+    
+    public void recupChefServiceDepuisExcel(File file) throws IOException, InvalidFormatException, JAXBException
+    {
+        ControlChefService control = new ControlChefService(file);
+        Map<String, RespService> respService = control.recupRespDepuisExcel();
+        control.close();
+        fichiersXML.getMapRespService().putAll(respService);
+        fichiersXML.setDateFichier(TypeFichier.RESPSERVICE);
         saveParam(fichiersXML);
     }
 

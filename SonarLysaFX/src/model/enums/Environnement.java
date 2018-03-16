@@ -1,5 +1,11 @@
 package model.enums;
 
+/**
+ * Enumeration permettant de classer l'état d'un lot RTC et dans quel environnement il a été poussé.
+ * 
+ * @author ETP8137 - Grégoire Mathon
+ *
+ */
 public enum Environnement
 {
     NOUVEAU(Valeur.NOUVEAU),

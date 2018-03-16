@@ -15,13 +15,13 @@ import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import model.enums.Environnement;
 import utilities.CellHelper;
 import utilities.DateConvert;
 
@@ -45,14 +45,16 @@ public abstract class ControlExcel
     protected int maxIndice;
     /** Ligne de titres de la feuille */
     protected Row titres;
-    // * Helper de gestion du worlkbook */
+    /** Helper de gestion du worlkbook */
     protected CreationHelper createHelper;
+    /** Ancre pour les commentaire */
+    protected ClientAnchor ca;
 
     /*---------- CONSTRUCTEURS ----------*/
 
     /**
-     * Constructeur du controleur. Crée le workbook, et les gestionnaire. Puis invoque la méthode {@codecalculIndiceColonnes} qui doit être implémentées dans
-     * les classe files<br>
+     * Constructeur du controleur. Crée le workbook, et les gestionnaire. Puis invoque la méthode {@codecalculIndiceColonnes} qui doit être implémentées dans les
+     * classe files<br>
      * pour calculer l'indice de chaque colonne de la feuille. Ne pas oublier d'utiliser la méthode {@code close} lorsque les traitements sont finis.
      * 
      * @param file
@@ -81,6 +83,7 @@ public abstract class ControlExcel
         wb = WorkbookFactory.create(file);
         helper = new CellHelper(wb);
         createHelper = wb.getCreationHelper();
+        ca = createHelper.createClientAnchor();
     }
 
     /**
@@ -141,8 +144,11 @@ public abstract class ControlExcel
      */
     protected abstract void calculIndiceColonnes();
 
+    /**
+     * Initialise les noms des colonnes
+     */
     protected abstract void initColonnes();
-    
+
     /**
      * Met à jour l'indice max des colonnes
      * 
@@ -153,9 +159,10 @@ public abstract class ControlExcel
         if (maxIndice < i)
             maxIndice = i;
     }
-    
+
     /**
      * Retourne la valeur d'une cellule de type String
+     * 
      * @param row
      * @param cellIndex
      * @return
@@ -170,6 +177,7 @@ public abstract class ControlExcel
 
     /**
      * Retourne la valeur d'une cellule de type Date
+     * 
      * @param row
      * @param cellIndex
      * @return
@@ -181,9 +189,10 @@ public abstract class ControlExcel
             return DateConvert.localDate(cell.getDateCellValue());
         return null;
     }
-    
+
     /**
      * Retourne la valeur d'une cellule de type numerique
+     * 
      * @param row
      * @param cellIndex
      * @return
@@ -192,10 +201,10 @@ public abstract class ControlExcel
     {
         Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
         if (cell.getCellTypeEnum() == CellType.NUMERIC)
-            return (int)cell.getNumericCellValue();
+            return (int) cell.getNumericCellValue();
         return 0;
     }
-    
+
     /**
      * Retourne le commentaire d'une cellule
      * 
@@ -208,26 +217,29 @@ public abstract class ControlExcel
         Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
         return cell.getCellComment();
     }
-    
+
     /**
-     * Rajoute un commentaire à une cellule
+     * Copie un commentaire dans une cellule
+     * 
      * @param commentaire
      * @param cell
      */
-    protected Comment createComment(Comment commentaire, Cell cell)
+    protected Comment copieComment(Comment commentaire, Cell cell)
     {
+        if (cell == null || commentaire == null)
+            throw new IllegalArgumentException("Arguments nuls pour méthode control.parent.ControlExcel.copieComment : commentaire = " + commentaire + " - cell = " + cell);
+        
         // Drawing de base pour le commentaire
-        Drawing<?> drawing = cell.getSheet().createDrawingPatriarch();
-        
-        // Création de l'ancre du commentaire
-        ClientAnchor ca = createHelper.createClientAnchor();
-        
+        Drawing<?> drawing = cell.getSheet().getDrawingPatriarch();
+        if (drawing == null)
+        drawing = cell.getSheet().createDrawingPatriarch();
+
         // On utilise la position relative du commentaire précedent pour créer le nouveau
         ca.setRow1(cell.getRowIndex());
         ca.setRow2(cell.getRowIndex() + commentaire.getClientAnchor().getRow2() - commentaire.getClientAnchor().getRow1());
         ca.setCol1(cell.getColumnIndex());
         ca.setCol2(cell.getColumnIndex() + commentaire.getClientAnchor().getCol2() - commentaire.getClientAnchor().getCol1());
-        
+
         // Création et valorisation des données du commentaire
         Comment retour = drawing.createCellComment(ca);
         retour.setAuthor(commentaire.getAuthor());
@@ -236,33 +248,80 @@ public abstract class ControlExcel
     }
 
     /**
-     * Permet de créer et de valoriser une cellule. Seul le style, le texte et le comentaire peuvent être nuls.
-     * @param row
-     *          Ligne dans laquelle on veut créer la cellule
-     * @param indexCol
-     *          Index de colonne pour créer la cellule
-     * @param style
-     *          Style utilisé pour la cellule
-     * @param texte
-     *          Texte de la cellule
+     * Crée un commentaire dans une cellule depuis un texte donné
+     * 
      * @param commentaire
-     *          Commentaire de la cellule
+     * @param cell
+     */
+    protected Comment creerComment(String commentaire, String autheur, Cell cell, int largeur, int hauteur)
+    {
+        if (cell == null || commentaire == null || commentaire.isEmpty() || largeur == 0 || hauteur == 0)
+            throw new IllegalArgumentException("Mauvais arguments pour méthode control.parent.ControlExcel.creerComment : cell = " + cell + " - commentaire = " + commentaire
+                    + " - largeur = " + largeur + " - hauteur = " + hauteur);
+
+        // Drawing de base pour le commentaire
+        Drawing<?> drawing = cell.getSheet().getDrawingPatriarch();
+        if (drawing == null)
+        drawing = cell.getSheet().createDrawingPatriarch();
+        
+        // On utilise la position relative du commentaire précedent pour créer le nouveau
+        ca.setRow1(cell.getRowIndex());
+        ca.setRow2(cell.getRowIndex() + hauteur);
+        ca.setCol1(cell.getColumnIndex());
+        ca.setCol2(cell.getColumnIndex() + largeur);
+
+        // Création et valorisation des données du commentaire
+        Comment retour = drawing.createCellComment(ca);
+        retour.setString(createHelper.createRichTextString(commentaire));
+        if (autheur != null)
+            retour.setAuthor(autheur);
+
+        return retour;
+    }
+
+    /**
+     * Permet de créer et de valoriser une cellule. Seul le style, le texte et le commentaire peuvent être nuls. Le texte peut-être de type {@link String},
+     * {@linkplain model.enum.Environnement}, {@link LocalDate}.
+     * 
+     * @param row
+     *            Ligne dans laquelle on veut créer la cellule
+     * @param indexCol
+     *            Index de colonne pour créer la cellule
+     * @param style
+     *            Style utilisé pour la cellule
+     * @param texte
+     *            Texte de la cellule
+     * @param commentaire
+     *            Commentaire de la cellule
      * @return
      */
-    protected Cell valoriserCellule(Row row, int indexCol, CellStyle style, String texte, Comment commentaire)
+    protected Cell valoriserCellule(Row row, int indexCol, CellStyle style, Object texte, Comment commentaire)
     {
+        // Contrôle
         if (row == null)
             throw new IllegalArgumentException("Row row nul pour la méthode control.parent.ControlExcel.valoriserCellule.");
-        
+
+        // Création cellule
         Cell cell = row.createCell(indexCol);
+
+        // Conversion du texte dans le bon format
+        if (texte instanceof String)
+            cell.setCellValue((String) texte);
+        else if (texte instanceof Environnement)
+            cell.setCellValue(((Environnement) texte).toString());
+        else if (texte instanceof LocalDate)
+            cell.setCellValue(DateConvert.convertToOldDate(texte));
+
+        // Commentaire
+        if (commentaire != null)
+            copieComment(commentaire, cell);
+
+        // Style
         if (style != null)
             cell.setCellStyle(style);
-        if (texte != null)
-            cell.setCellValue(texte);
-        if (commentaire != null)
-            createComment(commentaire, cell);
-        return cell;        
+        return cell;
     }
+
     /*---------- METHODES PRIVEES ----------*/
     /*---------- ACCESSEURS ----------*/
 }

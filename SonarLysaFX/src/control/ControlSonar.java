@@ -162,30 +162,30 @@ public class ControlSonar
         Map<String, LotSuiviPic> lotsPIC = fichiersXML.getLotsPic();
 
         // 2. Récupération des lots Sonar en erreur.
-        Map<String, Set<String>> mapLots;
+        Map<String, Set<String>> mapLotsSonar;
 
         Set<String> lotsSecurite = new HashSet<>();
         Set<String> lotRelease = new HashSet<>();
 
         if (ControlSonarTest.deser)
         {
-            mapLots = Utilities.deserialisation("d:\\lotsSonar.ser", HashMap.class);
+            mapLotsSonar = Utilities.deserialisation("d:\\lotsSonar.ser", HashMap.class);
             lotsSecurite = Utilities.deserialisation("d:\\lotsSecurite.ser", HashSet.class);
             lotRelease = Utilities.deserialisation("d:\\lotsRelease.ser", HashSet.class);
         }
         else
         {
-            mapLots = lotSonarQGError(composants, lotsSecurite, lotRelease);
+            mapLotsSonar = lotSonarQGError(composants, lotsSecurite, lotRelease);
             Utilities.serialisation("d:\\lotsSecurite.ser", lotsSecurite);
-            Utilities.serialisation("d:\\lotsSonar.ser", mapLots);
+            Utilities.serialisation("d:\\lotsSonar.ser", mapLotsSonar);
             Utilities.serialisation("d:\\lotsRelease.ser", lotRelease);
         }
 
         // 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
-        majFichierAnomalies(lotsPIC, mapLots, lotsSecurite, lotRelease, fichier);
+        majFichierAnomalies(lotsPIC, mapLotsSonar, lotsSecurite, lotRelease, fichier);
 
         // 4. Création des vues
-        for (Map.Entry<String, Set<String>> entry : mapLots.entrySet())
+        for (Map.Entry<String, Set<String>> entry : mapLotsSonar.entrySet())
         {
             // Création de la vue et envoie vers SonarQube
             String nom = testNom(fichier);
@@ -672,13 +672,13 @@ public class ControlSonar
         // Lecture du fichier pour remonter les anomalies en cours.
         List<Anomalie> listeLotenAno = controlAno.listAnomaliesSurLotsCrees();
 
-        // Création de la liste des lots
-        List<String> numeroslots = creationNumerosLots(listeLotenAno, mapLotsPIC);
+        // Création de la liste des lots déjà dans le fichier
+        List<String> lotsDejaDansFichier = creationNumerosLots(listeLotenAno, mapLotsPIC);
 
         // Liste des anomalies à ajouter après traitement
         List<Anomalie> anoAajouter = new ArrayList<>();
-
-        // Iteration sur les lots du fichier des anomalies en cours pour resortir celles qui n'ont plus une Quality Gate bloquante.
+        
+        // Mise dans un Set de tous les lots en erreur venus de Sonar indépendement de la version des composants.
         Set<String> lotsEnErreur = new TreeSet<>();
         for (Set<String> value : mapLotsSonar.values())
         {
@@ -689,38 +689,42 @@ public class ControlSonar
         for (Entry<String, Set<String>> entry : mapLotsSonar.entrySet())
         {
             List<Anomalie> anoACreer = new ArrayList<>();
+            List<Anomalie> anoDejacrees = new ArrayList<>();
             Iterator<String> iter = entry.getValue().iterator();
 
+            // Iteration sur toutes les anomalies venant de Sonar pour chaque version
             while (iter.hasNext())
             {
                 String numeroLot = iter.next();
-                // Si le lot est déjà dans la liste des anomalies, on le retire de la liste.
-                if (numeroslots.contains(numeroLot))
+                
+                // On va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne les trouve pas, il faudra mettre à jour ce fichier
+                LotSuiviPic lot = mapLotsPIC.get(numeroLot);
+                if (lot == null)
                 {
+                    lognonlistee.warn("Mettre à jour le fichier Pic - Lots : " + numeroLot + " non listé");
+                    continue;
+                }
+                Anomalie ano = new Anomalie(lot);
+                
+                // On ajoute le lot soit, dans la liste des anos déjà créées soit, dans celle des anos à créer.
+                if (lotsDejaDansFichier.contains(numeroLot))
+                {
+                    anoDejacrees.add(ano);
                     iter.remove();
                 }
                 else
                 {
-                    // Sinon on va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne le trouve pas, il faudra mettre à jour ce
-                    // fichier
-                    LotSuiviPic lot = mapLotsPIC.get(numeroLot);
-                    if (lot == null)
-                    {
-                        lognonlistee.warn("Mettre à jour le fichier Pic - Lots : " + numeroLot + " non listé");
-                        continue;
-                    }
-                    Anomalie ano = new Anomalie(lot);
                     anoACreer.add(ano);
                 }
             }
 
             // Mise à jour de la feuille des anomalies pour chaque version de composants
-            anoAajouter.addAll(controlAno.createSheetError(entry.getKey(), anoACreer));
+            anoAajouter.addAll(controlAno.createSheetError(entry.getKey(), anoACreer, anoDejacrees));
         }
 
         // Sauvegarde fichier et maj feuille principale
         Sheet sheet = controlAno.sauvegardeFichier(fichier);
-
+        
         // Mis à jour de la feuille principale
         controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
 
@@ -729,7 +733,7 @@ public class ControlSonar
     }
     
     /**
-     * Permet de créer la liste des numéros de lots déjà en anomalie et mets à jour les {@code Anomalie} depuis les infos de la Pic
+     * Permet de créer la liste des numéros de lots déjà en anomalie et met à jour les {@code Anomalie} depuis les infos de la Pic
      * 
      * @param listeLotenAno
      *              liste des {@code Anomalie} déjà connues

@@ -4,5 +4,5 @@ import java.io.Serializable;
 
 public enum TypeFichier implements Serializable , TypeKey
 {
-    APPS, CLARITY, LOTSPICS;
+    APPS, CLARITY, LOTSPICS, RESPSERVICE;
 }

@@ -27,6 +27,7 @@ public class FichiersXML implements XML
 	private Map<String, InfoClarity> mapClarity; 
 	private Map<String, LotSuiviPic> lotsPic;
 	private Map<String, Boolean> mapApplis;
+	private Map<String, RespService> mapRespService;
 	private Map<TypeFichier, String> dateMaj;
 	
 	public static final String NOMFICHIER = "\\fichiers.xml";
@@ -39,6 +40,7 @@ public class FichiersXML implements XML
 	    mapClarity = new HashMap<>();
 	    lotsPic = new HashMap<>();
 	    mapApplis = new HashMap<>();
+	    mapRespService = new HashMap<>();
 	    dateMaj = new EnumMap<>(TypeFichier.class);
 	}
     
@@ -88,9 +90,20 @@ public class FichiersXML implements XML
         {
             builder.append("Referentiel Clarity chargé. Dernière Maj : ").append(dateMaj.get(TypeFichier.CLARITY)).append(Statics.NL);
         }
+        
+        // Contrôle Referentiel Clarity
+        if (mapRespService.isEmpty())
+        {
+            builder.append("Informations Responsables de services manquantes.").append(Statics.NL);
+            manquant = true;
+        }
+        else
+        {
+            builder.append("Responsables de services chargé. Dernière Maj : ").append(dateMaj.get(TypeFichier.RESPSERVICE)).append(Statics.NL);
+        }
 
         if (manquant)
-            builder.append("Merci de recharger le(s) fichier(s) de paramétrage");
+            builder.append("Merci de recharger le(s) fichier(s) de paramétrage.").append(Statics.NL);
 
         return builder.append(Statics.NL).toString();
     }
@@ -123,6 +136,13 @@ public class FichiersXML implements XML
     public Map<TypeFichier, String> getDateMaj()
     {
         return dateMaj;
+    }
+    
+    @XmlElementWrapper
+    @XmlElement(name = "mapRespService", required = false)
+    public Map<String, RespService> getMapRespService()
+    {
+        return mapRespService;
     }
 	
 	/**

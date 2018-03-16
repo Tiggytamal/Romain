@@ -51,6 +51,8 @@ public class OptionViewControl
     @FXML
     private Button clarity;
     @FXML
+    private Button chefService;
+    @FXML
     private VBox chargementPane;
     @FXML
     private VBox optionsPane;
@@ -139,99 +141,62 @@ public class OptionViewControl
         initColonnes(proprietesXML.getMapColonnes());
     }
 
-    private void initParametres(Map<TypeParam, String> mapParam)
-    {
-
-        // Initialition liste des versions affichée
-        String versionsParam = mapParam.get(TypeParam.VERSIONS);
-        
-        if (!versionsParam.isEmpty())
-        {
-            versionsField.getItems().addAll(versionsParam.split("-"));
-            versionsField.getItems().sort((o1, o2) -> o1.compareTo(o2));
-        }
-
-        // Mise à jour automatique de la liste des versions
-        versionsField.getSelectionModel().selectFirst();
-        versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2);
-        versionsField.getItems().addListener(
-                (ListChangeListener.Change<? extends String> c) -> versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2));
-
-        // Intialisation des TextField depuis le fichier de paramètre
-        pathField.setText(mapParam.get(TypeParam.ABSOLUTEPATH).replace("\\\\", "\\"));
-        suiviField.setText(mapParam.get(TypeParam.NOMFICHIER));
-        datastageField.setText(mapParam.get(TypeParam.NOMFICHIERDATASTAGE));
-        filtreField.setText(mapParam.get(TypeParam.FILTREDATASTAGE));
-        pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
-        
-    }
-    
-    private void initColonnes(Map<TypeCol, String> mapColonnes)
-    {
-        directionField.setText(mapColonnes.get(TypeCol.DIRECTION));
-        departementField.setText(mapColonnes.get(TypeCol.DEPARTEMENT));
-        serviceField.setText(mapColonnes.get(TypeCol.SERVICE));
-        respServiceField.setText(mapColonnes.get(TypeCol.RESPSERVICE));
-        clarityField.setText(mapColonnes.get(TypeCol.CLARITY));
-        libelleField.setText(mapColonnes.get(TypeCol.LIBELLE));
-        cpiField.setText(mapColonnes.get(TypeCol.CPI));
-        editionField.setText(mapColonnes.get(TypeCol.EDITION));
-        lotField.setText(mapColonnes.get(TypeCol.LOT));
-        etatLotField.setText(mapColonnes.get(TypeCol.ENV));
-        anomalieField.setText(mapColonnes.get(TypeCol.ANOMALIE));
-        dateCreaField.setText(mapColonnes.get(TypeCol.DATECREATION));
-        dateRelField.setText(mapColonnes.get(TypeCol.DATERELANCE));
-        etatAnoField.setText(mapColonnes.get(TypeCol.ETAT));
-        remarqueField.setText(mapColonnes.get(TypeCol.REMARQUE));
-        securiteField.setText(mapColonnes.get(TypeCol.SECURITE));
-        versionField.setText(mapColonnes.get(TypeCol.VERSION));
-    }
-
     /*---------- METHODES PUBLIQUES ----------*/
 
+    /**
+     * 
+     * @throws InvalidFormatException
+     * @throws IOException
+     * @throws JAXBException
+     */
     public void chargerLotsPic() throws InvalidFormatException, IOException, JAXBException
     {
-        fc = new FileChooser();
-        fc.setTitle("Charger Lots Pic");
-        fc.getExtensionFilters().add(Statics.FILTEREXCEL);
-        File file = fc.showOpenDialog(splitPane.getScene().getWindow());
-        if (file != null)
-        {
-            alert.show();
-            ControlXML control = new ControlXML();
-            control.recupLotsPicDepuisExcel(file);
-            alert.setContentText("Chargement lots Pic effectué");
-        }
+        File file = getFileFromFileChooser("Charger Lots Pic");
+        ControlXML control = new ControlXML();
+        control.recupLotsPicDepuisExcel(file);
+        alert.setContentText("Chargement lots Pic effectué");
     }
 
+    /**
+     * 
+     * @throws InvalidFormatException
+     * @throws IOException
+     * @throws JAXBException
+     */
     public void chargerApplis() throws InvalidFormatException, IOException, JAXBException
     {
-        fc = new FileChooser();
-        fc.setTitle("Charger Applications");
-        fc.getExtensionFilters().add(Statics.FILTEREXCEL);
-        File file = fc.showOpenDialog(splitPane.getScene().getWindow());
-        if (file != null)
-        {
-            alert.show();
-            ControlXML control = new ControlXML();
-            control.recupListeAppsDepuisExcel(file);
-            alert.setContentText("Chargement Applications effectué");
-        }
+        File file = getFileFromFileChooser("Charger Applications");
+        ControlXML control = new ControlXML();
+        control.recupListeAppsDepuisExcel(file);
+        alert.setContentText("Chargement Applications effectué");
     }
 
+    /**
+     * 
+     * @throws InvalidFormatException
+     * @throws IOException
+     * @throws JAXBException
+     */
     public void chargerClarity() throws InvalidFormatException, IOException, JAXBException
     {
-        fc = new FileChooser();
-        fc.setTitle("Charger Referentiel Clarity");
-        fc.getExtensionFilters().add(Statics.FILTEREXCEL);
-        File file = fc.showOpenDialog(splitPane.getScene().getWindow());
-        if (file != null)
-        {
-            alert.show();
-            ControlXML control = new ControlXML();
-            control.recupInfosClarityDepuisExcel(file);
-            alert.setContentText("Chargement Clarity effectué");
-        }
+        File file = getFileFromFileChooser("Charger Referentiel Clarity");
+        ControlXML control = new ControlXML();
+        control.recupInfosClarityDepuisExcel(file);
+        alert.setContentText("Chargement Clarity effectué");
+    }
+
+    /**
+     * 
+     * @throws InvalidFormatException
+     * @throws IOException
+     * @throws JAXBException
+     */
+    public void chargerChefService() throws InvalidFormatException, IOException, JAXBException
+    {
+        File file = getFileFromFileChooser("Charger Chefs de Service");
+        ControlXML control = new ControlXML();
+        control.recupChefServiceDepuisExcel(file);
+        alert.setContentText("Chargement Chef de Service effectué");
     }
 
     /**
@@ -274,6 +239,10 @@ public class OptionViewControl
         liste.sort((o1, o2) -> o1.compareTo(o2));
     }
 
+    /**
+     * 
+     * @throws JAXBException
+     */
     public void sauvegarder() throws JAXBException
     {
         // Sauvegarde versions
@@ -305,8 +274,11 @@ public class OptionViewControl
         // Enregistrement paramètres
         new ControlXML().saveParam(proprietesXML);
     }
-    
-    
+
+    /**
+     * 
+     * @throws JAXBException
+     */
     public void saveCols() throws JAXBException
     {
         Map<TypeCol, String> mapCols = proprietesXML.getMapColonnes();
@@ -327,12 +299,90 @@ public class OptionViewControl
         saveText(remarqueField, mapCols, TypeCol.REMARQUE);
         saveText(securiteField, mapCols, TypeCol.SECURITE);
         saveText(versionField, mapCols, TypeCol.VERSION);
-        
+
         new ControlXML().saveParam(proprietesXML);
     }
 
     /*---------- METHODES PRIVEES ----------*/
 
+    /**
+     * Initialise la fenêtre de l'explorateur de fichier, et retourne le fichier selectionné.
+     * 
+     * @param titre
+     *             Titre de la fenêtre de l'explorateur
+     * @return
+     */
+    private File getFileFromFileChooser(String titre)
+    {
+        fc = new FileChooser();
+        fc.setTitle(titre);
+        fc.getExtensionFilters().add(Statics.FILTEREXCEL);
+        File file = fc.showOpenDialog(splitPane.getScene().getWindow());
+        if (file == null)
+            throw new FunctionalException(Severity.SEVERITY_INFO, "Impossible de récupérer le fichier.");
+        alert.show();
+        return file;
+    }
+
+    /**
+     * 
+     * @param mapParam
+     */
+    private void initParametres(Map<TypeParam, String> mapParam)
+    {
+        // Initialition liste des versions affichée
+        String versionsParam = mapParam.get(TypeParam.VERSIONS);
+
+        if (!versionsParam.isEmpty())
+        {
+            versionsField.getItems().addAll(versionsParam.split("-"));
+            versionsField.getItems().sort((o1, o2) -> o1.compareTo(o2));
+        }
+
+        // Mise à jour automatique de la liste des versions
+        versionsField.getSelectionModel().selectFirst();
+        versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2);
+        versionsField.getItems()
+                .addListener((ListChangeListener.Change<? extends String> c) -> versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2));
+
+        // Intialisation des TextField depuis le fichier de paramètre
+        pathField.setText(mapParam.get(TypeParam.ABSOLUTEPATH).replace("\\\\", "\\"));
+        suiviField.setText(mapParam.get(TypeParam.NOMFICHIER));
+        datastageField.setText(mapParam.get(TypeParam.NOMFICHIERDATASTAGE));
+        filtreField.setText(mapParam.get(TypeParam.FILTREDATASTAGE));
+        pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
+    }
+
+    /**
+     * 
+     * @param mapColonnes
+     */
+    private void initColonnes(Map<TypeCol, String> mapColonnes)
+    {
+        directionField.setText(mapColonnes.get(TypeCol.DIRECTION));
+        departementField.setText(mapColonnes.get(TypeCol.DEPARTEMENT));
+        serviceField.setText(mapColonnes.get(TypeCol.SERVICE));
+        respServiceField.setText(mapColonnes.get(TypeCol.RESPSERVICE));
+        clarityField.setText(mapColonnes.get(TypeCol.CLARITY));
+        libelleField.setText(mapColonnes.get(TypeCol.LIBELLE));
+        cpiField.setText(mapColonnes.get(TypeCol.CPI));
+        editionField.setText(mapColonnes.get(TypeCol.EDITION));
+        lotField.setText(mapColonnes.get(TypeCol.LOT));
+        etatLotField.setText(mapColonnes.get(TypeCol.ENV));
+        anomalieField.setText(mapColonnes.get(TypeCol.ANOMALIE));
+        dateCreaField.setText(mapColonnes.get(TypeCol.DATECREATION));
+        dateRelField.setText(mapColonnes.get(TypeCol.DATERELANCE));
+        etatAnoField.setText(mapColonnes.get(TypeCol.ETAT));
+        remarqueField.setText(mapColonnes.get(TypeCol.REMARQUE));
+        securiteField.setText(mapColonnes.get(TypeCol.SECURITE));
+        versionField.setText(mapColonnes.get(TypeCol.VERSION));
+    }
+
+    /**
+     * Chargement des panels d'options
+     * 
+     * @param ov
+     */
     private void switchPanel(ObservableValue<? extends String> ov)
     {
         if (ov.getValue().equals("Chargement fichiers"))
@@ -351,7 +401,17 @@ public class OptionViewControl
             rightSide.getChildren().add(colonnesPane);
         }
     }
-    
+
+    /**
+     * Sauvegarde la valeur d'un champ dans la map des porpriétés
+     * 
+     * @param textField
+     *            Champ à sauvegarder
+     * @param map
+     *            map des paramètres
+     * @param clef
+     *            clef de la map. {@code model.enums.TypeKey}
+     */
     private <T extends TypeKey> void saveText(TextField textField, Map<T, String> map, T clef)
     {
         String text = textField.getText();

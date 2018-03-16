@@ -49,6 +49,8 @@
 					<Region prefHeight="20" />
 					<Button text="Charger Referentiel Clarity" fx:id="clarity" onAction="#chargerClarity" alignment="CENTER" />
 					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
+					<Button text="Charger Chef de Service" fx:id="chefService" onAction="#chargerChefService" alignment="CENTER" />
+					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
 				</VBox>
 
 				<!-- Paramètre des fichiers -->

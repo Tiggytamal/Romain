@@ -7,10 +7,10 @@ import org.apache.poi.ss.usermodel.Comment;
 import model.enums.Environnement;
 
 /**
- * Classe de modèle qui correspond aux données du fichier Excel des anomalies
+ * Classe de modèle qui correspond aux données du fichier Excel des anomalies.
  * 
  * @author ETP8137 - Grégoire mathon
- *
+ * @since 1.0
  */
 public class Anomalie
 {
@@ -56,6 +56,7 @@ public class Anomalie
     private Comment dateCreationComment;
     private LocalDate dateRelance;
     private Comment dateRelanceComment;
+    private boolean traitee;
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -80,6 +81,12 @@ public class Anomalie
         setProjetClarity(lot.getProjetClarity());
         setLot("Lot " + lot.getLot());
         setEnvironnement(calculerEnvironnement(lot));
+    }
+    
+    public boolean calculTraitee()
+    {
+        traitee = (remarque != null && !remarque.isEmpty()) || (numeroAnomalie != 0);
+        return traitee;
     }
     /*---------- METHODES PRIVEES ----------*/
 
@@ -175,7 +182,7 @@ public class Anomalie
     {
         this.cpiProjet = cpiProjet;
     }
-
+    
     public String getEdition()
     {
         return edition;
@@ -185,7 +192,7 @@ public class Anomalie
     {
         this.edition = edition;
     }
-
+    
     public String getLot()
     {
         return lot;
@@ -506,5 +513,10 @@ public class Anomalie
     public void setDateRelanceComment(Comment dateRelanceComment)
     {
         this.dateRelanceComment = dateRelanceComment;
+    }
+    
+    public boolean isTraitee()
+    {
+        return traitee;
     }
 }
