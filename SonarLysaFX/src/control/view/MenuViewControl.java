@@ -72,6 +72,7 @@ public class MenuViewControl extends ViewControl
         Statics.info.setMotDePasse(null);
         box.getChildren().remove(deConnexion);
         box.getChildren().add(connexion);
+        border.setCenter(null);       
     }
 
     @FXML

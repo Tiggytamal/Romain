@@ -28,7 +28,6 @@ public class SonarAPITest
     @Before
     public void init() throws InvalidFormatException, JAXBException, IOException, InterruptedException
     {
-//        api = SonarAPI.getInstanceTest();
         api = new SonarAPI(proprietesXML.getMapParams().get(TypeParam.URLSONAR), "ETP8137", "28H02m89,;:!");
     }
     

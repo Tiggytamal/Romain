@@ -11,7 +11,7 @@ public abstract class ViewControl
 {
     /*---------- ATTRIBUTS ----------*/
     
-    private BorderPane border;
+    protected BorderPane border;
     
     /*---------- CONSTRUCTEURS ----------*/
     

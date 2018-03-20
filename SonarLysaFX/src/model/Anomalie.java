@@ -1,10 +1,14 @@
 package model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Comment;
 
 import model.enums.Environnement;
+import model.enums.Matiere;
 
 /**
  * Classe de modèle qui correspond aux données du fichier Excel des anomalies.
@@ -57,12 +61,13 @@ public class Anomalie
     private LocalDate dateRelance;
     private Comment dateRelanceComment;
     private boolean traitee;
+    private Set<Matiere> matieres;
 
     /*---------- CONSTRUCTEURS ----------*/
 
     public Anomalie()
     {
-        super();
+        matieres = new HashSet<>();
     }
 
     public Anomalie(LotSuiviPic lot)
@@ -83,11 +88,33 @@ public class Anomalie
         setEnvironnement(calculerEnvironnement(lot));
     }
     
+    /**
+     * Permet de vérifier si une anomalie a été traitée ou non. C'est-à-dire si il y a un numéro d'anomalie ou un commentaire.
+     * @return
+     */
     public boolean calculTraitee()
     {
         traitee = (remarque != null && !remarque.isEmpty()) || (numeroAnomalie != 0);
         return traitee;
     }
+    
+    /**
+     * Retourne la liste des matieres de l'anomalie sous forme d'une chaine de caractères enregistrable dans Excel
+     * @return
+     */
+    public String getMatieresString()
+    {
+        StringBuilder builder = new StringBuilder();
+        
+        for (Iterator<Matiere> iter = matieres.iterator(); iter.hasNext();)
+        {
+            builder.append(iter.next().toString());
+            if (iter.hasNext())
+                builder.append(" - ");
+        }
+        return builder.toString();
+    }
+    
     /*---------- METHODES PRIVEES ----------*/
 
     /**
@@ -518,5 +545,15 @@ public class Anomalie
     public boolean isTraitee()
     {
         return traitee;
+    }
+
+    public Set<Matiere> getMatieres()
+    {
+        return matieres;
+    }
+
+    public void setMatieres(Set<Matiere> matieres)
+    {
+        this.matieres = matieres;
     }
 }

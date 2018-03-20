@@ -33,6 +33,7 @@ import model.Anomalie;
 import model.InfoClarity;
 import model.RespService;
 import model.enums.Environnement;
+import model.enums.Matiere;
 import model.enums.TypeCol;
 import model.enums.TypeParam;
 import utilities.CellHelper;
@@ -68,6 +69,7 @@ public class ControlAno extends ControlExcel
     private int colVer;
     private int colDateCrea;
     private int colDateRel;
+    private int colMatiere;
 
     // Liste des noms de colonnes
     private String direction;
@@ -88,6 +90,7 @@ public class ControlAno extends ControlExcel
     private String version;
     private String dateCreation;
     private String dateRelance;
+    private String matiere;
 
     // Nom de la feuillle avec les naomalies en cours
     private static final String SQ = "SUIVI Qualité";
@@ -103,7 +106,7 @@ public class ControlAno extends ControlExcel
 
     /*---------- CONSTRUCTEURS ----------*/
 
-    protected ControlAno(File file) throws InvalidFormatException, IOException
+    public ControlAno(File file) throws InvalidFormatException, IOException
     {
         super(file);
     }
@@ -114,7 +117,7 @@ public class ControlAno extends ControlExcel
      * 
      * @return
      */
-    protected List<Anomalie> listAnomaliesSurLotsCrees()
+    public List<Anomalie> listAnomaliesSurLotsCrees()
     {
         // Récupération de la première feuille
         Sheet sheet = wb.getSheet(SQ);
@@ -142,7 +145,7 @@ public class ControlAno extends ControlExcel
      * @return
      * @throws IOException
      */
-    protected List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer, List<Anomalie> anoDejacrees)
+    public List<Anomalie> createSheetError(String nomSheet, List<Anomalie> anoAcreer, List<Anomalie> anoDejacrees)
     {
         // 1. Variables
         
@@ -197,7 +200,6 @@ public class ControlAno extends ControlExcel
                     break;
                 case TRAITEI:
                     cell.setCellValue(traite);
-                    creerComment("A = abandonnée, O = oui, N = non/nouvelle", null, cell, 3, 2);
                     break;
             }
         }
@@ -237,7 +239,7 @@ public class ControlAno extends ControlExcel
      * @return
      * @throws IOException
      */
-    protected Sheet sauvegardeFichier(String fichier) throws IOException
+    public Sheet sauvegardeFichier(String fichier) throws IOException
     {
         // Récupération feuille principale existante
         Sheet retour = wb.getSheet(SQ);
@@ -259,13 +261,14 @@ public class ControlAno extends ControlExcel
      * 
      * @param anoAajouter
      * @param lotsSecurite
+     * @param matiere2 
      * @param anoAajouter2
      * @param lotsEnErreur
      * @throws IOException
      * @throws InvalidFormatException
      * @throws EncryptedDocumentException
      */
-    protected void majFeuillePrincipale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet) throws IOException
+    public void majFeuillePrincipale(List<Anomalie> lotsEnAno, List<Anomalie> anoAajouter, Set<String> lotsEnErreurSonar, Set<String> lotsSecurite, Set<String> lotsRelease, Sheet sheet, Matiere matiere) throws IOException
     {
         // Récupération feuille et liste des anomalies closes
         Map<String, Anomalie> anoClose = new HashMap<>();
@@ -277,6 +280,7 @@ public class ControlAno extends ControlExcel
         for (Anomalie ano : lotsEnAno)
         {
             Row row;
+            ano.getMatieres().add(matiere);
             String anoLot = ano.getLot().substring(4);
             IndexedColors couleur;
 
@@ -323,7 +327,7 @@ public class ControlAno extends ControlExcel
             creerLigneSQ(row, ano, couleur);
         }
 
-        ajouterNouvellesAnos(sheet, anoAajouter, anoClose, lotsSecurite, lotsRelease);
+        ajouterNouvellesAnos(sheet, anoAajouter, anoClose, lotsSecurite, lotsRelease, matiere);
         ajouterAnomaliesCloses(sheetClose, anoClose);
 
         autosizeColumns(sheet);
@@ -369,6 +373,7 @@ public class ControlAno extends ControlExcel
         dateCreation = nomColonnes.get(TypeCol.DATECREATION);
         dateRelance = nomColonnes.get(TypeCol.DATERELANCE);
         traite = nomColonnes.get(TypeCol.TRAITE);
+        matiere = nomColonnes.get(TypeCol.MATIERE);
 
         // Initialisation des parties constantes des liens
         Map<TypeParam, String> proprietes = proprietesXML.getMapParams();
@@ -495,11 +500,17 @@ public class ControlAno extends ControlExcel
                 testMax(colDateRel);
                 nbreCol++;
             }
+            else if (cell.getStringCellValue().equals(matiere))
+            {
+                colMatiere = cell.getColumnIndex();
+                testMax(colMatiere);
+                nbreCol++;
+            }
 
         }
         if (nbreCol != NOMBRECOL)
         {
-//            throw new FunctionalException(Severity.SEVERITY_ERROR, "Le fichier excel est mal configuré, vérifié les colonnes de celui-ci");
+            throw new FunctionalException(Severity.SEVERITY_ERROR, "Le fichier excel est mal configuré, vérifier les colonnes de celui-ci");
         }
     }
 
@@ -591,6 +602,9 @@ public class ControlAno extends ControlExcel
 
         // Date relance
         valoriserCellule(row, colDateRel, date, ano.getDateRelance(), ano.getDateRelanceComment());
+        
+        // Matiere
+        valoriserCellule(row, colMatiere, centre, ano.getMatieresString(), ano.getDateRelanceComment());
     }
 
     /**
@@ -689,11 +703,13 @@ public class ControlAno extends ControlExcel
      * @param anoAajouter
      * @param lotsSecurite
      * @param lotsRelease
+     * @param matiere 
      */
-    private void ajouterNouvellesAnos(Sheet sheet, List<Anomalie> anoAajouter, Map<String, Anomalie> mapAnoCloses, Set<String> lotsSecurite, Set<String> lotsRelease)
+    private void ajouterNouvellesAnos(Sheet sheet, List<Anomalie> anoAajouter, Map<String, Anomalie> mapAnoCloses, Set<String> lotsSecurite, Set<String> lotsRelease, Matiere matiere)
     {
         for (Anomalie ano : anoAajouter)
         {
+            ano.getMatieres().add(matiere);
             Row row = sheet.createRow(sheet.getLastRowNum() + 1);
 
             String anoLot = ano.getLot().substring(4);
@@ -782,7 +798,7 @@ public class ControlAno extends ControlExcel
         for (String key : keyset)
         {
             // On retire les deux dernières lettres pour les clefs de plus de 6 caractères finissants par 0[1-9]
-            if (anoClarity.equalsIgnoreCase(key.length() > 5 && key.matches(".*0[0-9E]$") ? key.substring(0, 6) : key))
+            if (controleKey(anoClarity, key))
             {
                 InfoClarity info = map.get(key);
                 ano.setDepartement(info.getDepartement());
@@ -812,7 +828,7 @@ public class ControlAno extends ControlExcel
         if (mapRespService.keySet().contains(anoServ))
             ano.setResponsableService(mapRespService.get(anoServ).getNom());
         else
-            loginconnue.warn("Pas de responsable de service trouvé& pour ce service : " + ano.getService());
+            loginconnue.warn("Pas de responsable de service trouvé pour ce service : " + ano.getService());
     }
 
     /**
@@ -859,6 +875,16 @@ public class ControlAno extends ControlExcel
         retour.setDateRelanceComment(getCellComment(row, colDateRel));
         retour.calculTraitee();
         return retour;
+    }
+    
+    
+    private boolean controleKey(String anoClarity, String key)
+    {
+        // Controle si la clef n'a pas les indices de numéro de lot
+        String smallkey = key.length() > 5 && key.matches(".*0[0-9E]$") ? key.substring(0, 6) : key; 
+        // Contrôle si la clef est de type T*.
+        String newKey = key.length() == 9 && key.startsWith("T") ? key.substring(0, 8) : smallkey;     
+        return anoClarity.equalsIgnoreCase(newKey);
     }
 
     /*---------- ACCESSEURS ----------*/

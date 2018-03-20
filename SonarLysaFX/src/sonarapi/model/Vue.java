@@ -17,7 +17,22 @@ public class Vue implements ModeleSonar
 	private String description;
 	private List<String> listeClefsComposants; 
 
-	/*---------- ACCESSEURS ----------*/
+    /*---------- CONSTRUCTEURS ----------*/
+	
+	public Vue()
+	{
+	    
+	}
+	
+	public Vue (String key, String nom)
+	{
+	    this.key = key;
+	    this.name = nom;
+	}
+	
+    /*---------- METHODES PUBLIQUES ----------*/
+    /*---------- METHODES PRIVEES ----------*/
+    /*---------- ACCESSEURS ----------*/
 
 	@XmlAttribute (name = "key")
 	public String getKey() 

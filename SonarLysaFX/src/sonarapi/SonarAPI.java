@@ -51,7 +51,8 @@ public class SonarAPI
     private final WebTarget webTarget;
     private final String codeUser;
     private static final String AUTHORIZATION = "Authorization";
-
+    private static final String HTTP = ": HTTP ";
+    
     /*---------- CONSTRUCTEURS ----------*/
 
     /**
@@ -177,7 +178,7 @@ public class SonarAPI
         }
         else
         {
-            logger.error("Erreur API : api/measures/component - Composant : " + paramComposant.getValeur());
+            logger.error(erreurAPI("measures/component") + paramComposant.getValeur());
             return new Composant();
         }
     }
@@ -207,7 +208,7 @@ public class SonarAPI
         }
         else
         {
-            logger.error("Erreur API : api/issues/search - Composant : " + paramComposant.getValeur());
+            logger.error(erreurAPI("issues/search") + paramComposant.getValeur());
             return 0;
         }
     }
@@ -236,7 +237,7 @@ public class SonarAPI
         }
         else
         {
-            logger.error("Erreur API : api/issues/search - Composant : " + paramComposant.getValeur());
+            logger.error(erreurAPI("issues/search") + paramComposant.getValeur());
             return new ArrayList<>();
         }
     }
@@ -262,7 +263,7 @@ public class SonarAPI
         }
         else
         {
-            logger.error("Erreur API : /api/issues/search - Composant : " + paramResource.getValeur());
+            logger.error(erreurAPI("events") + paramResource.getValeur());
         }
         return "";
     }
@@ -325,6 +326,28 @@ public class SonarAPI
             throw new FunctionalException(Severity.SEVERITY_ERROR, "Impossible de remonter les QualityGate de Sonar - API : api/qualitygates/list");
         }
     }
+    
+    /**
+     * retourne si une vue existe ou non dans SonarQube. Pour cela, essaie de remonter les informations de la vue.<br>
+     * Si HTTP 200 => retourne vrai.<br>
+     * Si HTTP 404 => retourne faux <br>
+     * Autre => retourne faux avec log erreur
+     * 
+     * @param vueKey
+     * @return
+     */
+    public boolean testVueExiste(String vueKey)
+    {
+        if (vueKey == null || vueKey.isEmpty())
+            throw new IllegalArgumentException("La méthode sonarapi.SonarAPI.testVueExiste a son argument nul");
+        Response response = appelWebserviceGET("api/views/show");
+        if( response.getStatus() == Status.OK.getStatusCode())
+            return true;
+        if (response.getStatus() == Status.NOT_FOUND.getStatusCode())
+            return false;
+        logger.error(erreurAPI("views/show") + vueKey);
+        return false;       
+    }
 
     /*---------- METHODES PUBLIQUES POST ----------*/
 
@@ -340,7 +363,7 @@ public class SonarAPI
             return;
 
         Response response = appelWebservicePOST("api/views/create", vue);
-        logger.info("Creation vue : " + vue.getKey() + " - nom : " + vue.getName() + ": HTTP " + response.getStatus());
+        logger.info("Creation vue : " + vue.getKey() + " - nom : " + vue.getName() + HTTP + response.getStatus());
         gestionErreur(response);
     }
 
@@ -364,11 +387,40 @@ public class SonarAPI
     public void supprimerVue(Vue vue)
     {
         if (vue == null)
-            return;
+            throw new IllegalArgumentException("La méthode sonarapi.SonarAPI.supprimerVue a son argument nul");
 
-        Response response = appelWebservicePOST("api/views/delete", new Clef(vue.getKey()));
-        logger.info("retour supprimer vue " + vue.getKey() + " : " + response.getStatus() + " " + response.getStatusInfo());
+        supprimerVue(vue.getKey());
+    }
+    
+    /**
+     * Supprime une vue dans SonarQube depuis la clef, et vérifie que celle-ci n'existe plus pendant 2s.
+     * 
+     * @param vueKey
+     *          clef de la vue à supprimer
+     * @return
+     */
+    public void supprimerVue(String vueKey)
+    {
+        if (vueKey == null || vueKey.isEmpty())
+            throw new IllegalArgumentException("La méthode sonarapi.SonarAPI.supprimerVue a son argument nul");
+
+        Response response = appelWebservicePOST("api/views/delete", new Clef(vueKey));
+        logger.info("retour supprimer vue " + vueKey + " : " + response.getStatus() + " " + response.getStatusInfo());
         gestionErreur(response);
+        int nbreTest = 0;
+        
+        while (testVueExiste(vueKey) && nbreTest < 5)
+        {
+            try
+            {
+                Thread.sleep(500);
+                logger.info("Attente suppression");
+            } catch (InterruptedException e)
+            {
+                Thread.currentThread().interrupt();
+            }
+            nbreTest++;
+        }       
     }
 
     /**
@@ -397,7 +449,7 @@ public class SonarAPI
     {
         AjouterVueLocale localView = new AjouterVueLocale(parent.getKey(), vue.getKey());
         Response response = appelWebservicePOST("api/views/add_local_view", localView);
-        logger.info("Vue " + parent.getName() + " ajout sous-vue " + vue.getName() + " : HTTP " + response.getStatus());
+        logger.info("Vue " + parent.getName() + " ajout sous-vue " + vue.getName() + HTTP + response.getStatus());
         gestionErreur(response);
     }
 
@@ -426,7 +478,7 @@ public class SonarAPI
     {
         AjouterProjet addProjet = new AjouterProjet(parent.getKey(), projet.getKey());
         Response response = appelWebservicePOST("api/views/add_project", addProjet);
-        logger.info("Vue " + parent.getKey() + " ajout sous-projet " + projet.getNom() + ": HTTP " + response.getStatus());
+        logger.info("Vue " + parent.getKey() + " ajout sous-projet " + projet.getNom() + HTTP + response.getStatus());
         gestionErreur(response);
     }
 
@@ -439,11 +491,16 @@ public class SonarAPI
         gestionErreur(response);
     }
     
+    /**
+     * Permet d'associer un QualityGate à un composant donné.
+     * @param projet
+     * @param qg
+     */
     public void associerQualitygate(Projet projet, QualityGate qg)
     {
         AssocierQG assQG = new AssocierQG(qg.getId(), projet.getId());
         Response response = appelWebservicePOST("api/qualitygates/select", assQG);
-        logger.info("projet " + projet.getNom() + " association " + qg.getName() + ": HTTP " + response.getStatus());
+        logger.info("projet " + projet.getNom() + " association " + qg.getName() + HTTP + response.getStatus());
         gestionErreur(response);
     }
 
@@ -568,5 +625,10 @@ public class SonarAPI
             }
         }
         return retour;
+    }
+    
+    private String erreurAPI(String api)
+    {
+        return "Erreur API : api/" + api + " - Composant : ";
     }
 }

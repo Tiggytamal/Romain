@@ -53,8 +53,7 @@ public abstract class ControlExcel
     /*---------- CONSTRUCTEURS ----------*/
 
     /**
-     * Constructeur du controleur. Crée le workbook, et les gestionnaire. Puis invoque la méthode {@codecalculIndiceColonnes} qui doit être implémentées dans les
-     * classe files<br>
+     * Constructeur du controleur. Crée le workbook, et les gestionnaire. Puis invoque la méthode {@codecalculIndiceColonnes} qui doit être implémentées dans les classe files<br>
      * pour calculer l'indice de chaque colonne de la feuille. Ne pas oublier d'utiliser la méthode {@code close} lorsque les traitements sont finis.
      * 
      * @param file

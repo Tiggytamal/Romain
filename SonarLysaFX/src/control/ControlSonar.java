@@ -29,6 +29,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import junit.control.ControlSonarTest;
 import model.Anomalie;
 import model.LotSuiviPic;
+import model.enums.Matiere;
 import model.enums.TypeParam;
 import sonarapi.SonarAPI;
 import sonarapi.model.Composant;
@@ -147,14 +148,17 @@ public class ControlSonar
     }
 
     /**
-     * Méthode de traitement pour mettre à jour les fichiers de suivi d'anomalies ainsi que la création de vue dans SonarQube
+     * Méthode de traitement pour mettre à jour les fichiers de suivi d'anomalies ainsi que la création de vue dans SonarQube. <br>
+     * Retourne une liste de toutes les anomalies traitées depuis Sonar
+     * 
      * @param composants
+     * @param java 
      * @param versions
      * @throws InvalidFormatException
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    public void traitementFichierSuivi(Map<String, List<Projet>> composants, String fichier) throws InvalidFormatException, IOException
+    public List<String> traitementFichierSuivi(Map<String, List<Projet>> composants, String fichier, Matiere matiere) throws InvalidFormatException, IOException
     {
         // 1. Récupération des données depuis les fichiers Excel.
 
@@ -166,6 +170,7 @@ public class ControlSonar
 
         Set<String> lotsSecurite = new HashSet<>();
         Set<String> lotRelease = new HashSet<>();
+        List<String> retour = new ArrayList<>();
 
         if (ControlSonarTest.deser)
         {
@@ -180,27 +185,26 @@ public class ControlSonar
             Utilities.serialisation("d:\\lotsSonar.ser", mapLotsSonar);
             Utilities.serialisation("d:\\lotsRelease.ser", lotRelease);
         }
-
+        
         // 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
-        majFichierAnomalies(lotsPIC, mapLotsSonar, lotsSecurite, lotRelease, fichier);
+        majFichierAnomalies(lotsPIC, mapLotsSonar, lotsSecurite, lotRelease, fichier, matiere);
 
         // 4. Création des vues
         for (Map.Entry<String, Set<String>> entry : mapLotsSonar.entrySet())
         {
             // Création de la vue et envoie vers SonarQube
             String nom = testNom(fichier);
-            Vue vueParent = creerVue(nom.replace(" ", "") + "Key" + entry.getKey(), nom + " - Edition " + entry.getKey(),
-                    "Vue regroupant tous les lots avec des composants en erreur", true);
+            Vue vueParent = creerVue(nom.replace(" ", "") + "Key" + entry.getKey(), nom + " - Edition " + entry.getKey(), "Vue regroupant tous les lots avec des composants en erreur", true);
 
             for (String lot : entry.getValue())
             {
-                Vue vue = new Vue();
-                vue.setKey("view_lot_" + lot);
-                vue.setName("Lot " + lot);
                 // Ajout des sous-vue
-                api.ajouterSousVue(vue, vueParent);
+                api.ajouterSousVue(new Vue("view_lot_" + lot, "Lot " + lot), vueParent);
+                retour.add("Lot " + lot);
             }
         }
+        
+        return retour;
     }
 
     private String testNom(String fichier)
@@ -222,7 +226,7 @@ public class ControlSonar
         liensQG(composants, proprietesXML.getMapParams().get(TypeParam.NOMQGDATASTAGE));
         
         // Traitement du fichier datastage de suivi
-        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE));
+        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE), Matiere.DATASTAGE);
     }
 
     /**
@@ -236,7 +240,7 @@ public class ControlSonar
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(false);
 
         // Traitement du fichier dtastage de suivi
-        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER));
+        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER), Matiere.JAVA);
     }
 
     /**
@@ -387,6 +391,7 @@ public class ControlSonar
         }
         return retour;
     }
+    
     /**
      * Taritement Sonar d'un projet
      * @param projet
@@ -661,10 +666,11 @@ public class ControlSonar
      *            map des lots Sonar avec une quality Gate en erreur
      * @param lotsSecurite
      * @param lotRelease
+     * @param matiere 
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> mapLotsPIC, Map<String, Set<String>> mapLotsSonar, Set<String> lotsSecurite, Set<String> lotRelease, String fichier) throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> mapLotsPIC, Map<String, Set<String>> mapLotsSonar, Set<String> lotsSecurite, Set<String> lotRelease, String fichier, Matiere matiere) throws InvalidFormatException, IOException
     {
         // Controleur
         ControlAno controlAno = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
@@ -726,7 +732,7 @@ public class ControlSonar
         Sheet sheet = controlAno.sauvegardeFichier(fichier);
         
         // Mis à jour de la feuille principale
-        controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet);
+        controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet, matiere);
 
         // Fermeture controleur
         controlAno.close();
