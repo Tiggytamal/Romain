@@ -100,7 +100,8 @@ public class ControlAno extends ControlExcel
     private static final String SECURITEKO = "X";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String RELEASE = "RELEASE";
-    private static final int NOMBRECOL = 17;
+    private static final int NOMBRECOL = 18;
+    private static final String AVERIFIER = "A vérifier";
     private String lienslots;
     private String liensAnos;
 
@@ -318,6 +319,9 @@ public class ControlAno extends ControlExcel
                 }
             }
             
+            if (AVERIFIER.equals(ano.getEtat()))
+                couleur = IndexedColors.GREY_25_PERCENT;
+            
             // Remise de la couleur à orange si le lot n'a pas encore été traité
             if(!ano.isTraitee())
                 couleur = IndexedColors.LIGHT_ORANGE;
@@ -336,18 +340,22 @@ public class ControlAno extends ControlExcel
     }
 
     /**
+     * Mise à jour des fichiers pour les anomalies comprenant plusieures type de matière
      * 
-     * @param sheetClose
-     * @param anoClose
+     * @param anoMultiple
      */
-    private void ajouterAnomaliesCloses(Sheet sheetClose, Map<String, Anomalie> anoClose)
+    public void majMultiMatiere(List<String> anoMultiple)
     {
-        Row row;
-        for (Anomalie ano : anoClose.values())
+        Sheet sheet = wb.getSheet(SQ);
+        if (sheet == null)
+            throw new FunctionalException(Severity.SEVERITY_ERROR, "Problème récupération feuillle excel principale");
+        
+        for (int i = 1; i < sheet.getLastRowNum() + 1; i++)
         {
-            row = sheetClose.createRow(sheetClose.getLastRowNum() + 1);
-            creerLigneSQ(row, ano, IndexedColors.WHITE);
+            if (anoMultiple.contains(sheet.getRow(i).getCell(colLot).getStringCellValue()))
+                sheet.getRow(i).getCell(colMatiere).setCellValue(Matiere.JAVA.toString() + " - " + Matiere.DATASTAGE);
         }
+        
     }
 
     @Override
@@ -518,6 +526,21 @@ public class ControlAno extends ControlExcel
 
     /**
      * 
+     * @param sheetClose
+     * @param anoClose
+     */
+    private void ajouterAnomaliesCloses(Sheet sheetClose, Map<String, Anomalie> anoClose)
+    {
+        Row row;
+        for (Anomalie ano : anoClose.values())
+        {
+            row = sheetClose.createRow(sheetClose.getLastRowNum() + 1);
+            creerLigneSQ(row, ano, IndexedColors.WHITE);
+        }
+    }
+    
+    /**
+     * 
      * @param row
      * @param ano
      * @param couleur
@@ -604,7 +627,7 @@ public class ControlAno extends ControlExcel
         valoriserCellule(row, colDateRel, date, ano.getDateRelance(), ano.getDateRelanceComment());
         
         // Matiere
-        valoriserCellule(row, colMatiere, centre, ano.getMatieresString(), ano.getDateRelanceComment());
+        valoriserCellule(row, colMatiere, centre, ano.getMatieresString(), ano.getMatieresComment());
     }
 
     /**
@@ -692,7 +715,10 @@ public class ControlAno extends ControlExcel
         Font font = wb.createFont();
         font.setUnderline(Font.U_SINGLE);
         font.setColor(IndexedColors.BLUE.index);
-        cell.getCellStyle().setFont(font);
+        CellStyle style = wb.createCellStyle();
+        style.cloneStyleFrom(cell.getCellStyle());
+        style.setFont(font);
+        cell.setCellStyle(style);
         link.setAddress(baseAdresse + variable);
         cell.setHyperlink(link);
     }
@@ -735,7 +761,7 @@ public class ControlAno extends ControlExcel
                 ano.setDateRelance(anoClose.getDateRelance());
                 ano.setRemarque(anoClose.getRemarque());
                 ano.setNumeroAnomalie(anoClose.getNumeroAnomalie());
-                ano.setEtat("A vérifier");
+                ano.setEtat(AVERIFIER);
                 creerLigneSQ(row, ano, IndexedColors.GREY_25_PERCENT);
                 mapAnoCloses.remove(ano.getLot());
             }
@@ -873,6 +899,8 @@ public class ControlAno extends ControlExcel
         retour.setDateCreationComment(getCellComment(row, colDateCrea));
         retour.setDateRelance(getCellDateValue(row, colDateRel));
         retour.setDateRelanceComment(getCellComment(row, colDateRel));
+        retour.setMatieresString(getCellStringValue(row, colMatiere));
+        retour.setMatieresComment(getCellComment(row, colMatiere));
         retour.calculTraitee();
         return retour;
     }

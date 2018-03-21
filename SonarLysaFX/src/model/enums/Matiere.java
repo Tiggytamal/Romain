@@ -25,7 +25,7 @@ public enum Matiere
         return string;
     }
     
-    public static Matiere getEnvironnement(String matiere)
+    public static Matiere getMatiere(String matiere)
     {
         switch(matiere)
         {

@@ -202,8 +202,7 @@ public class ControlSonar
                 api.ajouterSousVue(new Vue("view_lot_" + lot, "Lot " + lot), vueParent);
                 retour.add("Lot " + lot);
             }
-        }
-        
+        }       
         return retour;
     }
 
@@ -217,7 +216,7 @@ public class ControlSonar
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public void majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException
+    public List<String> majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException
     {
         // Appel de la récupération des composants datastage avec les vesions en paramètre
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(true);
@@ -226,7 +225,7 @@ public class ControlSonar
         liensQG(composants, proprietesXML.getMapParams().get(TypeParam.NOMQGDATASTAGE));
         
         // Traitement du fichier datastage de suivi
-        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE), Matiere.DATASTAGE);
+        return traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE), Matiere.DATASTAGE);
     }
 
     /**
@@ -234,13 +233,34 @@ public class ControlSonar
      * @throws InvalidFormatException
      * @throws IOException
      */
-    public void majFichierSuiviExcel() throws InvalidFormatException, IOException
+    public List<String> majFichierSuiviExcel() throws InvalidFormatException, IOException
     {
         // Appel de la récupération des composants non datastage avec les vesions en paramètre
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(false);
 
         // Traitement du fichier dtastage de suivi
-        traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER), Matiere.JAVA);
+        return traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER), Matiere.JAVA);
+    }
+    
+    public void traitementSuiviExcelToutFichiers() throws InvalidFormatException, IOException
+    {
+        // Récupération anomalies Datastage
+        List<String> anoDatastage = majFichierSuiviExcelDataStage();
+        // Récupération anomalies Java
+        List<String> anoJava = majFichierSuiviExcel();
+        // Liste des anomalies sur plusieures matières
+        List<String> anoMultiple = new ArrayList<>();
+        for (String string : anoJava)
+        {
+            if (anoDatastage.contains(string))
+                anoMultiple.add(string);               
+        }
+        
+        //Mise à jour des fichiers Excel
+        ControlAno controlAnoJava = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + proprietesXML.getMapParams().get(TypeParam.NOMFICHIER)));
+        ControlAno controlAnoDataStage = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE)));
+        controlAnoJava.majMultiMatiere(anoMultiple);
+        controlAnoDataStage.majMultiMatiere(anoMultiple);
     }
 
     /**

@@ -123,7 +123,7 @@ public class ControlChefService extends ControlExcel
         Sheet sheet = wb.getSheetAt(0);
 
         // Itération sur chaque ligne pour récupérer les données
-        for (int i = 1; i < sheet.getLastRowNum(); i++)
+        for (int i = 1; i < sheet.getLastRowNum() + 1; i++)
         {
             Row row = sheet.getRow(i);
 

@@ -62,6 +62,7 @@ public class Anomalie
     private Comment dateRelanceComment;
     private boolean traitee;
     private Set<Matiere> matieres;
+    private Comment matieresComment;
 
     /*---------- CONSTRUCTEURS ----------*/
 
@@ -113,6 +114,21 @@ public class Anomalie
                 builder.append(" - ");
         }
         return builder.toString();
+    }
+    
+    /**
+     * Remplie la liste des matières depuis une chaine de caractères. Cahque matière doit être séparées par un "-".
+     * @return
+     */
+    public void setMatieresString(String matieresString)
+    {
+        if (matieresString == null || matieresString.isEmpty())
+            return;
+        matieres.clear();
+        for (String matiere : matieresString.split("-"))
+        {
+            matieres.add(Matiere.getMatiere(matiere));
+        }
     }
     
     /*---------- METHODES PRIVEES ----------*/
@@ -555,5 +571,14 @@ public class Anomalie
     public void setMatieres(Set<Matiere> matieres)
     {
         this.matieres = matieres;
+    }
+    public Comment getMatieresComment()
+    {
+        return matieresComment;
+    }
+
+    public void setMatieresComment(Comment matieresComment)
+    {
+        this.matieresComment = matieresComment;
     }
 }

@@ -28,7 +28,7 @@ public class ControlSonarTest
     {
         // handler = new ControlSonar();
         handler = new ControlSonar("ETP8137", "28H02m89,;:!");
-        deser = true;
+        deser = false;
     }
 
     @Test
@@ -94,6 +94,13 @@ public class ControlSonarTest
     public void majFichierSuiviExcelDataStage() throws InvalidFormatException, IOException, JAXBException
     {
         handler.majFichierSuiviExcelDataStage();
+    }
+    
+    @Test
+    @TestInJfxThread
+    public void traitementSuiviExcelToutFichiers() throws InvalidFormatException, IOException
+    {
+        handler.traitementSuiviExcelToutFichiers();
     }
 
     @Test
