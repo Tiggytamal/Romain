@@ -26,18 +26,18 @@ public class ControlJob
         scheduler = StdSchedulerFactory.getDefaultScheduler();
     }
 
-    public void creationJobAnomaliesSonar() throws SchedulerException
+    public void creationJobsSonar() throws SchedulerException
     {
         // Définition du job
-        JobDetail job = newJob(JobAnomaliesSonar.class).withIdentity("jobAnomaliesSonar", "group").build();
+        JobDetail jobAnomalies = newJob(JobAnomaliesSonar.class).withIdentity("jobAnomaliesSonar", "group").build();
 
         // Création d'un trigger qui démarre le soir à 23h et se répete tous les jours sauf le week-end.
         Trigger trigger = newTrigger().withIdentity("trigger", "group").startNow().withSchedule(atHourAndMinuteOnGivenDaysOfWeek(22, 50, DateBuilder.MONDAY,
                 DateBuilder.TUESDAY, DateBuilder.WEDNESDAY, DateBuilder.THURSDAY, DateBuilder.FRIDAY)).build();
 
         // Mise en place du job.
-        scheduler.deleteJob(job.getKey());
-        scheduler.scheduleJob(job, trigger);
+        scheduler.deleteJob(jobAnomalies.getKey());
+        scheduler.scheduleJob(jobAnomalies, trigger);
         scheduler.start();
     }
 

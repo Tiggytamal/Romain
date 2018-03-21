@@ -11,10 +11,7 @@ public class Parametre
 		this.valeur = valeur;
 	}
 
-	public Parametre()
-	{
-
-	}
+	public Parametre() {}
 
 	public String getClef()
 	{

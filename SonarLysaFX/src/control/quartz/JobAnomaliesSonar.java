@@ -1,5 +1,7 @@
 package control.quartz;
 
+import static utilities.Statics.info;
+
 import java.io.IOException;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -7,7 +9,6 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 
 import control.ControlSonar;
-import utilities.Statics;
 import utilities.TechnicalException;
 
 public class JobAnomaliesSonar implements Job
@@ -18,7 +19,7 @@ public class JobAnomaliesSonar implements Job
 	{
 		try
 		{
-			ControlSonar handler = new ControlSonar(Statics.info.getPseudo(), Statics.info.getMotDePasse());
+			ControlSonar handler = new ControlSonar(info.getPseudo(), info.getMotDePasse());
 			handler.majFichierSuiviExcel();
 			handler.majFichierSuiviExcelDataStage();
 		} catch (InvalidFormatException | IOException e)

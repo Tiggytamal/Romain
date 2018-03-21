@@ -340,7 +340,8 @@ public class SonarAPI
     {
         if (vueKey == null || vueKey.isEmpty())
             throw new IllegalArgumentException("La méthode sonarapi.SonarAPI.testVueExiste a son argument nul");
-        Response response = appelWebserviceGET("api/views/show");
+
+        Response response = appelWebserviceGET("api/views/show", new Parametre("key", vueKey));
         if( response.getStatus() == Status.OK.getStatusCode())
             return true;
         if (response.getStatus() == Status.NOT_FOUND.getStatusCode())

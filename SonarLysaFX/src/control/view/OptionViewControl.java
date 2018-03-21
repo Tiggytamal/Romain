@@ -114,6 +114,14 @@ public class OptionViewControl
     private TextField securiteField;
     @FXML
     private TextField versionField;
+    @FXML
+    private TextField liensLotsField;
+    @FXML
+    private TextField liensAnoField;
+    @FXML
+    private TextField nomQGDatagstageField;
+    @FXML
+    private TextField urlSonarField;
 
     // Attributs de classe
     private FileChooser fc;
@@ -262,15 +270,18 @@ public class OptionViewControl
             mapParam.put(TypeParam.ABSOLUTEPATH, path.replace("\\", "\\\\"));
 
         saveText(suiviField, mapParam, TypeParam.NOMFICHIER);
-
         saveText(datastageField, mapParam, TypeParam.NOMFICHIERDATASTAGE);
-
         saveText(filtreField, mapParam, TypeParam.FILTREDATASTAGE);
 
         String pathHisto = pathHistoField.getText();
         if (pathHisto != null && !pathHisto.isEmpty())
             mapParam.put(TypeParam.ABSOLUTEPATHHISTO, pathHisto.replace("\\", "\\\\"));
 
+        saveText(liensLotsField, mapParam, TypeParam.LIENSLOTS);
+        saveText(liensAnoField, mapParam, TypeParam.LIENSANOS);
+        saveText(nomQGDatagstageField, mapParam, TypeParam.NOMQGDATASTAGE);
+        saveText(urlSonarField, mapParam, TypeParam.URLSONAR);
+        
         // Enregistrement paramètres
         new ControlXML().saveParam(proprietesXML);
     }
@@ -351,6 +362,10 @@ public class OptionViewControl
         datastageField.setText(mapParam.get(TypeParam.NOMFICHIERDATASTAGE));
         filtreField.setText(mapParam.get(TypeParam.FILTREDATASTAGE));
         pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
+        liensLotsField.setText(mapParam.get(TypeParam.LIENSLOTS));
+        liensAnoField.setText(mapParam.get(TypeParam.LIENSANOS));
+        nomQGDatagstageField.setText(mapParam.get(TypeParam.NOMQGDATASTAGE));
+        urlSonarField.setText(mapParam.get(TypeParam.URLSONAR));
     }
 
     /**

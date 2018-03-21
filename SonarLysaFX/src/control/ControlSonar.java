@@ -1,11 +1,11 @@
 package control;
 
 import static utilities.Statics.fichiersXML;
-import static utilities.Statics.proprietesXML;
 import static utilities.Statics.logSansApp;
-import static utilities.Statics.lognonlistee;
-import static utilities.Statics.loginconnue;
 import static utilities.Statics.logger;
+import static utilities.Statics.loginconnue;
+import static utilities.Statics.lognonlistee;
+import static utilities.Statics.proprietesXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class ControlSonar
 
     /**
      * Constructeur de base pour l'api Sonar, avec le mot de passe et le l'identifiant
-     * 
+     *
      * @param name
      * @param password
      */
@@ -63,17 +63,17 @@ public class ControlSonar
 
     /*---------- METHODES PUBLIQUES ----------*/
 
-    
+    /**
+     * Permet de créer les vues maintenance depuis un fichier Excel d'extraction de la Pic
+     * @param file
+     * @throws InvalidFormatException
+     * @throws IOException
+     */
     public void creerVueCDM(File file) throws InvalidFormatException, IOException
-    {   
+    {
         // Suprression des vues existantes possibles
-        for (int i = 1; i < 53; i++)
-        {
-            Vue vue = new Vue();            
-            vue.setKey("CHC_CDM2018-S" + String.format("%02d", i));
-            api.supprimerVue(vue);
-        }
-        
+        suppressionVueCDM();
+
         // récupération des informations du fichier Excel
         ControlPic control = new ControlPic(file);
         Map<String, List<Vue>> map = control.recupLotsCHCCDM();
@@ -82,11 +82,26 @@ public class ControlSonar
         for (Map.Entry<String, List<Vue>> entry : map.entrySet())
         {
             String key = entry.getKey();
-            Vue vue = creerVue(key, key, "Vue de l'edition " + key, false);
+            Vue vue = creerVue(key, key, "Vue de l'edition " + key, true);
             api.ajouterSousVues(entry.getValue(), vue);
         }
     }
     
+    /**
+     * Permet de créer les vues maintenance directement depuis la Pic avec les informations des versions enregistrées
+     * @throws IOException 
+     * @throws InvalidFormatException 
+     */
+    public void creerVueCDM() throws InvalidFormatException, IOException
+    {
+        // Suprression des vues existantes possibles
+//        suppressionVueCDM();
+
+        Map<String, String> mapCDM = fichiersXML.getMapCDM();
+        ControlVersion control = new ControlVersion(new File("d:\\Codification des Editions.xls"));
+        
+    }
+
     /**
      * Crée les vues par application des composants dans SonarQube
      */
@@ -116,7 +131,7 @@ public class ControlSonar
 
     /**
      * Remonte les composants par application de SonarQube et créée les logs sur les defaults.
-     * 
+     *
      * @return map des composants SonarQube par application
      */
     public Map<String, List<Projet>> controlerSonarQube()
@@ -128,6 +143,7 @@ public class ControlSonar
 
     /**
      * Permet de créer les vues mensuelles et trimestrielle des composants mis en production
+     *
      * @param file
      * @throws InvalidFormatException
      * @throws IOException
@@ -150,9 +166,9 @@ public class ControlSonar
     /**
      * Méthode de traitement pour mettre à jour les fichiers de suivi d'anomalies ainsi que la création de vue dans SonarQube. <br>
      * Retourne une liste de toutes les anomalies traitées depuis Sonar
-     * 
+     *
      * @param composants
-     * @param java 
+     * @param java
      * @param versions
      * @throws InvalidFormatException
      * @throws IOException
@@ -185,7 +201,7 @@ public class ControlSonar
             Utilities.serialisation("d:\\lotsSonar.ser", mapLotsSonar);
             Utilities.serialisation("d:\\lotsRelease.ser", lotRelease);
         }
-        
+
         // 3. Supression des lots déjà créés et création des feuille Excel avec les nouvelles erreurs
         majFichierAnomalies(lotsPIC, mapLotsSonar, lotsSecurite, lotRelease, fichier, matiere);
 
@@ -202,7 +218,7 @@ public class ControlSonar
                 api.ajouterSousVue(new Vue("view_lot_" + lot, "Lot " + lot), vueParent);
                 retour.add("Lot " + lot);
             }
-        }       
+        }
         return retour;
     }
 
@@ -213,6 +229,7 @@ public class ControlSonar
 
     /**
      * Mise à jour du fichier Excel des suivis d'anomalies pour les composants Datastage
+     *
      * @throws InvalidFormatException
      * @throws IOException
      */
@@ -221,15 +238,16 @@ public class ControlSonar
         // Appel de la récupération des composants datastage avec les vesions en paramètre
         Map<String, List<Projet>> composants = recupererComposantsSonarVersion(true);
 
-        //Mise à jour des liens des compoasnts datastage avec le bon QG
+        // Mise à jour des liens des compoasnts datastage avec le bon QG
         liensQG(composants, proprietesXML.getMapParams().get(TypeParam.NOMQGDATASTAGE));
-        
+
         // Traitement du fichier datastage de suivi
         return traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE), Matiere.DATASTAGE);
     }
 
     /**
      * Mise à jour du fichier Excel des suivis d'anomalies pour tous les composants non Datastage
+     *
      * @throws InvalidFormatException
      * @throws IOException
      */
@@ -241,7 +259,7 @@ public class ControlSonar
         // Traitement du fichier dtastage de suivi
         return traitementFichierSuivi(composants, proprietesXML.getMapParams().get(TypeParam.NOMFICHIER), Matiere.JAVA);
     }
-    
+
     public void traitementSuiviExcelToutFichiers() throws InvalidFormatException, IOException
     {
         // Récupération anomalies Datastage
@@ -253,10 +271,10 @@ public class ControlSonar
         for (String string : anoJava)
         {
             if (anoDatastage.contains(string))
-                anoMultiple.add(string);               
+                anoMultiple.add(string);
         }
-        
-        //Mise à jour des fichiers Excel
+
+        // Mise à jour des fichiers Excel
         ControlAno controlAnoJava = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + proprietesXML.getMapParams().get(TypeParam.NOMFICHIER)));
         ControlAno controlAnoDataStage = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + proprietesXML.getMapParams().get(TypeParam.NOMFICHIERDATASTAGE)));
         controlAnoJava.majMultiMatiere(anoMultiple);
@@ -290,6 +308,7 @@ public class ControlSonar
 
     /**
      * Récupère tous les lots créés dans Sonar.
+     *
      * @return
      */
     private Map<String, Vue> recupererLotsSonarQube()
@@ -308,6 +327,7 @@ public class ControlSonar
 
     /**
      * Permet de récupérer la dernière version de chaque composants créés dans Sonar
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -350,6 +370,7 @@ public class ControlSonar
 
     /**
      * Permet de récupérer les composants de Sonar triés par version avec sépration des composants datastage
+     *
      * @return
      */
     private Map<String, List<Projet>> recupererComposantsSonarVersion(boolean datastage)
@@ -378,7 +399,7 @@ public class ControlSonar
                 {
                     // Selon que l'on regarde les composants datastage ou non, on remplie la liste en conséquence en utilisant le filtre en paramètre
                     String filtre = proprietesXML.getMapParams().get(TypeParam.FILTREDATASTAGE);
-                    if ((datastage && projet.getNom().startsWith(filtre)) || (!datastage && !projet.getNom().startsWith(filtre)))
+                    if (datastage && projet.getNom().startsWith(filtre) || !datastage && !projet.getNom().startsWith(filtre))
                         retour.get(version).add(projet);
                 }
             }
@@ -389,6 +410,7 @@ public class ControlSonar
     /**
      * Récupère tous les composants Sonar des versions choisies avec une qualityGate en erreur.<br>
      * la clef de la map correspond à la version, et la valeur, à la liste des lots en erreur de cette version.
+     *
      * @param versions
      * @return
      */
@@ -411,9 +433,10 @@ public class ControlSonar
         }
         return retour;
     }
-    
+
     /**
      * Taritement Sonar d'un projet
+     *
      * @param projet
      * @param retour
      * @param entryKey
@@ -437,19 +460,20 @@ public class ControlSonar
         {
             // Ajout du lot à la liste de retour
             retour.get(entryKey).add(lot);
-            
+
             // Contrôle pour vérifier si le composant à une erreur de sécurité, ce qui ajout le lot à la listeSecurite
             if (api.getSecuriteComposant(key) > 0)
                 lotSecurite.add(lot);
-            
+
             // Contrôle du composant pour voir s'il a une version release ou SNAPSHOT
             if (release(key))
                 lotRelease.add(lot);
         }
     }
-    
+
     /**
      * Test si un composant a une version release ou snapshot.
+     *
      * @param key
      * @return
      */
@@ -458,10 +482,10 @@ public class ControlSonar
         String version = api.getVersionComposant(key);
         return !version.contains("SNAPSHOT");
     }
-    
 
     /**
      * Crée une map de toutes les apllications dans Sonar avec pour chacunes la liste des composants liés.
+     *
      * @param mapProjets
      * @return
      */
@@ -509,7 +533,7 @@ public class ControlSonar
 
     /**
      * Vérifie qu'une application d'un composant Sonar est présente dans la liste des applications de la PIC.
-     * 
+     *
      * @param application
      *            Application enregistrée pour le composant dans Sonar.
      * @param nom
@@ -540,7 +564,7 @@ public class ControlSonar
 
     /**
      * Crée la vue Sonar pour une recherche trimetrielle des composants mis en production .
-     * 
+     *
      * @param mapLot
      */
     private void creerVueTrimestrielle(Map<LocalDate, List<Vue>> mapLot)
@@ -599,7 +623,7 @@ public class ControlSonar
 
     /**
      * Crée la vue Sonar pour une recherche mensuelle des composants mis en production .
-     * 
+     *
      * @param mapLot
      */
     private void creerVueMensuelle(final Map<LocalDate, List<Vue>> mapLot)
@@ -618,7 +642,7 @@ public class ControlSonar
 
     /**
      * Crée une vue dans Sonar avec suppression ou non de la vue précédente.
-     * 
+     *
      * @param key
      * @param name
      * @param description
@@ -655,9 +679,10 @@ public class ControlSonar
 
         return vue;
     }
-    
+
     /**
      * Permet de lier tous les composants sonar à une QG particulière
+     *
      * @param composants
      * @param nomQG
      */
@@ -665,7 +690,7 @@ public class ControlSonar
     {
         // Récupération de l'Id de la QualityGate
         QualityGate qg = api.getQualityGate(nomQG);
-        
+
         // Iteration sur tous les composants pour les associer au QualityGate
         for (Map.Entry<String, List<Projet>> entry : composants.entrySet())
         {
@@ -674,23 +699,24 @@ public class ControlSonar
                 api.associerQualitygate(projet, qg);
             }
         }
-        
+
     }
 
     /**
      * Permet de mettre à jour le fichier des anomalies Sonar, en allant chercher les nouvelles dans Sonar et en vérifiant celles qui ne sont plus d'actualité.
-     * 
+     *
      * @param mapLotsPIC
      *            Fichier excel d'extraction de la PIC de tous les lots.
      * @param mapLotsSonar
      *            map des lots Sonar avec une quality Gate en erreur
      * @param lotsSecurite
      * @param lotRelease
-     * @param matiere 
+     * @param matiere
      * @throws InvalidFormatException
      * @throws IOException
      */
-    private void majFichierAnomalies(Map<String, LotSuiviPic> mapLotsPIC, Map<String, Set<String>> mapLotsSonar, Set<String> lotsSecurite, Set<String> lotRelease, String fichier, Matiere matiere) throws InvalidFormatException, IOException
+    private void majFichierAnomalies(Map<String, LotSuiviPic> mapLotsPIC, Map<String, Set<String>> mapLotsSonar, Set<String> lotsSecurite, Set<String> lotRelease, String fichier, Matiere matiere)
+            throws InvalidFormatException, IOException
     {
         // Controleur
         ControlAno controlAno = new ControlAno(new File(proprietesXML.getMapParams().get(TypeParam.ABSOLUTEPATH) + fichier));
@@ -703,7 +729,7 @@ public class ControlSonar
 
         // Liste des anomalies à ajouter après traitement
         List<Anomalie> anoAajouter = new ArrayList<>();
-        
+
         // Mise dans un Set de tous les lots en erreur venus de Sonar indépendement de la version des composants.
         Set<String> lotsEnErreur = new TreeSet<>();
         for (Set<String> value : mapLotsSonar.values())
@@ -716,13 +742,11 @@ public class ControlSonar
         {
             List<Anomalie> anoACreer = new ArrayList<>();
             List<Anomalie> anoDejacrees = new ArrayList<>();
-            Iterator<String> iter = entry.getValue().iterator();
 
             // Iteration sur toutes les anomalies venant de Sonar pour chaque version
-            while (iter.hasNext())
+            for (String numeroLot : entry.getValue())
             {
-                String numeroLot = iter.next();
-                
+
                 // On va chercher les informations de ce lot dans le fichier des lots de la PIC. Si on ne les trouve pas, il faudra mettre à jour ce fichier
                 LotSuiviPic lot = mapLotsPIC.get(numeroLot);
                 if (lot == null)
@@ -731,17 +755,13 @@ public class ControlSonar
                     continue;
                 }
                 Anomalie ano = new Anomalie(lot);
-                
+
                 // On ajoute le lot soit, dans la liste des anos déjà créées soit, dans celle des anos à créer.
                 if (lotsDejaDansFichier.contains(numeroLot))
-                {
+
                     anoDejacrees.add(ano);
-                    iter.remove();
-                }
                 else
-                {
                     anoACreer.add(ano);
-                }
             }
 
             // Mise à jour de la feuille des anomalies pour chaque version de composants
@@ -750,46 +770,57 @@ public class ControlSonar
 
         // Sauvegarde fichier et maj feuille principale
         Sheet sheet = controlAno.sauvegardeFichier(fichier);
-        
+
         // Mis à jour de la feuille principale
         controlAno.majFeuillePrincipale(listeLotenAno, anoAajouter, lotsEnErreur, lotsSecurite, lotRelease, sheet, matiere);
 
         // Fermeture controleur
         controlAno.close();
     }
-    
+
     /**
      * Permet de créer la liste des numéros de lots déjà en anomalie et met à jour les {@code Anomalie} depuis les infos de la Pic
-     * 
+     *
      * @param listeLotenAno
-     *              liste des {@code Anomalie} déjà connues
+     *            liste des {@code Anomalie} déjà connues
      * @param mapLotsPIC
-     *              map des lots connus de la Pic.
+     *            map des lots connus de la Pic.
      * @return
      */
     private List<String> creationNumerosLots(List<Anomalie> listeLotenAno, Map<String, LotSuiviPic> mapLotsPIC)
     {
         List<String> retour = new ArrayList<>();
-        
+
         // Iteration sur la liste des anomalies
         for (Anomalie ano : listeLotenAno)
         {
             String string = ano.getLot();
-            
+
             if (string.startsWith("Lot "))
                 string = string.substring(4);
-            
-            //Mise à jour des données depuis la PIC
+
+            // Mise à jour des données depuis la PIC
             LotSuiviPic lotPic = mapLotsPIC.get(string);
 
             if (lotPic != null)
                 ano.majDepuisPic(lotPic);
             else
                 logger.warn("Un lot du fichier Excel n'est pas connu dans la Pic : " + string);
-            
+
             retour.add(string);
-        }        
+        }
         return retour;
+    }
+    
+    private void suppressionVueCDM()
+    {
+        // Suprression des vues existantes possibles
+        for (int i = 1; i < 53; i++)
+        {
+            Vue vue = new Vue();
+            vue.setKey("CHC_CDM2018-S" + String.format("%02d", i));
+            api.supprimerVue(vue);
+        }
     }
 
     /*---------- ACCESSEURS ----------*/

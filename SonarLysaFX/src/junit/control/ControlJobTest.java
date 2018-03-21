@@ -29,7 +29,7 @@ public class ControlJobTest
     @Test
     public void creationJobAnomaliesSonar() throws SchedulerException, InterruptedException
     {
-        handler.creationJobAnomaliesSonar();
+        handler.creationJobsSonar();
     }
 
     @Test

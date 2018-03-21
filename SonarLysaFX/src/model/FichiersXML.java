@@ -29,6 +29,7 @@ public class FichiersXML implements XML
 	private Map<String, Boolean> mapApplis;
 	private Map<String, RespService> mapRespService;
 	private Map<TypeFichier, String> dateMaj;
+	private Map<String, String> mapCDM;
 	
 	public static final String NOMFICHIER = "\\fichiers.xml";
 
@@ -42,6 +43,7 @@ public class FichiersXML implements XML
 	    mapApplis = new HashMap<>();
 	    mapRespService = new HashMap<>();
 	    dateMaj = new EnumMap<>(TypeFichier.class);
+	    mapCDM = new HashMap<>();
 	}
     
     /*---------- METHODES PUBLIQUES ----------*/
@@ -143,6 +145,13 @@ public class FichiersXML implements XML
     public Map<String, RespService> getMapRespService()
     {
         return mapRespService;
+    }
+    
+    @XmlElementWrapper
+    @XmlElement(name = "mapCDM", required = false)
+    public Map<String, String> getMapCDM()
+    {
+        return mapCDM;
     }
 	
 	/**
