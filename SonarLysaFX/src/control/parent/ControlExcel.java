@@ -203,6 +203,14 @@ public abstract class ControlExcel
             return (int) cell.getNumericCellValue();
         return 0;
     }
+    
+    protected String getCellFormulaValue(Row row, int cellIndex)
+    {
+        Cell cell = row.getCell(cellIndex, MissingCellPolicy.CREATE_NULL_AS_BLANK);
+        if (cell.getCellTypeEnum() == CellType.FORMULA)
+            return createHelper.createFormulaEvaluator().evaluate(cell).getStringValue();
+        return "";
+    }
 
     /**
      * Retourne le commentaire d'une cellule

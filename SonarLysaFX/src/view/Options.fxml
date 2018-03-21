@@ -43,13 +43,17 @@
 				<!-- Boutons de chargement des fichiers Excel de paramétrage -->
 				<VBox fx:id="chargementPane" alignment="center">
 					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
-					<Button text="Charger Lots Pic" fx:id="lotsPic" onAction="#chargerLotsPic" alignment="CENTER" />
+					<HBox alignment="CENTER">
+						<Button text="Charger Lots Pic" fx:id="lotsPic" onAction="#chargerLotsPic" alignment="CENTER" />
+					</HBox>
 					<Region prefHeight="20" />
 					<Button text="Charger Applications" fx:id="applis" onAction="#chargerApplis" alignment="CENTER" />
 					<Region prefHeight="20" />
 					<Button text="Charger Referentiel Clarity" fx:id="clarity" onAction="#chargerClarity" alignment="CENTER" />
 					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
 					<Button text="Charger Chef de Service" fx:id="chefService" onAction="#chargerChefService" alignment="CENTER" />
+					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
+					<Button text="Charger Version CDM" fx:id="chefService" onAction="#chargerChefService" alignment="CENTER" />
 					<Region prefHeight="20" VBox.vgrow="ALWAYS" />
 				</VBox>
 

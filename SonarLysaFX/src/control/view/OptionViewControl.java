@@ -152,7 +152,6 @@ public class OptionViewControl
     /*---------- METHODES PUBLIQUES ----------*/
 
     /**
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      * @throws JAXBException
@@ -166,7 +165,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      * @throws JAXBException
@@ -180,7 +178,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      * @throws JAXBException
@@ -194,7 +191,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @throws InvalidFormatException
      * @throws IOException
      * @throws JAXBException
@@ -248,7 +244,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @throws JAXBException
      */
     public void sauvegarder() throws JAXBException
@@ -281,13 +276,12 @@ public class OptionViewControl
         saveText(liensAnoField, mapParam, TypeParam.LIENSANOS);
         saveText(nomQGDatagstageField, mapParam, TypeParam.NOMQGDATASTAGE);
         saveText(urlSonarField, mapParam, TypeParam.URLSONAR);
-        
+
         // Enregistrement paramètres
         new ControlXML().saveParam(proprietesXML);
     }
 
     /**
-     * 
      * @throws JAXBException
      */
     public void saveCols() throws JAXBException
@@ -320,7 +314,7 @@ public class OptionViewControl
      * Initialise la fenêtre de l'explorateur de fichier, et retourne le fichier selectionné.
      * 
      * @param titre
-     *             Titre de la fenêtre de l'explorateur
+     *            Titre de la fenêtre de l'explorateur
      * @return
      */
     private File getFileFromFileChooser(String titre)
@@ -336,7 +330,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @param mapParam
      */
     private void initParametres(Map<TypeParam, String> mapParam)
@@ -344,7 +337,7 @@ public class OptionViewControl
         // Initialition liste des versions affichée
         String versionsParam = mapParam.get(TypeParam.VERSIONS);
 
-        if (!versionsParam.isEmpty())
+        if (versionsParam != null && !versionsParam.isEmpty())
         {
             versionsField.getItems().addAll(versionsParam.split("-"));
             versionsField.getItems().sort((o1, o2) -> o1.compareTo(o2));
@@ -357,11 +350,13 @@ public class OptionViewControl
                 .addListener((ListChangeListener.Change<? extends String> c) -> versionsField.setPrefHeight((double) versionsField.getItems().size() * ROW_HEIGHT + 2));
 
         // Intialisation des TextField depuis le fichier de paramètre
-        pathField.setText(mapParam.get(TypeParam.ABSOLUTEPATH).replace("\\\\", "\\"));
+        if (mapParam.get(TypeParam.ABSOLUTEPATH) != null)
+            pathField.setText(mapParam.get(TypeParam.ABSOLUTEPATH).replace("\\\\", "\\"));
         suiviField.setText(mapParam.get(TypeParam.NOMFICHIER));
         datastageField.setText(mapParam.get(TypeParam.NOMFICHIERDATASTAGE));
         filtreField.setText(mapParam.get(TypeParam.FILTREDATASTAGE));
-        pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
+        if (mapParam.get(TypeParam.ABSOLUTEPATHHISTO) != null)
+            pathHistoField.setText(mapParam.get(TypeParam.ABSOLUTEPATHHISTO).replace("\\\\", "\\"));
         liensLotsField.setText(mapParam.get(TypeParam.LIENSLOTS));
         liensAnoField.setText(mapParam.get(TypeParam.LIENSANOS));
         nomQGDatagstageField.setText(mapParam.get(TypeParam.NOMQGDATASTAGE));
@@ -369,7 +364,6 @@ public class OptionViewControl
     }
 
     /**
-     * 
      * @param mapColonnes
      */
     private void initColonnes(Map<TypeCol, String> mapColonnes)

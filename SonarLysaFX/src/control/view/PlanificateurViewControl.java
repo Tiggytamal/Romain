@@ -5,6 +5,7 @@ import org.quartz.SchedulerException;
 import control.quartz.ControlJob;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 import view.TrayIconView;
 
@@ -18,6 +19,16 @@ public class PlanificateurViewControl
     private Button arreter;
     @FXML
     private GridPane backgroundPane;
+    @FXML
+    private CheckBox lundiBox;
+    @FXML
+    private CheckBox mardiBox;
+    @FXML
+    private CheckBox mercrediBox;
+    @FXML
+    private CheckBox jeudiBox;
+    @FXML
+    private CheckBox vendrediBox;
     
     private ControlJob control;
 

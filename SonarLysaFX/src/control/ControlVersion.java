@@ -21,12 +21,12 @@ public class ControlVersion extends ControlExcel
 
     private static final String LIBELLE = "Libellé";
     private static final String VERSION = "Numero de version";
-    private static int NBRECOLONNE = 2;
+    private static final int NBRECOLONNE = 2;
     private static final String CHC2018 = "CHC2018";
 
     /*---------- CONSTRUCTEURS ----------*/
 
-    protected ControlVersion(File file) throws InvalidFormatException, IOException
+    public ControlVersion(File file) throws InvalidFormatException, IOException
     {
         super(file);
     }
@@ -81,7 +81,7 @@ public class ControlVersion extends ControlExcel
         {
             Row row = sheet.getRow(i);
             if (getCellStringValue(row, colLib).contains(CHC2018))
-                retour.put(String.valueOf(getCellNumericValue(row, colVersion)), getCellStringValue(row, colLib));
+                retour.put(getCellFormulaValue(row, colVersion), getCellStringValue(row, colLib).split("/")[0].trim());
         }
         return retour;
     }

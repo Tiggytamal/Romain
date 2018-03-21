@@ -1,6 +1,7 @@
 package utilities;
 
-import java.util.HashMap;
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -19,8 +20,9 @@ import utilities.enums.StyleEnum;
 public class CellHelper
 {
     /* ---------- ATTIBUTES ---------- */
-    Workbook wb;
-    HashMap<StyleEnum, CellStyle> map;
+    private Workbook wb;
+    private Map<StyleEnum, CellStyle> map;
+    private static final String ERREURENUM = "StyleEnum inconnu et non prévu : ";
 
     /* ---------- CONSTUCTORS ---------- */
 
@@ -31,14 +33,14 @@ public class CellHelper
     }
 
     /* ---------- METHODS ---------- */
-    
+
     /**
      * Retourne le style de cellule voulu selon le statut de l'incident et son placement dans le tableau
      * 
      * @param statut
-     *          {@link model.enums.Statut}
+     *            {@link model.enums.Statut}
      * @param side
-     *          {@link utilities.enums.Side}
+     *            {@link utilities.enums.Side}
      * @return
      */
     public CellStyle getStyle(Statut statut, Side side)
@@ -64,8 +66,8 @@ public class CellHelper
         }
         return null;
     }
-    
-    public Cell setFontColor (Cell cell, IndexedColors color)
+
+    public Cell setFontColor(Cell cell, IndexedColors color)
     {
         CellStyle style = wb.createCellStyle();
         style.cloneStyleFrom(cell.getCellStyle());
@@ -77,8 +79,8 @@ public class CellHelper
         cell.setCellStyle(style);
         return cell;
     }
-    
-    public Cell recentrage (Cell cell)
+
+    public Cell recentrage(Cell cell)
     {
         CellStyle style = cell.getCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -86,7 +88,7 @@ public class CellHelper
         style.setWrapText(true);
         return cell;
     }
-    
+
     /* ---------- PRIVATE METHODS ---------- */
 
     private CellStyle createStyle(Statut statut, Side bord)
@@ -142,34 +144,34 @@ public class CellHelper
             case BAS :
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
+
             case DROITE :
                 style.setBorderRight(BorderStyle.THICK);
                 break;
-                
+
             case GAUCHE :
                 style.setBorderLeft(BorderStyle.THICK);
                 break;
-                
+
             case HAUT :
                 style.setBorderTop(BorderStyle.THICK);
                 break;
-                
+
             case BASDROITE :
                 style.setBorderRight(BorderStyle.THICK);
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
+
             case BASGAUCHE :
                 style.setBorderLeft(BorderStyle.THICK);
                 style.setBorderBottom(BorderStyle.THICK);
                 break;
-                
+
             case HAUTDROITE :
                 style.setBorderTop(BorderStyle.THICK);
                 style.setBorderRight(BorderStyle.THICK);
                 break;
-                
+
             case HAUTGAUCHE :
                 style.setBorderTop(BorderStyle.THICK);
                 style.setBorderLeft(BorderStyle.THICK);
@@ -184,51 +186,51 @@ public class CellHelper
      */
     private void createAllStyle()
     {
-        map = new HashMap<>();
+        map = new EnumMap<>(StyleEnum.class);
         // Style blancs
         map.put(StyleEnum.BLANC, createStyle(Statut.NOUVEAU, null));
         map.put(StyleEnum.BLANCDROITE, createStyle(Statut.NOUVEAU, Side.DROITE));
         map.put(StyleEnum.BLANCGAUCHE, createStyle(Statut.NOUVEAU, Side.GAUCHE));
-        map.put(StyleEnum.BLANCHAUT, createStyle(Statut.NOUVEAU, Side.HAUT ));
-        map.put(StyleEnum.BLANCHAUTDROITE, createStyle(Statut.NOUVEAU, Side.HAUTDROITE ));
-        map.put(StyleEnum.BLANCHAUTGAUCHE, createStyle(Statut.NOUVEAU, Side.HAUTGAUCHE ));
-        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS ));
-        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS ));
-        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS ));
+        map.put(StyleEnum.BLANCHAUT, createStyle(Statut.NOUVEAU, Side.HAUT));
+        map.put(StyleEnum.BLANCHAUTDROITE, createStyle(Statut.NOUVEAU, Side.HAUTDROITE));
+        map.put(StyleEnum.BLANCHAUTGAUCHE, createStyle(Statut.NOUVEAU, Side.HAUTGAUCHE));
+        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS));
+        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS));
+        map.put(StyleEnum.BLANCBAS, createStyle(Statut.NOUVEAU, Side.BAS));
         // Styles jaunes
         map.put(StyleEnum.JAUNE, createStyle(Statut.PENDING, null));
         map.put(StyleEnum.JAUNEDROITE, createStyle(Statut.PENDING, Side.DROITE));
         map.put(StyleEnum.JAUNEGAUCHE, createStyle(Statut.PENDING, Side.GAUCHE));
-        map.put(StyleEnum.JAUNEHAUT, createStyle(Statut.PENDING, Side.HAUT ));
-        map.put(StyleEnum.JAUNEHAUTDROITE, createStyle(Statut.PENDING, Side.HAUTDROITE ));
-        map.put(StyleEnum.JAUNEHAUTGAUCHE, createStyle(Statut.PENDING, Side.HAUTGAUCHE ));
-        map.put(StyleEnum.JAUNEBAS, createStyle(Statut.PENDING, Side.BAS ));
-        map.put(StyleEnum.JAUNEBASDROITE, createStyle(Statut.PENDING, Side.BASDROITE ));
-        map.put(StyleEnum.JAUNEBASGAUCHE, createStyle(Statut.PENDING, Side.BASGAUCHE ));
+        map.put(StyleEnum.JAUNEHAUT, createStyle(Statut.PENDING, Side.HAUT));
+        map.put(StyleEnum.JAUNEHAUTDROITE, createStyle(Statut.PENDING, Side.HAUTDROITE));
+        map.put(StyleEnum.JAUNEHAUTGAUCHE, createStyle(Statut.PENDING, Side.HAUTGAUCHE));
+        map.put(StyleEnum.JAUNEBAS, createStyle(Statut.PENDING, Side.BAS));
+        map.put(StyleEnum.JAUNEBASDROITE, createStyle(Statut.PENDING, Side.BASDROITE));
+        map.put(StyleEnum.JAUNEBASGAUCHE, createStyle(Statut.PENDING, Side.BASGAUCHE));
         // Styles gris
         map.put(StyleEnum.GRIS, createStyle(Statut.RESOLVED, null));
         map.put(StyleEnum.GRISDROITE, createStyle(Statut.RESOLVED, Side.DROITE));
         map.put(StyleEnum.GRISGAUCHE, createStyle(Statut.RESOLVED, Side.GAUCHE));
-        map.put(StyleEnum.GRISHAUT, createStyle(Statut.RESOLVED, Side.HAUT ));
-        map.put(StyleEnum.GRISHAUTDROITE, createStyle(Statut.RESOLVED, Side.HAUTDROITE ));
-        map.put(StyleEnum.GRISHAUTGAUCHE, createStyle(Statut.RESOLVED, Side.HAUTGAUCHE ));
-        map.put(StyleEnum.GRISBAS, createStyle(Statut.RESOLVED, Side.BAS ));
-        map.put(StyleEnum.GRISBASDROITE, createStyle(Statut.RESOLVED, Side.BASDROITE ));
-        map.put(StyleEnum.GRISBASGAUCHE, createStyle(Statut.RESOLVED, Side.BASGAUCHE ));
+        map.put(StyleEnum.GRISHAUT, createStyle(Statut.RESOLVED, Side.HAUT));
+        map.put(StyleEnum.GRISHAUTDROITE, createStyle(Statut.RESOLVED, Side.HAUTDROITE));
+        map.put(StyleEnum.GRISHAUTGAUCHE, createStyle(Statut.RESOLVED, Side.HAUTGAUCHE));
+        map.put(StyleEnum.GRISBAS, createStyle(Statut.RESOLVED, Side.BAS));
+        map.put(StyleEnum.GRISBASDROITE, createStyle(Statut.RESOLVED, Side.BASDROITE));
+        map.put(StyleEnum.GRISBASGAUCHE, createStyle(Statut.RESOLVED, Side.BASGAUCHE));
         // Styles verts
         map.put(StyleEnum.VERT, createStyle(Statut.WRKINPRG, null));
         map.put(StyleEnum.VERTDROITE, createStyle(Statut.WRKINPRG, Side.DROITE));
         map.put(StyleEnum.VERTGAUCHE, createStyle(Statut.WRKINPRG, Side.GAUCHE));
-        map.put(StyleEnum.VERTHAUT, createStyle(Statut.WRKINPRG, Side.HAUT ));
-        map.put(StyleEnum.VERTHAUTDROITE, createStyle(Statut.WRKINPRG, Side.HAUTDROITE ));
-        map.put(StyleEnum.VERTHAUTGAUCHE, createStyle(Statut.WRKINPRG, Side.HAUTGAUCHE ));
-        map.put(StyleEnum.VERTBAS, createStyle(Statut.WRKINPRG, Side.BAS ));
-        map.put(StyleEnum.VERTBASDROITE, createStyle(Statut.WRKINPRG, Side.BASDROITE ));
-        map.put(StyleEnum.VERTBASGAUCHE, createStyle(Statut.WRKINPRG, Side.BASGAUCHE ));
+        map.put(StyleEnum.VERTHAUT, createStyle(Statut.WRKINPRG, Side.HAUT));
+        map.put(StyleEnum.VERTHAUTDROITE, createStyle(Statut.WRKINPRG, Side.HAUTDROITE));
+        map.put(StyleEnum.VERTHAUTGAUCHE, createStyle(Statut.WRKINPRG, Side.HAUTGAUCHE));
+        map.put(StyleEnum.VERTBAS, createStyle(Statut.WRKINPRG, Side.BAS));
+        map.put(StyleEnum.VERTBASDROITE, createStyle(Statut.WRKINPRG, Side.BASDROITE));
+        map.put(StyleEnum.VERTBASGAUCHE, createStyle(Statut.WRKINPRG, Side.BASGAUCHE));
         // Style vide
         map.put(StyleEnum.VIDE, createStyle(null, null));
     }
-    
+
     /**
      * Méthode privée retournant un style de fond gris
      * 
@@ -238,7 +240,7 @@ public class CellHelper
     private CellStyle getStyleGris(Side side)
     {
         if (side == null)
-            return map.get(StyleEnum.GRIS);       
+            return map.get(StyleEnum.GRIS);
         switch (side)
         {
             case BAS :
@@ -258,12 +260,10 @@ public class CellHelper
             case HAUTGAUCHE :
                 return map.get(StyleEnum.GRISHAUTGAUCHE);
             default :
-                throw new IllegalArgumentException("StyleEnum inconnu et non prévu : " + side);
-           
+                throw new IllegalArgumentException(ERREURENUM + side);
         }
-
     }
-    
+
     /**
      * Méthode privée retournant un style de fond blanc
      * 
@@ -273,7 +273,7 @@ public class CellHelper
     private CellStyle getStyleBlanc(Side side)
     {
         if (side == null)
-            return map.get(StyleEnum.BLANC);       
+            return map.get(StyleEnum.BLANC);
         switch (side)
         {
             case BAS :
@@ -293,12 +293,10 @@ public class CellHelper
             case HAUTGAUCHE :
                 return map.get(StyleEnum.BLANCHAUTGAUCHE);
             default :
-                throw new IllegalArgumentException("StyleEnum inconnu et non prévu : " + side);
-           
+                throw new IllegalArgumentException(ERREURENUM + side);
         }
-
     }
-    
+
     /**
      * Méthode privée retournant un style de fond jaune
      * 
@@ -308,7 +306,7 @@ public class CellHelper
     private CellStyle getStyleJaune(Side side)
     {
         if (side == null)
-            return map.get(StyleEnum.JAUNE);       
+            return map.get(StyleEnum.JAUNE);
         switch (side)
         {
             case BAS :
@@ -328,12 +326,10 @@ public class CellHelper
             case HAUTGAUCHE :
                 return map.get(StyleEnum.JAUNEHAUTGAUCHE);
             default :
-                throw new IllegalArgumentException("StyleEnum inconnu et non prévu : " + side);
-           
+                throw new IllegalArgumentException(ERREURENUM + side);
         }
-
     }
-    
+
     /**
      * Méthode privée retournant un fond de style vert
      * 
@@ -343,7 +339,7 @@ public class CellHelper
     private CellStyle getStyleVert(Side side)
     {
         if (side == null)
-            return map.get(StyleEnum.VERT);       
+            return map.get(StyleEnum.VERT);
         switch (side)
         {
             case BAS :
@@ -363,12 +359,9 @@ public class CellHelper
             case HAUTGAUCHE :
                 return map.get(StyleEnum.VERTHAUTGAUCHE);
             default :
-                throw new IllegalArgumentException("StyleEnum inconnu et non prévu : " + side);
-           
+                throw new IllegalArgumentException(ERREURENUM + side);
         }
-
     }
-
 
     /* ---------- ACCESS ---------- */
 

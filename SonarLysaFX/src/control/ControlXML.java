@@ -163,6 +163,16 @@ public class ControlXML
         fichiersXML.setDateFichier(TypeFichier.RESPSERVICE);
         saveParam(fichiersXML);
     }
+    
+    public void recupVersionDepuisExcel(File file) throws InvalidFormatException, IOException, JAXBException
+    {
+        ControlVersion control = new ControlVersion(file);
+        Map<String, String> versionCDM = control.recupVersionDepuisExcel();
+        control.close();
+        fichiersXML.getMapCDM().putAll(versionCDM);
+        fichiersXML.setDateFichier(TypeFichier.VERSION);
+        saveParam(fichiersXML);
+    }
 
     /*---------- METHODES PRIVEES ----------*/
 

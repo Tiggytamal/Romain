@@ -21,6 +21,7 @@ import java.util.Date;
  */
 public class DateConvert
 {
+    private DateConvert() {}
     /**
      * Appel de {@link #convert(Class, Object, ZoneId)} avec la time-zone par default du système, 
      * et l'Offset de Greenwich.
@@ -251,5 +252,4 @@ public class DateConvert
 
         return instant(date).atZone(zone);
     }
-
 }
