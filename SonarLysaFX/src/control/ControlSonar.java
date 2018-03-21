@@ -95,7 +95,7 @@ public class ControlSonar
     public void creerVueCDM() throws InvalidFormatException, IOException
     {
         // Suprression des vues existantes possibles
-//        suppressionVueCDM();
+        suppressionVueCDM();
 
         Map<String, String> mapCDM = fichiersXML.getMapCDM();
         ControlVersion control = new ControlVersion(new File("d:\\Codification des Editions.xls"));
